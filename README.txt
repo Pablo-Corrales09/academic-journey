@@ -5,7 +5,8 @@ Academic Projects / Proyectos Académicos
 English Version
 
 Description
-This repository, academic-projects, contains my university coursework, assignments, and projects across various subjects. It includes projects developed in multiple programming languages and technologies such as **Java, C#, C++, ASP.NET, HTML, CSS, Bootstrap, SQL Server, MySQL, and more**.
+This repository, academic-journey, contains my university coursework, assignments, and projects across various subjects. 
+It includes projects developed in multiple programming languages and technologies such as **Java, C#, C++, ASP.NET, HTML, CSS, Bootstrap, SQL Server, MySQL, and more**.
 
 The repository serves as a personal archive of academic work, helping track learning progress and providing a reference for future projects.
 
@@ -49,7 +50,8 @@ Email: devpablo.corrales@gmail.com
 Versión en Español
 
 Descripción
-Este repositorio, academic-projects, contiene las tareas, trabajos y proyectos de la universidad en diversas asignaturas. Incluye proyectos desarrollados en varios lenguajes y tecnologías como **Java, C#, C++, ASP.NET, HTML, CSS, Bootstrap, SQL Server, MySQL y más**.
+Este repositorio, academic-journey, contiene las tareas, trabajos y proyectos de la universidad en diversas asignaturas. 
+Incluye proyectos desarrollados en varios lenguajes y tecnologías como **Java, C#, C++, ASP.NET, HTML, CSS, Bootstrap, SQL Server, MySQL y más**.
 
 El repositorio sirve como un archivo personal del trabajo académico, ayudando a seguir el progreso de aprendizaje y proporcionando una referencia para futuros proyectos.
 
