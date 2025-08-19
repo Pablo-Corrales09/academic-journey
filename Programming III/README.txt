@@ -1,4 +1,4 @@
-Academic Projects – Programming III / Proyectos Académicos – Programación III
+Academic Journey – Programming III / Proyectos Académicos – Programación III
 
 ---
 
