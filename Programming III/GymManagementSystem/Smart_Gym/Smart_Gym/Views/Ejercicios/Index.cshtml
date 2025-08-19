@@ -1,0 +1,95 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<Smart_Gym.Models.Ejercicio>
+@inject SignInManager<Usuario> SignInManager
+
+@{
+
+    ViewData["Title"] = "Index";
+}
+<div>
+    <img src="https://t3.ftcdn.net/jpg/06/58/67/48/240_F_658674860_7vebpSTDe5IEtZGWzxnK0yJEtn6B1Loh.jpg"
+         alt="Smart Gym Banner"
+         class="img-fluid w-100"
+         style="max-height: 400px; border-radius: 14px;" />
+</div>
+
+<h1 class="mt-4" style="font-size:25px;">Ejercicios</h1>
+
+<div class="d-flex justify-content-between align-items-center my-5">
+    <h2 class="my-2" style="font-size: 20px"> Información</h2>
+    <div>
+     @if (SignInManager.IsSignedIn(User)) //Valida si el usuario está logueado para mostrar los botones de editar y eliminar.
+    {  
+    <a asp-action="Create" class="btn btn-primary" style="border-Radius:14px">
+    <i class="bi bi-plus-circle me-2"></i>Agregar ejercicio</a>
+    }
+
+    <a class="btn btn-secondary me-4" style="border-radius: 14px" asp-controller="Home" asp-action="Index">
+    <i class="bi bi-arrow-left-circle me-2"></i>Volver</a>
+    </div>
+    
+
+</div>
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th>
+                Nombre del ejercicio
+            </th>
+            <th>
+                Descripción
+            </th>
+            <th>
+                Grupo muscular
+            </th>
+            <th>
+                Imagen
+            </th>
+            <th>
+                Equipo necesario
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr >
+            <td style="width: 250px; word-wrap: break-word;">
+                @Html.DisplayFor(modelItem => item.NombreEjercicio)
+            </td>
+            <td  style="width: 350px; word-wrap: break-word;">
+                
+                    @Html.DisplayFor(modelItem => item.DescripcionEjercicio)
+                
+            </td>
+            
+            <td style="width: 200px; word-wrap: break-word;">
+                @Html.DisplayFor(modelItem => item.GrupoMuscular)
+            </td>
+            <td>
+            <img src="@Html.DisplayFor(modelItem => item.ImagenEjercicio)" style="max-width: 100px; max-height: 100px;" />
+                
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Maquina.NombreMaquina)
+            </td>
+                <td class="pe-3">
+                @if (SignInManager.IsSignedIn(User)) //Valida si el usuario está logueado para mostrar los botones de editar y eliminar.
+                {
+                        <a class="btn btn-secondary" style="border-radius:14px;" 
+                    asp-action="Edit" asp-route-id="@item.IdEjercicio">
+                    <i class="bi bi-pencil-square"></i></a>
+
+                    <a class="btn btn-danger mx-2" style="border-radius:14px;" 
+                    asp-action="Delete" asp-route-id="@item.IdEjercicio">
+                    <i class="bi bi-trash"></i></a>
+                }
+
+                    <a asp-action="Details" asp-route-id="@item.IdEjercicio"
+                       class="btn btn-info" style="border-radius:14px;">
+                    <i class="bi bi-info-circle text-white"></i></a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

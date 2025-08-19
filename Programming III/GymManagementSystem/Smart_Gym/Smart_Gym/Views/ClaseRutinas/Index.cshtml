@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Smart_Gym.Models.ClaseRutina>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Clase)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Rutina)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Clase.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Rutina.DescripcionRutina)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.IdClaseRutina">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.IdClaseRutina">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.IdClaseRutina">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

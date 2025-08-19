@@ -1,0 +1,94 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model Smart_Gym.Models.Ejercicio
+@inject SignInManager<Usuario> SignInManager
+
+@{
+    ViewData["Title"] = "Edit";
+    var rolesPermitidos = new[] { "Administrador", "Entrenador" }; //Crea un arreglo con los roles permitidos para editar y eliminar rutinas.
+    var tieneRol = rolesPermitidos.Any(rol => User.IsInRole(rol)); //Verifica si el usuario tiene alguno de los roles permitidos.
+}
+@if (SignInManager.IsSignedIn(User)) //Esta opción solo se muestra si el usuario está logueado
+{
+    if (tieneRol)
+    {
+
+
+
+<h1 class="mt-5" style="font-size: 25px">Edición de ejercicios</h1>
+
+        <div class="d-flex justify-content-between mt-5">
+            <h4 style="font-size: 20px">Descripción del ejercicio</h4>
+            <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-action="Index">
+            <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+            </a>
+        </div>
+            <hr />
+            <div class="row">
+                <div class="col-md-12">
+                    
+                    <form asp-action="Edit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input type="hidden" asp-for="IdEjercicio" />
+                        <div class="form-group">
+                            <label asp-for="NombreEjercicio" class="control-label">Nombre</label>
+                            <input asp-for="NombreEjercicio" class="form-control" />
+                            <span asp-validation-for="NombreEjercicio" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="DescripcionEjercicio" class="control-label">Descripción</label>
+                            <input asp-for="DescripcionEjercicio" class="form-control" />
+                            <span asp-validation-for="DescripcionEjercicio" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="GrupoMuscular" class="control-label">Grupo Muscular</label>
+                            <input asp-for="GrupoMuscular" class="form-control" />
+                            <span asp-validation-for="GrupoMuscular" class="text-danger"></span>
+                        </div>
+
+                    <div class="form-group">
+                        <label asp-for="IdMaquina" class="control-label">Equipo requerido</label>
+                        <select asp-for="IdMaquina" class="form-control" asp-items="ViewBag.IdMaquina"></select>
+                        <span asp-validation-for="IdMaquina" class="text-danger"></span>
+                    </div>
+
+                        <div class="form-group">
+                            <label asp-for="ImagenEjercicio" class="control-label">Imagen</label>
+                            <input asp-for="ImagenEjercicio" class="form-control" />
+                            <span asp-validation-for="ImagenEjercicio" class="text-danger"></span>
+                        </div>
+                        
+                    <div class="form-group  my-3">
+                            <button type="submit" class="btn btn-outline-success" style="border-radius: 14px;">
+                                <i class="bi bi-floppy mx-2"></i> Guardar cambios
+                            </button>
+                            
+                        </div>
+                    </form>
+                </div>
+            </div>
+        
+
+
+
+    }
+    else
+    {
+        <div class="d-flex flex-column justify-content-center align-items-center vh-100">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-emoji-frown-fill fs-1 mx-2"></i>
+                <h1 class="m-0">Acceso denegado</h1>
+            </div>
+
+            <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-action="Index">
+                <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+            </a>
+        </div>
+
+    }
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

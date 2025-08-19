@@ -1,0 +1,80 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model Smart_Gym.Models.EjercicioRutina
+@inject SignInManager<Usuario> SignInManager
+
+@{
+    ViewData["Title"] = "Create";
+    var rolesPermitidos = new[] { "Administrador", "Entrenador" }; //Crea un arreglo con los roles permitidos para editar y eliminar rutinas.
+    var tieneRol = rolesPermitidos.Any(rol => User.IsInRole(rol)); //Verifica si el usuario tiene alguno de los roles permitidos.
+}
+@if (SignInManager.IsSignedIn(User)) //Esta función contola la vista, si el usuario está logueado.
+{
+    if (tieneRol)
+    {
+
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="row border border-secondary p-3 w-40" style="border-radius:14px;">
+        <h1 class ="my-3 text-center">Agregar ejercicio a la rutina</h1>
+<hr />
+    
+        <div class="col-md-12">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-group my-2">
+                    
+                    @Html.DropDownListFor(model => model.IdRutina, (SelectList)ViewBag.IdRutina, "--- Seleccione una rutina ---", new { @class = "form-control" })
+                </div>
+
+                <div class="form-group mt-4">
+                    @Html.DropDownListFor(Model => Model.IdEjercicio, (SelectList)ViewBag.IdEjercicio, "--- Seleccione un ejercicio ---", new { @class = "form-control" })
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Series" class="control-label my-2">Número de series</label>
+                    <input asp-for="Series" class="form-control" />
+                    <span asp-validation-for="Series" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Repeticiones" class="control-label my-2">Número de repeticiones</label>
+                    <input asp-for="Repeticiones" class="form-control" />
+                    <span asp-validation-for="Repeticiones" class="text-danger"></span>
+                </div>
+                      
+                <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                    <input type="submit" value="Agregar ejercicio a la rutina" 
+                        class="btn btn-primary" style="border-radius: 14px;" />
+
+                    <a class="btn btn-outline-secondary float-end" style="border-radius: 14px;"
+                    asp-controller="Rutinas" asp-action="Index">
+                    <i class="bi bi-arrow-left-circle me-2"></i>Volver
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    }
+    else
+    {
+        <div class="d-flex flex-column justify-content-center align-items-center vh-100">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-emoji-frown-fill fs-1 mx-2"></i>
+                <h1 class="m-0">Acceso denegado</h1>
+            </div>
+
+            <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+            </a>
+        </div>
+
+    }
+}
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,79 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model Smart_Gym.Models.Clase
+@inject SignInManager<Usuario> SignInManager
+
+
+@{
+    ViewData["Title"] = "Create";
+    var rolesPermitidos = new[] { "Administrador", "Entrenador" }; //Crea un arreglo con los roles permitidos para editar y eliminar rutinas.
+    var tieneRol = rolesPermitidos.Any(rol => User.IsInRole(rol)); //Verifica si el usuario tiene alguno de los roles permitidos.
+}
+@if (SignInManager.IsSignedIn(User)) //Esta función solo se muestra si el usuario está logueado y tiene el rol de Administrador o Entrenador.
+{
+    if (tieneRol)
+    {
+
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="row border border-secondary p-3" style="border-radius:14px;">
+    <h1 class="my-3 text-center" style="font-size:25px;">Fábrica de clases</h1>
+        <hr />
+
+            <div>
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-group">
+                        <label asp-for="Nombre" class="control-label"></label>
+                        <input asp-for="Nombre" class="form-control my-2" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Tipo" class="control-label"></label>
+                        <input asp-for="Tipo" class="form-control my-2" />
+                        <span asp-validation-for="Tipo" class="text-danger"></span>
+                    </div>
+                  
+                    <div class="form-group">
+                        <label asp-for="FechaHora" class="control-label"></label>
+                        <input asp-for="FechaHora" class="form-control my-2 text-center" />
+                        <span asp-validation-for="FechaHora" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="IdGimnasio" class="control-label">Ubicación</label>
+                        <select asp-for="IdGimnasio" class="form-control my-2"
+                        asp-items="ViewBag.IdGimnasio"></select>
+                    </div>
+
+                    <div class="form-group d-flex justify-content-between mt-3">
+                        <input type="submit" value="Agregar clase" class="btn btn-primary" style="border-radius:14px;" />
+                        <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-action="Index">
+                            <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+                        </a>
+                    </div>
+                     
+                </form>
+            </div>
+
+    </div>
+</div>
+    }
+    else
+    {
+        <div class="d-flex flex-column justify-content-center align-items-center vh-100">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-emoji-frown-fill fs-1 mx-2"></i>
+                <h1 class="m-0">Acceso denegado</h1>
+            </div>
+            <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-action="Index">
+                <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+            </a>
+
+        </div>
+    }
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

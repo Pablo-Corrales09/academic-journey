@@ -1,0 +1,72 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model Smart_Gym.Models.Rutina
+@inject SignInManager<Usuario> SignInManager
+
+@{
+    ViewData["Title"] = "Edit";
+    var rolesPermitidos = new[] { "Administrador", "Entrenador" }; //Crea un arreglo con los roles permitidos para editar y eliminar rutinas.
+    var tieneRol = rolesPermitidos.Any(rol => User.IsInRole(rol)); //Verifica si el usuario tiene alguno de los roles permitidos.
+}
+
+
+@if (SignInManager.IsSignedIn(User)) //Esta opción solo se muestra si el usuario está logueado
+{
+    if (tieneRol)
+    {
+
+        <h1>Edit</h1>
+
+        <h4>Rutina</h4>
+        <hr />
+        <div class="row">
+            <div class="col-md-4">
+                <form asp-action="Edit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="IdRutina" />
+                    <div class="form-group">
+                        <label asp-for="NombreRutina" class="control-label"></label>
+                        <input asp-for="NombreRutina" class="form-control" />
+                        <span asp-validation-for="NombreRutina" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Nivel" class="control-label"></label>
+                        <input asp-for="Nivel" class="form-control" />
+                        <span asp-validation-for="Nivel" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DescripcionRutina" class="control-label"></label>
+                        <input asp-for="DescripcionRutina" class="form-control" />
+                        <span asp-validation-for="DescripcionRutina" class="text-danger"></span>
+                    </div>
+                    <div class="form-group d-flex justify-content-between align-items-center mt-3">
+                        <input type="submit" value="Save" class="btn btn-primary" style=" border-radius: 14px;" />
+                        <a class="btn btn-outline-secondary" style="border-radius: 14px;" asp-action="Index">
+                            <i class="bi bi-arrow-left-circle mb-2">Volver</i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    }
+    else
+    {
+        <div class="d-flex flex-column justify-content-center align-items-center vh-100">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-emoji-frown-fill fs-1 mx-2"></i>
+                <h1 class="m-0">Acceso denegado</h1>
+            </div>
+
+            <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-action="Index">
+                <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+            </a>
+        </div>
+
+    }
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

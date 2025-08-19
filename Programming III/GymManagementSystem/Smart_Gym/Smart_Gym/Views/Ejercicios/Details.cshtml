@@ -1,0 +1,51 @@
+﻿@model Smart_Gym.Models.Ejercicio
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1 style="margin-top: 25px;">Información del ejercicio</h1>
+
+<div class="d-flex justify-content-between mt-5">
+    <h4 style="font-size: 20px">Detalles</h4>
+    <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-action="Index">
+     <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+    </a>
+    </div>
+    
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2 my-3">
+            Nombre
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.NombreEjercicio)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Descripción
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.DescripcionEjercicio)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Grupo muscular
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.GrupoMuscular)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Equipo necesario
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.Maquina.DescripcionMaquina)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Imagén del ejercicio
+        </dt>
+        <dd class="col-sm-10 my-3">
+            <img src="@Url.Content(Model.ImagenEjercicio)" alt="Imagen del ejercicio" class="img-fluid" />
+        </dd>
+
+    </dl>
+
+

@@ -1,0 +1,78 @@
+﻿@model ExamenPabloCorrales.Models.Tarea
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="d-flex justify-content-center mt-3" >
+    <div class="row border border-secondary p-3 w-35" style="border-radius:14px;">
+
+
+        <h1 class="text-center mb-3" style="font-size: clamp(16px, 4vw, 25px);">Fábrica de tareas</h1>
+
+<hr />
+            <div>
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-group">
+                        <label asp-for="MetaPrincipalId" class="control-label my-2"></label>
+                       <select asp-for="MetaPrincipalId" asp-items="ViewBag.MetaPrincipalId" class="form-control text-center">
+                            <option value="">----------Seleccione una meta-----------</option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group">
+                    <label asp-for="Grado" class="control-label my-2"></label>
+                        <select asp-for="Grado" asp-items="ViewBag.Grados" class="form-control text-center">
+                            <option value="">----------Seleccione una dificultad-----------</option>
+                        </select>
+                        <span asp-validation-for="Grado" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                    <label asp-for="FechaLimite" class="control-label my-2"></label>
+                        <input asp-for="FechaLimite" class="form-control" />
+                        <span asp-validation-for="FechaLimite" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                    <label asp-for="TiempoEstimado" class="control-label my-2"></label>
+                        <input asp-for="TiempoEstimado" class="form-control" />
+                        <span asp-validation-for="TiempoEstimado" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                    <label asp-for="Descripcion" class="control-label my-2"></label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    </div>
+                    
+                   @*  Muestra el estado deshabilitado para que el usuario lo seleccione al momento de la 
+                    Ingresa el estado por defecto para que el usuario no pueda cambiarlo. *@
+                  
+                    <div class="form-group">
+                    <label asp-for="Estado" class="control-label my-2"></label>
+                        <select asp-for="Estado" asp-items="ViewBag.Estados" class="form-control" disabled></select>
+                        <input type="hidden" asp-for="Estado" />
+                    </div>
+
+                <div class="d-flex form-group mt-3 justify-content-between">
+                        <input type="submit" value="Agregar tarea" 
+                            class="btn btn-primary" style="border-radius:14px;" />
+                        <a asp-controller="Metas" asp-action="Index" 
+                        class="btn btn-secondary" style="border-radius:14px;">
+                            <i class="bi bi-arrow-left-circle me-2"></i>Volver
+                        </a>
+                    </div>
+
+                </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

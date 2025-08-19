@@ -1,0 +1,161 @@
+﻿@model ExamenPabloCorrales.Models.MetaPrincipal
+
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+
+<div>
+    @* Se crea una estructura que permite mostrar los botones para editar y eliminar la meta, además del botón para volver al índice de metas. *@
+    <div class="d-flex justify-content-between me-5 mt-4 aling-items-center">
+        <h1 class="mb-3" style="font-size: clamp(16px, 4vw, 25px);">Detalles de la meta</h1>
+        <div>
+
+            <a asp-action="Delete" asp-controller="Metas" asp-route-id="@Model.Id"
+            class="btn btn-outline-danger" style="border-radius:14px;">Eliminar</a>
+            
+            <a asp-action="Edit" asp-controller="Metas" asp-route-id="@Model.Id"
+            class="btn btn-outline-secondary" style="border-radius:14px;">Editar meta</a>
+            
+            <a asp-action="Index" class="btn btn-secondary" style="border-radius:14px;">
+                <i class="bi bi-arrow-left-circle me-2"></i>Volver
+            </a>
+
+        </div>
+    </div>
+
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Titulo)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Titulo)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Descripcion)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Descripcion)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Categoria)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Categoria)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FechaCreacion)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FechaCreacion)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FechaLimite)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FechaLimite)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Grado)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Grado)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Estado)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Estado)
+        </dd>
+    </dl>
+</div>
+
+
+<h2 class="mt-5 mb-3" style="font-size: clamp(16px, 4vw, 25px);">Tareas asignadas a esta meta</h2>
+
+
+@* Se realiza la insersión de la tabla de tareas relacionadas con la meta principal *@
+
+<table class="table align-items-center">
+
+    <thead>
+        <tr>
+
+            <th style="width: 12%;">
+                @Html.DisplayNameFor(model => model.FechaCreacion)
+            </th>
+
+            <th style="width: 30%;">                
+                @Html.DisplayNameFor(model => model.Descripcion)
+            </th>
+
+            <th class="text-center" style="width: 10%;">
+                @Html.DisplayNameFor(model => model.Grado)
+            </th>
+            
+            <th class="text-center" style="width: 10%;">
+                @Html.DisplayNameFor(model => model.FechaLimite)
+            </th>
+
+            <th class="text-center" style="width: 10%;">
+                N° horas
+            </th>
+
+            <th class="text-center" style="width: 15%;">
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+
+            <th style="width: 20%;">
+                <a asp-controller="Tareas" asp-action="Create"
+                class="btn btn-primary" style="border-radius:14px;">Agregar tarea</a>
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody class="my-2">
+        @foreach (var item in Model.Tareas)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FechaCreacion)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Descripcion)
+                </td>
+
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.Grado)
+                </td>
+
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.FechaLimite)
+                </td>
+
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.TiempoEstimado)
+                </td>
+
+                <td class="text-center">
+                    @Html.DisplayFor(modelItem => item.Estado)
+                </td>
+
+                <td class="text-center" >
+                    <div class="d-flex gap-3">
+                    <a asp-controller="Tareas" asp-action="Edit" asp-route-id="@item.Id"
+                    class="btn btn-secondary" style="border-radius:14px;">
+                    <i class="bi bi-pencil-square"></i></a>                     
+                    <a asp-controller="Tareas" asp-action="Delete" asp-route-id="@item.Id"
+                    class="btn btn-danger" style="border-radius:14px;">
+                    <i class="bi bi-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+

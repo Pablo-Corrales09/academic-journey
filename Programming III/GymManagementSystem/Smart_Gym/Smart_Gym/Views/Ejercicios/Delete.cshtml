@@ -1,0 +1,83 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model Smart_Gym.Models.Ejercicio
+@inject SignInManager<Usuario> SignInManager
+
+@{
+    ViewData["Title"] = "Delete";
+    var rolesPermitidos = new[] { "Administrador", "Entrenador" }; //Crea un arreglo con los roles permitidos para editar y eliminar rutinas.
+    var tieneRol = rolesPermitidos.Any(rol => User.IsInRole(rol)); //Verifica si el usuario tiene alguno de los roles permitidos.
+}
+@if (SignInManager.IsSignedIn(User)) //Esta opción solo se muestra si el usuario está logueado
+{
+    if (tieneRol)
+    {
+
+ <h1 class="mt-5" style="font-size: 25px">Eliminar ejercicio</h1>
+
+       
+<div class="d-flex justify-content-between mt-5">
+    <h4 style="font-size: 20px">Descripción del ejercicio</h4>
+            <form asp-action="Delete" class="gap-3"
+                  onsubmit="return confirm('¿Estás seguro de que quieres eliminar este ejercicio?');">
+                <input type="hidden" asp-for="IdEjercicio" />
+
+                <input type="submit" value="Borrar ejercicio" class="btn btn-danger" style="border-radius: 14px;" />
+
+                <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-action="Index">
+                    <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+                </a>
+            </form>
+    </div>
+    
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2 my-3">
+            Nombre
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.NombreEjercicio)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Descripción
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.DescripcionEjercicio)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Grupo muscular
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.GrupoMuscular)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Equipo necesario
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.Maquina.DescripcionMaquina)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Imagén del ejercicio
+        </dt>
+        <dd class="col-sm-10 my-3">
+            <img src="@Url.Content(Model.ImagenEjercicio)" alt="Imagen del ejercicio" class="img-fluid" />
+        </dd>
+
+    </dl>
+            
+
+    }
+    else
+    {
+        <div class="d-flex flex-column justify-content-center align-items-center vh-100">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-emoji-frown-fill fs-1 mx-2"></i>
+                <h1 class="m-0">Acceso denegado</h1>
+            </div>
+
+            <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-action="Index">
+                <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+            </a>
+        </div>
+
+    }
+}

@@ -1,0 +1,329 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = Smart_Gym
+build_property.RootNamespace = Smart_Gym
+build_property.ProjectDir = C:\Users\PC\OneDrive\Documentos\Universitario\IV Cuatrimestre\Programación III\Proyecto Programado II\V2\Smart_Gym\Smart_Gym\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\PC\OneDrive\Documentos\Universitario\IV Cuatrimestre\Programación III\Proyecto Programado II\V2\Smart_Gym\Smart_Gym
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Areas/Identity/Pages/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Areas/Identity/Pages/Account/Logout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxMb2dvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Areas/Identity/Pages/Account/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Areas/Identity/Pages/Account/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcQWNjb3VudFxfVmlld0ltcG9ydHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Areas/Identity/Pages/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZhbGlkYXRpb25TY3JpcHRzUGFydGlhbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Areas/Identity/Pages/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Areas/Identity/Pages/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXNcSWRlbnRpdHlcUGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Admin/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/ClaseRutinas/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VSdXRpbmFzXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/ClaseRutinas/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VSdXRpbmFzXERlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/ClaseRutinas/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VSdXRpbmFzXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/ClaseRutinas/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VSdXRpbmFzXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/ClaseRutinas/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VSdXRpbmFzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Clases/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VzXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Clases/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VzXERlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Clases/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VzXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Clases/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VzXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Clases/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2xhc2VzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/EjercicioRutinas/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvUnV0aW5hc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/EjercicioRutinas/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvUnV0aW5hc1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/EjercicioRutinas/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvUnV0aW5hc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/EjercicioRutinas/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvUnV0aW5hc1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/EjercicioRutinas/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvUnV0aW5hc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Ejercicios/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Ejercicios/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvc1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Ejercicios/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Ejercicios/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvc1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Ejercicios/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRWplcmNpY2lvc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Facturas/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjdHVyYXNcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Facturas/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjdHVyYXNcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Facturas/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjdHVyYXNcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Facturas/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjdHVyYXNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Facturas/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRmFjdHVyYXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Gimnasios/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR2ltbmFzaW9zXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Gimnasios/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR2ltbmFzaW9zXERlbGV0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Gimnasios/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR2ltbmFzaW9zXERldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Gimnasios/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR2ltbmFzaW9zXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Gimnasios/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR2ltbmFzaW9zXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Maquinas/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFxdWluYXNcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Maquinas/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFxdWluYXNcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Maquinas/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFxdWluYXNcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Maquinas/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFxdWluYXNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Maquinas/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFxdWluYXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Membresias/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYnJlc2lhc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Membresias/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYnJlc2lhc1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Membresias/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYnJlc2lhc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Membresias/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYnJlc2lhc1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Membresias/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYnJlc2lhc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Pagos/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFnb3NcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Pagos/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFnb3NcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Pagos/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFnb3NcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Pagos/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFnb3NcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Pagos/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGFnb3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Roles/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUm9sZXNcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Roles/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUm9sZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Rutinas/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUnV0aW5hc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Rutinas/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUnV0aW5hc1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Rutinas/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUnV0aW5hc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Rutinas/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUnV0aW5hc1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Rutinas/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUnV0aW5hc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Shared/_LoginPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/UserRoles/AssignRole.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclJvbGVzXEFzc2lnblJvbGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/UserRoles/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclJvbGVzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/UsuarioClases/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXN1YXJpb0NsYXNlc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/UsuarioClases/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXN1YXJpb0NsYXNlc1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/UsuarioClases/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXN1YXJpb0NsYXNlc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/UsuarioClases/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXN1YXJpb0NsYXNlc1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/UsuarioClases/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXN1YXJpb0NsYXNlc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/PC/OneDrive/Documentos/Universitario/IV Cuatrimestre/Programación III/Proyecto Programado II/V2/Smart_Gym/Smart_Gym/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-ce8t6s4fib

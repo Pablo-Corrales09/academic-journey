@@ -1,0 +1,88 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Crear una cuenta";
+}
+<div class="col-md-10 mt-5 row border border-secondary p-3 w-40 mx-auto" 
+style="border-radius:14px;">
+<h1 class="my-3 text-center" style="font-size: 35px;">@ViewData["Title"]</h1>
+
+
+<div class="row">
+
+    <div style="width: 100%";>
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            
+            <h2  class="mt-3" style="font-size: 20px;">Información de la cuenta</h2>
+            <hr class ="mt-3" />
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+            <div class=" d-flex justify-content-between align-items-center gap-1">
+                <div class="form-floating col-6 mb-3">
+                    <input asp-for="Input.Nombre" class="form-control" placeholder="Nombre" />
+                        <label asp-for="Input.Nombre">Nombre<span class="mx-1" style="color: red;"> *</span></label>
+                    <span asp-validation-for="Input.Nombre" class="text-danger"></span>
+                </div>
+                <div class="form-floating col-6 mb-3">
+                    <input asp-for="Input.Apellido" class="form-control" placeholder="Apellido" />
+                        <label asp-for="Input.Apellido">Apellido<span class="mx-1" style="color: red;"> *</span></label>
+                    <span asp-validation-for="Input.Apellido" class="text-danger"></span>                    
+                </div>
+            </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                    <label asp-for="Input.Email">Email<span class="mx-1" style="color: red;"> *</span></label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+
+                <div class=" d-flex justify-content-between gap-1">
+                    <div class="form-floating col-6 mb-3">
+                        <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                        <label asp-for="Input.Password">Contraseña<span class="mx-1" style="color: red;"> *</span></label>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating  col-6 mb-3">
+                        <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                        <label asp-for="Input.ConfirmPassword">Confirmar contraseña<span class="mx-1" style="color: red;"> *</span></label>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                    </div>
+                </div>
+            
+            <div class="form-floating mb-3">
+                    <input asp-for="Input.Cedula" class="form-control" placeholder="Cedula" />
+                    <label asp-for="Input.Cedula">Cédula</label>
+                    <span asp-validation-for="Input.Cedula" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                    <input asp-for="Input.Telefono" class="form-control" placeholder="Telefono" />
+                    <label asp-for="Input.Telefono">Teléfono</label>
+                    <span asp-validation-for="Input.Telefono" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.FechaNacimiento" class="form-control" placeholder="FechaNacimiento" />
+                <label asp-for="Input.FechaNacimiento">Fecha de nacimiento</label>
+                <span asp-validation-for="Input.FechaNacimiento" class="text-danger"></span>
+            </div>
+            
+           
+           
+
+            <div class="form-floating mb-3">
+                <textarea asp-for="Input.Direccion" class="form-control" placeholder="Direccion" style="height: 100px;"></textarea>
+                <label asp-for="Input.Direccion">Dirección</label>
+                <span asp-validation-for="Input.Direccion" class="text-danger"></span>
+            </div>
+
+            <button id="registerSubmit" type="submit" 
+                class="w-100 btn btn-lg btn-primary my-3" style="border-radius:14px;">Registrarme</button>
+        </form>
+    </div>
+    
+</div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

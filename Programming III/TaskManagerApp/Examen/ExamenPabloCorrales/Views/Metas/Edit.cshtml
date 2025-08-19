@@ -1,0 +1,73 @@
+﻿@model ExamenPabloCorrales.Models.MetaPrincipal
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<div class="d-flex justify-content-center mt-3" style="height: 80vh;">
+    <div class="row border border-secondary p-3 w-35" style="border-radius:14px;">
+
+    <h1 class="text-center mb-3" style="font-size: clamp(16px, 4vw, 25px);">Editar tarea</h1>
+
+<hr />
+
+        <div>
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger my-2"></div>
+                <div class="form-group">
+                    <label asp-for="Titulo" class="control-label"></label>
+                    <input asp-for="Titulo" class="form-control" />
+                    <span asp-validation-for="Titulo" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    @*  Carga los elementos de las Categorías que se pasan a la vista desde el controlador por medio de ViewBag *@
+                    <label asp-for="Categoria" class="control-label my-2"></label>
+                    <select asp-for="Categoria" asp-items="ViewBag.Categorias" class="form-control text-center">
+                        <option value="">----------Seleccione una categoría-----------</option>
+                    </select>
+                    <span asp-validation-for="Categoria" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Grado" class="control-label my-2"></label>
+                    <select asp-for="Grado" asp-items="ViewBag.Grados" class="form-control text-center">
+                        <option value="">----------Seleccione una prioridad-----------</option>
+                    </select>
+                    <span asp-validation-for="Grado" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Estado" class="control-label my-2"></label>
+                    <select asp-for="Estado" asp-items="ViewBag.Estados" class="form-control text-center"></select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="FechaLimite" class="control-label my-2"></label>
+                    <input asp-for="FechaLimite" class="form-control text-center" />
+                    <span asp-validation-for="FechaLimite" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Descripcion" class="control-label my-2"></label>
+                    <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between form-group mt-3">
+                    <input type="submit" value="Editar meta" class="btn btn-primary" style="border-radius:14px;" />
+                    <a asp-controller="Metas" asp-action="Details" asp-route-id="@Model.Id" 
+                    class="btn btn-secondary" style="border-radius:14px;">
+                        <i class="bi bi-arrow-left-circle me-2"></i>Volver
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

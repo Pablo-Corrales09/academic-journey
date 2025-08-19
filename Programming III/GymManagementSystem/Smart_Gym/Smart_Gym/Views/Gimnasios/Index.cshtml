@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Smart_Gym.Models.Gimnasio>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1 class="text-center my-5">Smart Gym</h1>
+
+<div class="d-flex justify-content-between">
+    <a asp-action="Create" class="btn btn-primary" 
+    style="border-radius: 14px">
+        <i class="bi bi-plus-circle me-2"></i>Agregar una sede
+    </a>
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary me-4" 
+    style="border-radius: 14px">
+        <i class="bi bi-arrow-left-circle me-2"></i>Volver
+    </a>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Direccion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Telefono)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Direccion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Telefono)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

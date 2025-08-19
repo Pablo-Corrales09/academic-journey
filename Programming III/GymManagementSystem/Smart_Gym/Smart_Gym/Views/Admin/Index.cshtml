@@ -1,0 +1,70 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<Usuario> SignInManager
+
+
+@{
+    Layout = "_Layout"; // Opcional, si quieres que use el layout general
+    //Accede al método IsInRole por medio de User para verificar si el usuario tiene el rol Admin. Devuelve un booleano.
+    var tieneRol = User.IsInRole("Administrador"); 
+}
+@if (SignInManager.IsSignedIn(User)) //Esta opción solo se muestra si el usuario está logueado
+{
+    if (tieneRol)
+    {
+
+<div class="d-flex justify-content-center align-items-center" style="height: 90vh;">
+    <div class="row border border-secondary p-3 w-40" style="border-radius:14px;">
+
+<h1 class="text-center mt-3">Administración del gimnasio</h1>
+
+        <div>
+          
+            <a class="nav-link btn btn-outline-info border-2 mx-1 text-dark my-3"
+            style="border-radius:14px;" asp-area="" asp-controller="Gimnasios" asp-action="Index">Gimnasio</a>
+          
+
+            <a class="nav-link btn btn-outline-info border-2 mx-1 text-dark my-3"
+               style="border-radius:14px;" asp-area="" asp-controller="ClaseRutinas" asp-action="Index">Admin Clases</a>
+
+            <a class="nav-link btn btn-outline-info border-2 mx-1 text-dark my-3"
+               style="border-radius:14px;" asp-area="" asp-controller="Roles" asp-action="Index">Admin Roles</a>
+       
+
+            <a class="nav-link btn btn-outline-info border-2 mx-1 text-dark my-3"
+               style="border-radius:14px;" asp-area="" asp-controller="UserRoles" asp-action="Index">Asignar Rol</a>
+          
+
+       
+            <a class="nav-link btn btn-outline-info border-2 mx-1 text-dark my-3"
+               style="border-radius:14px;" asp-area="" asp-controller="Membresias" asp-action="Index">Membresías</a>
+         
+
+          
+            <a class="nav-link btn btn-outline-info border-2 mx-1 text-dark my-3"
+               style="border-radius:14px;" asp-area="" asp-controller="Facturas" asp-action="Index">Facturas</a>
+          
+
+             
+            <a class="nav-link btn btn-outline-info border-2 mx-1 text-dark my-3"
+               style="border-radius:14px;" asp-area="" asp-controller="Pagos" asp-action="Index">Pagos</a>
+            
+
+        </div>
+    </div>
+</div>
+    }
+    else
+    {
+        <div class="d-flex flex-column justify-content-center align-items-center vh-100">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-emoji-frown-fill fs-1 mx-2"></i>
+                <h1 class="m-0">Acceso denegado</h1>
+            </div>
+            <a class="btn btn-secondary text-white" style="border-radius: 14px;" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-arrow-left-circle mx-2"></i> Volver
+            </a>
+
+        </div>
+
+    }
+}
