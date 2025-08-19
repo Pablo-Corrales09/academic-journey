@@ -44,7 +44,7 @@ Detailed Features
 
 Installation
 1. Clone the repository:
-   git clone <REPOSITORY_URL>
+   git clone <https://github.com/Pablo-Corrales09/academic-journey>
 2. Open Smart_Gym.sln in Visual Studio.
 3. Restore NuGet packages:
    dotnet restore.
@@ -120,7 +120,7 @@ Funcionalidades Detalladas
 
 Instalación
 1. Clonar el repositorio:
-   git clone <URL_DEL_REPOSITORIO>
+   git clone <https://github.com/Pablo-Corrales09/academic-journey>
 2. Abrir Smart_Gym.sln en Visual Studio.
 3. Restaurar paquetes NuGet:
    dotnet restore.
