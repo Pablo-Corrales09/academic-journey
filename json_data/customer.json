@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "user_id": 1,
+    "document_number": "ID001",
+    "first_name": "John",
+    "last_name": "Doe",
+    "phone": "+1-555-0101",
+    "address": "123 Main St",
+    "city": "New York",
+    "country": "USA",
+    "created_at": "2026-03-01T00:00:00Z",
+    "updated_at": "2026-03-01T00:00:00Z"
+  }
+]
