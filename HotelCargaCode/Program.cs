@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,11 +37,9 @@ app.UseRouting();
 app.UseAuthorization();
 
 
-
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
 
 
 app.Run();
