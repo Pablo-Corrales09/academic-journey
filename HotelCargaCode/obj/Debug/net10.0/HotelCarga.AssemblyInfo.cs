@@ -10,10 +10,11 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("0a4baa5f-bd93-4fcc-b586-cf7ddfdbd948")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("HotelCarga")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3e0bfd73dad8974383900b4003069aa2eb7c5abe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+471907931394ab15d9d24c04b88a3b484c9efb57")]
 [assembly: System.Reflection.AssemblyProductAttribute("HotelCarga")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HotelCarga")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
