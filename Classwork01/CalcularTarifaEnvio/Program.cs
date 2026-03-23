@@ -4,9 +4,9 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-class Program
+public class Program
 {
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
         // Example usage
         var prices = new Dictionary<string, decimal>
@@ -33,7 +33,7 @@ class Program
         }
     }
 
-    static void GestionZonasDesconocidas(string departureCode, string arrivalCode, IDictionary<string, decimal> prices)
+    public static void GestionZonasDesconocidas(string departureCode, string arrivalCode, IDictionary<string, decimal> prices)
     {
         var availableZones = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var route in prices.Keys)
@@ -53,7 +53,7 @@ class Program
             throw new ArgumentException($"ERROR: NO SE PROCESÓ: La siguiente zona no se encuentra disponible: {arrivalCode}");
     }
 
-    static decimal CalculoDeRetorno(string departureCode, string arrivalCode, IDictionary<string, decimal> prices, out string outLog)
+    public static decimal CalculoDeRetorno(string departureCode, string arrivalCode, IDictionary<string, decimal> prices, out string outLog)
     {
         GestionZonasDesconocidas(departureCode, arrivalCode, prices);
 
@@ -68,7 +68,7 @@ class Program
         return total;
     }
 
-    static decimal RutasConTransbordo(string departureCode, string arrivalCode, IDictionary<string, decimal> prices, out string outLog)
+    public static decimal RutasConTransbordo(string departureCode, string arrivalCode, IDictionary<string, decimal> prices, out string outLog)
     {
         GestionZonasDesconocidas(departureCode, arrivalCode, prices);
 
@@ -93,7 +93,7 @@ class Program
         throw new ArgumentException($"No direct, inverse, or transbordo route available for {departureCode}-{arrivalCode}.");
     }
 
-    static decimal CalcularTarifaEnvio(decimal weight, string departureCode, string arrivalCode, Dictionary<string, decimal> prices, out string log)
+    public static decimal CalcularTarifaEnvio(decimal weight, string departureCode, string arrivalCode, Dictionary<string, decimal> prices, out string log)
     {
         log = string.Empty; // Initialize
 
