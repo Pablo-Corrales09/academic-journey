@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CalcularTarifaEnvio")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f017efebe06d44796cfec46e64f99a2aa3b4f111")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+81db9f9ecd35ccfcb06e6e678e1f6d7beb4e7dc2")]
 [assembly: System.Reflection.AssemblyProductAttribute("CalcularTarifaEnvio")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CalcularTarifaEnvio")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
