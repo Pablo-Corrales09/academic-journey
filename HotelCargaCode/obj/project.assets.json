@@ -621,6 +621,20 @@
         "build": {
           "buildTransitive/net6.0/_._": {}
         }
+      },
+      "HotelCarga.DbModel/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "9.0.0",
+          "Pomelo.EntityFrameworkCore.MySql": "9.0.0"
+        },
+        "compile": {
+          "bin/placeholder/HotelCarga.DbModel.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/HotelCarga.DbModel.dll": {}
+        }
       }
     }
   },
@@ -1969,10 +1983,17 @@
         "system.composition.typedparts.nuspec",
         "useSharedDesignerContext.txt"
       ]
+    },
+    "HotelCarga.DbModel/1.0.0": {
+      "type": "project",
+      "path": "HotelCarga.DbModel/HotelCarga.DbModel.csproj",
+      "msbuildProject": "HotelCarga.DbModel/HotelCarga.DbModel.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "HotelCarga.DbModel >= 1.0.0",
+      "Microsoft.EntityFrameworkCore >= 9.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.0",
       "Pomelo.EntityFrameworkCore.MySql >= 9.0.0"
     ]
@@ -2001,7 +2022,11 @@
       "frameworks": {
         "net10.0": {
           "targetAlias": "net10.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Git\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\HotelCarga.DbModel.csproj": {
+              "projectPath": "C:\\Git\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\HotelCarga.DbModel.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -2020,6 +2045,10 @@
       "net10.0": {
         "targetAlias": "net10.0",
         "dependencies": {
+          "Microsoft.EntityFrameworkCore": {
+            "target": "Package",
+            "version": "[9.0.0, )"
+          },
           "Microsoft.EntityFrameworkCore.Design": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
             "suppressParent": "All",
