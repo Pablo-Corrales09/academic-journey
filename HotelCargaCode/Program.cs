@@ -8,11 +8,25 @@ using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load connection string from user secrets (recommended) or environment
-var connectionString = builder.Configuration["myConnectionString"]
-    ?? builder.Configuration.GetSection("ConnectionStrings")["myConnectionString"]
-    ?? throw new InvalidOperationException("myConnectionString is not configured. Use dotnet user-secrets set \"myConnectionString\" \"<your-connection-string>\"");
+// 1. Cargamos la cadena de conexión de forma segura (desde user-secrets en desarrollo)
+string connectionString = builder.Configuration.GetConnectionString("myConnectionString");
 
+// Debug: Intenta acceso alternativo si el primero falla
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    connectionString = builder.Configuration["ConnectionStrings:myConnectionString"];
+}
+
+// 2. Validamos que no sea nula y que NO esté vacía
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    var environment = builder.Environment.EnvironmentName;
+    throw new InvalidOperationException(
+        $"Connection string 'myConnectionString' not found in {environment} environment. " +
+        $"Set it via: dotnet user-secrets set \"ConnectionStrings:myConnectionString\" \"<connection-string>\"");
+}
+
+// 3. Inyectamos el DbContext
 builder.Services.AddDbContext<HotelCargaContext>(options =>
 {
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
@@ -21,9 +35,58 @@ builder.Services.AddDbContext<HotelCargaContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// ¡SOLO UN builder.Build()!
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ============================================================
+// 🛠️ BLOQUE DE PRUEBA DE CONEXIÓN A LA BASE DE DATOS
+// ============================================================
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<HotelCargaContext>();
+        
+        Console.WriteLine("Intentando conectar a la base de datos...");
+        
+        bool isConnected = await context.Database.CanConnectAsync();
+
+        if (isConnected)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("====================================================");
+            Console.WriteLine("✅ ¡ÉXITO! Conexión a MySQL en Azure establecida.");
+            Console.WriteLine("====================================================");
+            Console.ResetColor();
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("====================================================");
+            Console.WriteLine("⚠️ ADVERTENCIA: No se pudo conectar a la base de datos.");
+            Console.WriteLine("====================================================");
+            Console.ResetColor();
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("====================================================");
+        Console.WriteLine($"❌ EXCEPCIÓN AL CONECTAR: {ex.Message}");
+        if (ex.InnerException != null)
+        {
+            Console.WriteLine($"🔍 Detalle interno: {ex.InnerException.Message}");
+        }
+        Console.WriteLine("====================================================");
+        Console.ResetColor();
+    }
+}
+// ============================================================
+// FIN DEL BLOQUE DE PRUEBA
+// ============================================================
+
+// Configure the HTTP request pipeline (Limpio y sin duplicados)
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");

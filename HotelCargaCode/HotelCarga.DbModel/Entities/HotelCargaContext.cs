@@ -46,10 +46,7 @@ public partial class HotelCargaContext : DbContext
 
     public virtual DbSet<waiting_queue> waiting_queues { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=db-hotel-carga.mysql.database.azure.com;port=3306;database=hotelcarga;user id=gix01;password=Pa55w0rd2025.;sslmode=Required;sslca=C:\\temp\\DigiCertGlobalRootG2.crt.pem", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.4.5-mysql"));
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder

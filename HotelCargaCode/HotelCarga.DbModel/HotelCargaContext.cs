@@ -13,11 +13,6 @@ namespace HotelCarga.DbModel
         {
         }
 
-        // TODO: Scaffold the real entities after connecting to your MySQL DB:
-        // dotnet ef dbcontext scaffold "name=myConnectionString" Pomelo.EntityFrameworkCore.MySql --context HotelCargaContext --output-dir Entities --use-database-names --force
-        
-        // Example:
-        // public virtual DbSet<Hotel> Hotels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,12 +30,6 @@ namespace HotelCarga.DbModel
                 }
             }
 
-            // Customize each property/trigger as needed, e.g.:
-            // modelBuilder.Entity<YourEntity>()
-            //     .Property(e => e.UpdatedAt)
-            //     .ValueGeneratedOnAddOrUpdate()
-            //     .HasDefaultValueSql("CURRENT_TIMESTAMP")
-            //     .Metadata.SetAfterSaveBehavior(Microsoft.EntityFrameworkCore.Metadata.PropertySaveBehavior.Ignore);
         }
 
         public override int SaveChanges()
@@ -57,7 +46,7 @@ namespace HotelCarga.DbModel
 
         private void UpdateTriggerAuditFields()
         {
-            // optional hook for pre-save values for triggers, if needed.
+
         }
     }
 }

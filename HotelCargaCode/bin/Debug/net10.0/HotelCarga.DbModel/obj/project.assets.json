@@ -2518,11 +2518,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Git\\Proyecto final\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\HotelCarga.DbModel.csproj",
+      "projectUniqueName": "C:\\Git\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\HotelCarga.DbModel.csproj",
       "projectName": "HotelCarga.DbModel",
-      "projectPath": "C:\\Git\\Proyecto final\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\HotelCarga.DbModel.csproj",
+      "projectPath": "C:\\Git\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\HotelCarga.DbModel.csproj",
       "packagesPath": "C:\\Users\\devpa\\.nuget\\packages\\",
-      "outputPath": "C:\\Git\\Proyecto final\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\obj\\",
+      "outputPath": "C:\\Git\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\devpa\\AppData\\Roaming\\NuGet\\NuGet.Config"
