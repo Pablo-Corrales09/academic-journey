@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HotelCarga.DbModel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b96e89869ebf7ed04dbb1877447f5517bb75f61b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d65d7ce1fc15e3237484f40e199fc50dfe2f2dc2")]
 [assembly: System.Reflection.AssemblyProductAttribute("HotelCarga.DbModel")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HotelCarga.DbModel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

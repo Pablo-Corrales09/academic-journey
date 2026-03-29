@@ -635,6 +635,20 @@
         "runtime": {
           "bin/placeholder/HotelCarga.DbModel.dll": {}
         }
+      },
+      "HotelCarga.RepositoryModel/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "HotelCarga.DbModel": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "9.0.0"
+        },
+        "compile": {
+          "bin/placeholder/HotelCarga.RepositoryModel.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/HotelCarga.RepositoryModel.dll": {}
+        }
       }
     }
   },
@@ -1988,11 +2002,17 @@
       "type": "project",
       "path": "HotelCarga.DbModel/HotelCarga.DbModel.csproj",
       "msbuildProject": "HotelCarga.DbModel/HotelCarga.DbModel.csproj"
+    },
+    "HotelCarga.RepositoryModel/1.0.0": {
+      "type": "project",
+      "path": "HotelCarga.RepositoryModel/HotelCarga.RepositoryModel.csproj",
+      "msbuildProject": "HotelCarga.RepositoryModel/HotelCarga.RepositoryModel.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
       "HotelCarga.DbModel >= 1.0.0",
+      "HotelCarga.RepositoryModel >= 1.0.0",
       "Microsoft.EntityFrameworkCore >= 9.0.0",
       "Microsoft.EntityFrameworkCore.Design >= 9.0.0",
       "Pomelo.EntityFrameworkCore.MySql >= 9.0.0"
@@ -2025,6 +2045,9 @@
           "projectReferences": {
             "C:\\Git\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\HotelCarga.DbModel.csproj": {
               "projectPath": "C:\\Git\\academic-journey\\HotelCargaCode\\HotelCarga.DbModel\\HotelCarga.DbModel.csproj"
+            },
+            "C:\\Git\\academic-journey\\HotelCargaCode\\HotelCarga.RepositoryModel\\HotelCarga.RepositoryModel.csproj": {
+              "projectPath": "C:\\Git\\academic-journey\\HotelCargaCode\\HotelCarga.RepositoryModel\\HotelCarga.RepositoryModel.csproj"
             }
           }
         }

@@ -1,5 +1,7 @@
 using System;
-using HotelCarga.DbModel;
+using HotelCarga.HotelCarga.DbModel.Entities;
+using HotelCarga.RepositoryModel.Interfaces;
+using HotelCarga.RepositoryModel.Implementations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +33,9 @@ builder.Services.AddDbContext<HotelCargaContext>(options =>
 {
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
+
+// 4. Register Repository Pattern Services
+RegisterRepositories(builder.Services);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -105,3 +110,30 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+// ============================================================
+// Repository Pattern Dependency Injection Extension
+// ============================================================
+static void RegisterRepositories(IServiceCollection services)
+{
+    // Status Repositories
+    services.AddScoped<IUserStatusRepository, UserStatusRepository>();
+    services.AddScoped<IRoomStatusRepository, RoomStatusRepository>();
+    services.AddScoped<IBookingStatusRepository, BookingStatusRepository>();
+    services.AddScoped<IQueueStatusRepository, QueueStatusRepository>();
+
+    // Entity Repositories
+    services.AddScoped<IUserRepository, UserRepository>();
+    services.AddScoped<IRoleRepository, RoleRepository>();
+    services.AddScoped<IRoomCategoryRepository, RoomCategoryRepository>();
+    services.AddScoped<IRoomAvailabilityRepository, RoomAvailabilityRepository>();
+    services.AddScoped<IRoomRepository, RoomRepository>();
+    services.AddScoped<ICustomerRepository, CustomerRepository>();
+    services.AddScoped<IBookingRepository, BookingRepository>();
+    services.AddScoped<IBookingHistoryRepository, BookingHistoryRepository>();
+    services.AddScoped<IWaitingQueueRepository, WaitingQueueRepository>();
+
+    // View Repositories
+    services.AddScoped<ICustomerBookingViewRepository, CustomerBookingViewRepository>();
+    services.AddScoped<IWaitingQueueReportViewRepository, WaitingQueueReportViewRepository>();
+}

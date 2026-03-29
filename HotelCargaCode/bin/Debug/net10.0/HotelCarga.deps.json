@@ -9,6 +9,7 @@
       "HotelCarga/1.0.0": {
         "dependencies": {
           "HotelCarga.DbModel": "1.0.0",
+          "HotelCarga.RepositoryModel": "1.0.0",
           "Microsoft.EntityFrameworkCore": "9.0.0",
           "Microsoft.EntityFrameworkCore.Design": "9.0.0",
           "Pomelo.EntityFrameworkCore.MySql": "9.0.0"
@@ -475,6 +476,18 @@
             "fileVersion": "1.0.0.0"
           }
         }
+      },
+      "HotelCarga.RepositoryModel/1.0.0": {
+        "dependencies": {
+          "HotelCarga.DbModel": "1.0.0",
+          "Microsoft.EntityFrameworkCore": "9.0.0"
+        },
+        "runtime": {
+          "HotelCarga.RepositoryModel.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
       }
     }
   },
@@ -646,6 +659,11 @@
       "hashPath": "system.composition.typedparts.7.0.0.nupkg.sha512"
     },
     "HotelCarga.DbModel/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "HotelCarga.RepositoryModel/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

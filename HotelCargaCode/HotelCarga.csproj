@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <UserSecretsId>b1a80034-9c9e-421e-b8b7-983b9a667095</UserSecretsId>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,13 +18,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Exclude the nested DbModel project source files from the root MVC project compilation -->
-    <Compile Remove="HotelCarga.DbModel\**\*.cs" />
-    <None Remove="HotelCarga.DbModel\**\*.*" />
+    <Compile Remove="HotelCarga.DbModel\**" />
+    <Compile Remove="HotelCarga.RepositoryModel\**" />
+    <None Remove="HotelCarga.DbModel\**" />
+    <None Remove="HotelCarga.RepositoryModel\**" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="HotelCarga.DbModel\HotelCarga.DbModel.csproj" />
+    <ProjectReference Include="HotelCarga.RepositoryModel\HotelCarga.RepositoryModel.csproj" />
   </ItemGroup>
 
 </Project>
