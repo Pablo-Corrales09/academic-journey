@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UserSecretsId>b1a80034-9c9e-421e-b8b7-983b9a667095</UserSecretsId>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -24,8 +25,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="HotelCarga.DbModel\HotelCarga.DbModel.csproj" />
-    <ProjectReference Include="HotelCarga.RepositoryModel\HotelCarga.RepositoryModel.csproj" />
+    <ProjectReference Include="..\HotelCarga.DbModel\HotelCarga.DbModel.csproj" />
+    <ProjectReference Include="..\HotelCarga.RepositoryModel\HotelCarga.RepositoryModel.csproj" />
   </ItemGroup>
 
 </Project>

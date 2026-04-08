@@ -12,9 +12,9 @@ public partial class room_category
 
     public string category_name { get; set; }
 
-    public string description { get; set; }
+    public string? description { get; set; }
 
-    public string amenities { get; set; }
+    public string? amenities { get; set; }
 
     public DateTime? created_at { get; set; }
 
