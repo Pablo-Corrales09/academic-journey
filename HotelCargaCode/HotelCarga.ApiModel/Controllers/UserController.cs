@@ -20,18 +20,46 @@ public class UserController : BaseApiController
     [HttpGet("GetById")]
     public async Task<IActionResult> GetById(uint id, bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.users.FirstOrDefault(u => u.id == id));
+        if (UseJsonBackend(useJson))
+        {
+            var userItem = JsonContext!.users.FirstOrDefault(u => u.id == id);
+            if (userItem is null) return NotFound();
+            userItem.role = JsonContext.roles.FirstOrDefault(r => r.id == userItem.role_id)!;
+            userItem.status = JsonContext.user_statuses.FirstOrDefault(s => s.id == userItem.status_id)!;
+            userItem.customer = JsonContext.customers.FirstOrDefault(c => c.user_id == userItem.id)!;
+            return Ok(BuildUserResponse(userItem));
+        }
         if (DbContext is null) return DbBackendMissing();
-        var entity = await DbContext.Set<user>().FindAsync(id);
-        return entity is null ? NotFound() : Ok(entity);
+        var entity = await DbContext.Set<user>()
+            .Include(u => u.customer)
+            .Include(u => u.role)
+            .Include(u => u.status)
+            .FirstOrDefaultAsync(u => u.id == id);
+        return entity is null ? NotFound() : Ok(BuildUserResponse(entity));
     }
 
     [HttpGet("GetAll")]
     public async Task<IActionResult> GetAll(bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.users);
+        if (UseJsonBackend(useJson))
+        {
+            var users = JsonContext!.users;
+            foreach (var userItem in users)
+            {
+                userItem.role = JsonContext.roles.FirstOrDefault(r => r.id == userItem.role_id)!;
+                userItem.status = JsonContext.user_statuses.FirstOrDefault(s => s.id == userItem.status_id)!;
+                userItem.customer = JsonContext.customers.FirstOrDefault(c => c.user_id == userItem.id)!;
+            }
+
+            return Ok(users.Select(BuildUserResponse).ToList());
+        }
         if (DbContext is null) return DbBackendMissing();
-        return Ok(await DbContext.Set<user>().ToListAsync());
+        var entities = await DbContext.Set<user>()
+            .Include(u => u.customer)
+            .Include(u => u.role)
+            .Include(u => u.status)
+            .ToListAsync();
+        return Ok(entities.Select(BuildUserResponse).ToList());
     }
 
     [HttpPost("Create")]
@@ -42,7 +70,7 @@ public class UserController : BaseApiController
 
         await DbContext.Set<user>().AddAsync(item);
         await DbContext.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = item.id }, item);
+        return CreatedAtAction(nameof(GetById), new { id = item.id }, BuilderResponseCreate(item));
     }
 
     [HttpPut("Update")]
@@ -53,7 +81,7 @@ public class UserController : BaseApiController
 
         DbContext.Set<user>().Update(item);
         await DbContext.SaveChangesAsync();
-        return Ok(item);
+        return Ok(BuilderResponseUpdate(item));
     }
 
     [HttpDelete("Delete")]
@@ -132,4 +160,56 @@ public class UserController : BaseApiController
         var exists = await DbContext.Set<user>().AnyAsync(u => u.email == email);
         return Ok(exists);
     }
+
+    private static object BuildUserResponse(user userItem)
+    {
+        return new
+        {
+            userItem.id,
+            userItem.username,
+            userItem.email,
+            role = userItem.role?.role_name ,
+            status = userItem.status?.status_name,
+            customer = userItem.customer?.id
+        };
+    }
+
+  private static object BuilderResponseCreate(user userItem)
+{
+    if (userItem is null) 
+    {
+        return new 
+        { 
+            error = true,
+            message = "No se pudo procesar la respuesta porque el usuario está vacío." 
+        };
+    }
+    return new
+    {
+        userItem.id,
+        message = "Usuario " + userItem.username + " creado exitosamente",       
+    };
+}
+
+  private static object BuilderResponseUpdate(user userItem)
+{
+    if (userItem is null) 
+    {
+        return new 
+        { 
+            error = true,
+            message = "No se pudo procesar la respuesta porque el usuario está vacío." 
+        };
+    }
+    return new
+    {       
+        message = "Usuario actualizado exitosamente",
+        userItem.id,
+        userItem.username,
+        userItem.email,
+        userItem.role_id,
+        userItem.status_id    
+    };
+}
+
 }

@@ -215,6 +215,9 @@ namespace HotelCarga.DbModel
                     .UseCollation("utf8mb4_unicode_ci");
 
                 entity.HasIndex(e => e.booking_id, "idx_booking_id");
+                entity.HasIndex(e => e.customer_id, "idx_customer_id");
+                entity.HasIndex(e => e.room_id, "fk_booking_history_room");
+                entity.HasIndex(e => e.status_id, "fk_booking_history_status");
 
                 entity.Property(e => e.action_type)
                     .IsRequired()
@@ -231,6 +234,21 @@ namespace HotelCarga.DbModel
                     .HasForeignKey(d => d.booking_id)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_booking_history_booking");
+
+                entity.HasOne(d => d.customer).WithMany(p => p.booking_histories)
+                    .HasForeignKey(d => d.customer_id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_booking_history_customer");
+
+                entity.HasOne(d => d.room).WithMany(p => p.booking_histories)
+                    .HasForeignKey(d => d.room_id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_booking_history_room");
+
+                entity.HasOne(d => d.status).WithMany(p => p.booking_histories)
+                    .HasForeignKey(d => d.status_id)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("fk_booking_history_status");
             });
 
             modelBuilder.Entity<booking_status>(entity =>

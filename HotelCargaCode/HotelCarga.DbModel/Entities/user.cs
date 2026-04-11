@@ -24,9 +24,9 @@ public partial class user
 
     public DateTime? updated_at { get; set; }
 
-    public virtual customer customer { get; set; }
+    public virtual customer? customer { get; set; }
 
-    public virtual role role { get; set; }
+    public virtual role? role { get; set; }
 
-    public virtual user_status status { get; set; }
+    public virtual user_status? status { get; set; }
 }
