@@ -10,7 +10,7 @@ public partial class booking
 {
     public uint id { get; set; }
 
-    public string reserve_number { get; set; }
+    public string? reserve_number { get; set; }
 
     public uint customer_id { get; set; }
 

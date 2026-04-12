@@ -75,16 +75,143 @@ public class BookingController : BaseApiController
             return Ok(entities.Select(BuildBookingResponse).ToList());
     }
 
-    [HttpPost("Create")]
+   [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] booking item, bool useJson = false)
     {
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
+        // Verify that the dates of stay are correct
+            if(!AreDatesValid(item.check_in, item.check_out, out string errorMessage)) return Conflict(new { error = true, message = errorMessage });
 
-        await DbContext.Set<booking>().AddAsync(item);
-        await DbContext.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = item.id }, item);
+        try
+        {
+            // Retrieve the room to check availability and price
+            var room = await DbContext.Set<room>().FindAsync(item.room_id);
+                       
+            // Verify room availability 
+            if(IsRoomAvailable(room, item.room_id, out errorMessage) != true) return Conflict(new { error = true, message = errorMessage });
+
+            // Prepare the reservation data
+            item.reserve_number = await AssignReserveNumber();
+            item.nightly_rate = room!.nightly_rate;
+
+            // Calculate total price based on room's nightly rate.
+            item.total_price = calculate_total_price(room.nightly_rate, item.check_in, item.check_out);
+
+            // Update room status
+            room.status_id = 2; // Occupied
+            await DbContext.Set<booking>().AddAsync(item);
+            await DbContext.SaveChangesAsync();
+
+            return CreatedAtAction(
+            nameof(GetById), 
+            new { id = item.id }, 
+            new { 
+            success = true,
+            message = "Reserva creada exitosamente. Tu número de reserva es:  " + item.reserve_number,
+            data = BuildBookingResponse(item) 
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = true, message = "Processing error: " + ex.Message });
+        }
     }
+
+    //Crea el número de reserva, siguiendo un consecutivo.
+    private async Task<string> AssignReserveNumber()
+    {
+        try
+        {
+            var lastReservation = await DbContext!.bookings
+                .OrderByDescending(b => b.reserve_number)
+                .Select(b => b.reserve_number)
+                .FirstOrDefaultAsync();
+
+            if (string.IsNullOrEmpty(lastReservation))
+            {
+                return "RES0001";
+            }
+
+            //Valida que el consetuvito comience con el prefijo RES
+            if (!lastReservation.StartsWith("RES"))
+            {
+                throw new FormatException($"El código '{lastReservation}' no tiene el prefijo esperado 'RES'.");
+            }
+
+            string numericPart = lastReservation.Substring(3);
+
+            if (int.TryParse(numericPart, out int number))
+            {
+                number++;
+                return $"RES{number:D4}";
+            }
+            else
+            {
+                throw new FormatException($"La parte numérica de '{lastReservation}' es inválida.");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Ocurrió un error inesperado al generar el número de reserva.", ex);
+        }
+    }
+
+    private decimal calculate_total_price(decimal nightlyRate, DateTime checkIn, DateTime checkOut)
+    {
+
+        if (nightlyRate == 0) return 0;
+
+        //calculate the difference in days
+        int days = (checkOut - checkIn).Days;
+        if (days <= 0) days = 1; // If the stay is for less than 1 day, a full day's charge applies.
+
+        return days * nightlyRate;
+    }
+
+    private bool AreDatesValid(DateTime checkIn, DateTime checkOut, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        //Check if the check-in date is in the past
+        if (checkIn.Date < DateTime.Today)
+        {
+            errorMessage = "La fecha de check-in no puede ser menor a la actual.";
+            return false;
+        }
+
+        //Check if check-out is after check-in
+        if (checkOut.Date < checkIn.Date)
+        {
+            errorMessage = "La fecha de check-out no puede estar antes de la fecha de check-in.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool IsRoomAvailable(room? room, uint roomId, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        //Check if the room exists in the database
+        if (room == null)
+        {
+            errorMessage = "La habitación seleccionada no existe.";
+            return false;
+        }
+
+        // Check if the status is 'Available' (status_id = 1)
+        if (room.status_id != 1)
+        {
+            errorMessage = "La habitación no se encuentra disponible actualmente,";
+            return false;
+        }
+
+        return true;
+    }
+
+
 
     [HttpPut("Update")]
     public async Task<IActionResult> Update([FromBody] booking item, bool useJson = false)
@@ -247,7 +374,7 @@ public class BookingController : BaseApiController
         return Ok(results);
     }
 
-    public static object BuildBookingResponse(booking b)
+    private static object BuildBookingResponse(booking b)
     {
         return new
         {
