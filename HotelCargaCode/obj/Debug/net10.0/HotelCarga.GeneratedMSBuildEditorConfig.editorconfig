@@ -1,0 +1,51 @@
+is_global = true
+build_property.TargetFramework = net10.0
+build_property.TargetFramework = net10.0
+build_property.TargetPlatformMinVersion = 
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v10.0
+build_property.RootNamespace = HotelCarga
+build_property.RootNamespace = HotelCarga
+build_property.ProjectDir = C:\Git\academic-journey\HotelCargaCode\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Git\academic-journey\HotelCargaCode
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 10.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Home/About.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcSG9tZVxBYm91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
