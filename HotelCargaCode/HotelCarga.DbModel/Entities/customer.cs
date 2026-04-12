@@ -34,7 +34,7 @@ public partial class customer
 
     public virtual ICollection<booking> bookings { get; set; } = new List<booking>();
 
-    public virtual user user { get; set; }
+    public virtual user? user { get; set; }
 
     public virtual ICollection<waiting_queue> waiting_queues { get; set; } = new List<waiting_queue>();
 }

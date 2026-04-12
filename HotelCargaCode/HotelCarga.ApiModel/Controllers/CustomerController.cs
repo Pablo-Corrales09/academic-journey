@@ -6,6 +6,7 @@ using HotelCarga.DbModel;
 using HotelCargaJsonRepositoryModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace HotelCarga.ApiModel.Controllers;
 
@@ -20,18 +21,63 @@ public class CustomerController : BaseApiController
     [HttpGet("GetById")]
     public async Task<IActionResult> GetById(uint id, bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.customers.FirstOrDefault(c => c.id == id));
-        if (DbContext is null) return DbBackendMissing();
-        var customer = await DbContext.Set<customer>().FindAsync(id);
-        return customer is null ? NotFound() : Ok(customer);
+        customer? customerItem = null;
+        
+        if (UseJsonBackend(useJson))
+        {
+            customerItem = JsonContext?.customers.FirstOrDefault(c => c.id == id);           
+
+            if (customerItem != null)
+            {
+                var user = JsonContext?.users.FirstOrDefault(u => u.id == customerItem.user_id);                
+                if (user is not null)
+                {
+                    var status = JsonContext?.user_statuses.FirstOrDefault(s => s.id == user.status_id);
+                    if (status is not null) user.status = status;
+
+                    var role = JsonContext?.roles.FirstOrDefault(r => r.id == user.role_id);
+                    if (role is not null) user.role = role;
+                    customerItem.user = user;
+                }
+            }
+        }
+        else
+        {
+            if (DbContext is null) return DbBackendMissing();
+
+            customerItem = await DbContext.Set<customer>()
+                .Include(c => c.user)
+                    .ThenInclude(u => u!.status)
+                .Include(c => c.user)
+                    .ThenInclude(u => u!.role)
+                .FirstOrDefaultAsync(c => c.id == id);
+        }
+        if (customerItem is null) return NotFound();
+        return Ok(BuildUserResponse(customerItem));       
+
     }
 
     [HttpGet("GetAll")]
     public async Task<IActionResult> GetAll(bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.customers);
+        if (UseJsonBackend(useJson))
+        {
+            var customers = JsonContext!.customers;
+            foreach (var customerItem in customers)
+            {
+                var user = JsonContext.users.FirstOrDefault(u => u.id == customerItem.user_id);
+                var status = JsonContext.user_statuses.FirstOrDefault(s => s.id == user?.status_id);
+            }
+            return Ok(customers.Select(BuildUserResponse).ToList());        
+        }
         if (DbContext is null) return DbBackendMissing();
-        return Ok(await DbContext.Set<customer>().ToListAsync());
+        var entities = await DbContext.Set<customer>()
+        .Include(c => c.user)
+        .ThenInclude(u => u!.status)
+        .Include(c => c.user)
+        .ThenInclude(u => u!.role)
+        .ToListAsync();
+        return Ok(entities.Select(BuildUserResponse).ToList());
     }
 
     [HttpPost("Create")]
@@ -40,10 +86,40 @@ public class CustomerController : BaseApiController
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
 
+        var userValidation = await ValidateNewCustomerAsync(item);
+
+        if (!userValidation.IsValid)
+        {
+        return Conflict(new { error = true, message = userValidation.ErrorMessage });  
+        }
+
         await DbContext.Set<customer>().AddAsync(item);
         await DbContext.SaveChangesAsync();
         return CreatedAtAction(nameof(GetById), new { id = item.id }, item);
     }
+
+    //Valida si el número de documento o correo ya está ocupado por un usuario.
+    public async Task<(bool IsValid, string ErrorMessage)> ValidateNewCustomerAsync(customer item)
+    {
+        bool userAlreadyTaken = await DbContext!.Set<customer>()
+            .AnyAsync(c => c.user_id == item.user_id);
+        
+        if (userAlreadyTaken) 
+            {
+                return (false, $"El usuario {item.user_id} ya tiene un perfil de cliente asignado.");
+            }
+        
+        bool documentExists = await DbContext.Set<customer>()
+        .AnyAsync(c => c.document_number == item.document_number);
+        
+        if (documentExists) 
+        {
+            return (false, $"El número de documento '{item.document_number}' ya está registrado.");
+        }
+
+        return (true, string.Empty);
+    }
+
 
     [HttpPut("Update")]
     public async Task<IActionResult> Update([FromBody] customer item, bool useJson = false)
@@ -51,9 +127,35 @@ public class CustomerController : BaseApiController
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
 
-        DbContext.Set<customer>().Update(item);
+        // 1. Validar que el cliente enviado en el JSON tenga un ID mayor a 0
+        if (item.id == 0)
+        {
+            return BadRequest(new { error = true, message = "El ID del cliente es necesario para actualizar." });
+        }
+
+        var existingCustomer = await DbContext.Set<customer>().FindAsync(item.id);
+        if (existingCustomer is null)
+        {
+            return NotFound(new { error = true, message = $"No se encontró ningún cliente con el ID {item.id}." });
+        }
+
+        existingCustomer.document_number = item.document_number;
+        existingCustomer.first_name = item.first_name;
+        existingCustomer.last_name = item.last_name;
+        existingCustomer.phone = item.phone;
+        existingCustomer.address = item.address;
+        existingCustomer.city = item.city;
+        existingCustomer.country = item.country;
+
+        DbContext.Set<customer>().Update(existingCustomer);
         await DbContext.SaveChangesAsync();
-        return Ok(item);
+
+        return Ok(new
+        {
+            error = false,
+            message = "Cliente actualizado exitosamente",
+            data = BuildUserResponse(existingCustomer)  
+        });
     }
 
     [HttpDelete("Delete")]
@@ -159,4 +261,26 @@ public class CustomerController : BaseApiController
         if (DbContext is null) return DbBackendMissing();
         return Ok(await DbContext.Set<waiting_queue>().Where(w => w.customer_id == customerId).Select(w => w.id).ToListAsync());
     }
+
+    public static object BuildUserResponse(customer customerItem)
+    {
+        return new
+        {
+            customerItem.id,
+            customerItem.first_name,
+            customerItem.last_name, 
+            customerItem.document_number,
+            customerItem.phone,
+            customerItem.country,
+            customerItem.city,
+            customerItem.address,
+            username = customerItem.user?.username,
+            email = customerItem.user?.email,
+            role = customerItem.user?.role?.role_name,
+            status = customerItem.user?.status?.status_name,
+            customerItem.bookings,
+            customerItem.waiting_queues           
+        };
+    }
+
 }
