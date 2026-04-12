@@ -22,15 +22,34 @@ public class BookingController : BaseApiController
     [HttpGet("GetById")]
     public async Task<IActionResult> GetById(uint id, bool useJson = false)
     {
+        booking? bookingItem = null;
         if (UseJsonBackend(useJson))
         {
-            return JsonContext is null ? DbBackendMissing() : Ok(JsonContext.bookings.FirstOrDefault(b => b.id == id));
+            bookingItem = JsonContext?.bookings.FirstOrDefault(b => b.id == id);
+            if (bookingItem != null)
+            {
+                var status = JsonContext?.booking_statuses.FirstOrDefault(s => s.id == bookingItem.status_id);
+                if (status is not null) bookingItem.status = status;
+
+                var customer = JsonContext?.customers.FirstOrDefault(c => c.id == bookingItem.customer_id);
+                if (customer is not null) bookingItem.customer = customer;
+
+                var room = JsonContext?.rooms.FirstOrDefault(r => r.id == bookingItem.room_id);
+                if (room is not null) bookingItem.room = room;
+            }
         }
+        else
+        {
+           if(DbContext is null) return DbBackendMissing();
+           bookingItem = await DbContext.Set<booking>()           
+            .Include(b => b.status)
+            .Include(b => b.customer)
+            .Include(b => b.room)
+            .FirstOrDefaultAsync(b => b.id == id);
+        }
+        if (bookingItem is null) return NotFound();
 
-        if (DbContext is null) return DbBackendMissing();
-
-        var booking = await DbContext.Set<booking>().FindAsync(id);
-        return booking is null ? NotFound() : Ok(booking);
+        return Ok(BuildBookingResponse(bookingItem));
     }
 
     [HttpGet("GetAll")]
@@ -38,11 +57,22 @@ public class BookingController : BaseApiController
     {
         if (UseJsonBackend(useJson))
         {
-            return Ok(JsonContext!.bookings);
-        }
-
-        if (DbContext is null) return DbBackendMissing();
-        return Ok(await DbContext.Set<booking>().ToListAsync());
+            var bookings = JsonContext!.bookings;
+            foreach (var bookingItem in bookings)
+            {
+                var status = JsonContext.booking_statuses.FirstOrDefault(s => s.id == bookingItem.status_id);
+                var customer =  JsonContext.customers.FirstOrDefault(c => c.id == bookingItem.customer_id);
+                var room = JsonContext.rooms.FirstOrDefault(r => r.id == bookingItem.room_id);
+            }
+            return Ok(bookings.Select(BuildBookingResponse).ToList());
+            }
+            if(DbContext is null) return DbBackendMissing();
+            var entities = await DbContext.Set<booking>()
+            .Include(c=> c.customer)
+            .Include(c=> c.room)
+            .Include(c=> c.status)
+            .ToListAsync();
+            return Ok(entities.Select(BuildBookingResponse).ToList());
     }
 
     [HttpPost("Create")]
@@ -216,4 +246,31 @@ public class BookingController : BaseApiController
             .ToListAsync();
         return Ok(results);
     }
+
+    public static object BuildBookingResponse(booking b)
+    {
+        return new
+        {
+            b.id, 
+            b.reserve_number, 
+
+            b.status_id,
+            status_name = b.status?.status_name ?? "Sin estado",
+                      
+            b.customer_id,
+            customer_name = b.customer != null
+            ? $"{b.customer.first_name} {b.customer.last_name}"
+            : "Sin cliente",
+
+            b.room_id,
+            room_number = b.room?.room_number ?? 0,
+
+            b.check_in,
+            b.check_out,
+
+            b.nightly_rate,
+            b.total_price
+        };
+    }
+    
 }

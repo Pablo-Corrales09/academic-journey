@@ -32,9 +32,9 @@ public partial class booking
 
     public virtual ICollection<booking_history> booking_histories { get; set; } = new List<booking_history>();
 
-    public virtual customer customer { get; set; }
+    public virtual customer? customer { get; set; }
 
-    public virtual room room { get; set; }
+    public virtual room? room { get; set; }
 
-    public virtual booking_status status { get; set; }
+    public virtual booking_status? status { get; set; }
 }
