@@ -28,9 +28,9 @@ public partial class room
 
     public virtual ICollection<booking> bookings { get; set; } = new List<booking>();
 
-    public virtual room_category category { get; set; }
+    public virtual room_category? category { get; set; }
 
     public virtual ICollection<room_availability> room_availabilities { get; set; } = new List<room_availability>();
 
-    public virtual room_status status { get; set; }
+    public virtual room_status? status { get; set; }
 }

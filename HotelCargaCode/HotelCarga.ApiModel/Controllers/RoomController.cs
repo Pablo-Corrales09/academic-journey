@@ -20,26 +20,79 @@ public class RoomController : BaseApiController
     [HttpGet("GetById")]
     public async Task<IActionResult> GetById(uint id, bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.rooms.FirstOrDefault(r => r.id == id));
+        room? finalRoom = null;
+
+    if (UseJsonBackend(useJson))
+    {
+        finalRoom = JsonContext?.rooms.FirstOrDefault(r => r.id == id);
+        
+        if (finalRoom != null)
+        {
+            var status = JsonContext?.room_statuses.FirstOrDefault(s => s.id == finalRoom.status_id);
+            var category = JsonContext?.room_categories.FirstOrDefault(c => c.id == finalRoom.category_id);
+
+            if (status is not null) finalRoom.status = status;
+            if (category is not null) finalRoom.category = category;
+        }
+    }
+    else
+    {
         if (DbContext is null) return DbBackendMissing();
-        var entity = await DbContext.Set<room>().FindAsync(id);
-        return entity is null ? NotFound() : Ok(entity);
+
+        finalRoom = await DbContext.Set<room>() 
+            .Include(r => r.status)
+            .Include(r => r.category)
+            .FirstOrDefaultAsync(r => r.id == id);
+    }
+    if (finalRoom is null) return NotFound();
+
+    return Ok(BuilderRoomResponse(finalRoom));
+        
     }
 
     [HttpGet("GetAll")]
     public async Task<IActionResult> GetAll(bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.rooms);
-        if (DbContext is null) return DbBackendMissing();
-        return Ok(await DbContext.Set<room>().ToListAsync());
+        if (UseJsonBackend(useJson))
+        {
+            var rooms = JsonContext!.rooms;
+            foreach (var roomItem in rooms)
+            {
+                roomItem.status = JsonContext.room_statuses.FirstOrDefault(s => s.id == roomItem.status_id)!;
+                roomItem.category = JsonContext.room_categories.FirstOrDefault(c => c.id == roomItem.category_id)!;
+            }
+
+            return Ok(rooms.Select(BuilderRoomResponse).ToList());
+        }
+        if(DbContext is null) return DbBackendMissing();
+        var entities = await DbContext.Set<room>()
+        .Include(r => r.status)
+        .Include(r => r.category)
+        .ToListAsync();
+
+        return Ok(entities.Select(BuilderRoomResponse).ToList());
     }
+             
 
     [HttpPost("Create")]
     public async Task<IActionResult> Create([FromBody] room item, bool useJson = false)
     {
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
+        
+        bool roomExists = await DbContext.Set<room>()
+        .AnyAsync(r => r.room_number == item.room_number);
 
+        if (roomExists)
+        {
+            return Conflict(
+                new
+                {
+                    error = true,
+                    message = $"La habitación con el número {item.room_number} ya existe."
+                }
+            );
+        }
         await DbContext.Set<room>().AddAsync(item);
         await DbContext.SaveChangesAsync();
         return CreatedAtAction(nameof(GetById), new { id = item.id }, item);
@@ -53,7 +106,11 @@ public class RoomController : BaseApiController
 
         DbContext.Set<room>().Update(item);
         await DbContext.SaveChangesAsync();
-        return Ok(item);
+        return Ok(new
+        {
+            message = "Habitación actualizada exitosamente",
+            data = BuilderRoomResponse(item)
+        });
     }
 
     [HttpDelete("Delete")]
@@ -67,7 +124,13 @@ public class RoomController : BaseApiController
 
         DbContext.Set<room>().Remove(entity);
         await DbContext.SaveChangesAsync();
-        return NoContent();
+        return Ok(
+            new
+            {
+                error = false,
+                message = "Habitación eliminada exitosamente"
+            }
+        );
     }
 
     [HttpGet("GetByRoomNumber")]
@@ -134,4 +197,26 @@ public class RoomController : BaseApiController
         if (DbContext is null) return DbBackendMissing();
         return Ok(await DbContext.Set<room_availability>().Where(a => a.room_id == roomId).ToListAsync());
     }
-}
+
+    private static object BuilderRoomResponse(room roomItem)
+    {
+    return new
+    {
+        roomItem.id,
+        roomItem.room_number,
+        roomItem.floor_number,
+        roomItem.nightly_rate,
+        roomItem.status_id,
+        roomItem.category_id,
+        status_name = roomItem.status?.status_name,
+        category_name = roomItem.category?.category_name
+    };
+    }
+    }
+
+
+
+
+
+
+
