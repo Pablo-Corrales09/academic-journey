@@ -1,0 +1,51 @@
+@model HotelCarga.Models.Rooms.RoomCollectionPageViewModel<HotelCarga.Models.Rooms.RoomBookingHistoryViewModel>
+
+@{
+    ViewData["Title"] = "Room Booking Histories";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/room/Styles.css" asp-append-version="true" />
+}
+
+<div class="room-shell" data-page="related">
+    <section class="room-hero compact" data-animate>
+        <div class="room-hero__content">
+            <span class="room-eyebrow">History</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.Description</p>
+        </div>
+    </section>
+
+    <section class="room-surface" data-animate>
+        <div class="room-form-actions room-form-actions--inline">
+            <a asp-action="Details" asp-route-id="@Model.Room.Id" class="room-button room-button--ghost">Back to Room</a>
+        </div>
+        @if (Model.Items.Count == 0)
+        {
+            <div class="room-empty-state">
+                <h3>No history records found.</h3>
+                <p>This room has no tracked booking history yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="room-timeline room-timeline--full">
+                @foreach (var history in Model.Items)
+                {
+                    <article class="room-timeline__item">
+                        <strong>@history.ActionType</strong>
+                        <span>Status: @history.StatusName</span>
+                        <p>Booking #@history.BookingId, customer #@history.CustomerId</p>
+                        <p>@history.CheckIn.ToString("MMM dd, yyyy") - @history.CheckOut.ToString("MMM dd, yyyy")</p>
+                        <p>@(history.CreatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "No timestamp")</p>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/room/related-histories.js" asp-append-version="true"></script>
+}

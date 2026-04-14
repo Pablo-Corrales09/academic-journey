@@ -1,0 +1,160 @@
+@model HotelCarga.Models.Rooms.RoomIndexViewModel
+
+@{
+    ViewData["Title"] = "Rooms";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/room/Styles.css" asp-append-version="true" />
+}
+
+<div class="room-shell" data-page="index">
+    <section class="room-hero" data-animate>
+        <div class="room-hero__content">
+            <span class="room-eyebrow">Hotel Inventory</span>
+            <h1>Manage rooms with a calm, guest-first workflow.</h1>
+            <p>Filter the room catalog, review pricing posture, and open each room profile to inspect bookings, histories, and availability windows.</p>
+            <div class="room-hero__actions">
+                <a asp-action="Create" class="room-button">Create Room</a>
+                <a asp-action="GetAll" class="room-button room-button--ghost">Reset Filters</a>
+            </div>
+        </div>
+        <div class="room-hero__panel">
+            <div class="room-stat-grid">
+                <article class="room-stat-card">
+                    <span>Total inventory</span>
+                    <strong data-count="@Model.Stats.TotalRooms">@Model.Stats.TotalRooms</strong>
+                </article>
+                <article class="room-stat-card">
+                    <span>Matching rooms</span>
+                    <strong data-count="@Model.Stats.MatchingRooms">@Model.Stats.MatchingRooms</strong>
+                </article>
+                <article class="room-stat-card">
+                    <span>Available now</span>
+                    <strong data-count="@Model.Stats.AvailableRooms">@Model.Stats.AvailableRooms</strong>
+                </article>
+                <article class="room-stat-card">
+                    <span>Average rate</span>
+                    <strong>@Model.Stats.AverageNightlyRate.ToString("C")</strong>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="room-alert room-alert--success" data-animate>@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="room-alert room-alert--error" data-animate>@errorMessage</div>
+    }
+
+    <section class="room-surface room-filter-panel" data-animate>
+        <div class="room-surface__header">
+            <div>
+                <span class="room-section-tag">Search & Filter</span>
+                <h2>Find rooms fast</h2>
+            </div>
+            <p>@Model.ActiveFilterSummary</p>
+        </div>
+
+        <form asp-action="Index" method="get" class="room-filter-grid">
+            <div class="room-field">
+                <label asp-for="Filters.RoomNumber"></label>
+                <input asp-for="Filters.RoomNumber" class="room-input" />
+            </div>
+            <div class="room-field">
+                <label asp-for="Filters.MinRate"></label>
+                <input asp-for="Filters.MinRate" class="room-input" />
+            </div>
+            <div class="room-field">
+                <label asp-for="Filters.MaxRate"></label>
+                <input asp-for="Filters.MaxRate" class="room-input" />
+            </div>
+            <div class="room-field">
+                <label asp-for="Filters.StatusId"></label>
+                <select asp-for="Filters.StatusId" asp-items="Model.StatusOptions" class="room-input">
+                    <option value="">All statuses</option>
+                </select>
+            </div>
+            <div class="room-field">
+                <label asp-for="Filters.CategoryId"></label>
+                <select asp-for="Filters.CategoryId" asp-items="Model.CategoryOptions" class="room-input">
+                    <option value="">All categories</option>
+                </select>
+            </div>
+            <div class="room-field">
+                <label asp-for="Filters.FloorNumber"></label>
+                <input asp-for="Filters.FloorNumber" class="room-input" />
+            </div>
+            <div class="room-form-actions room-form-actions--inline">
+                <button type="submit" class="room-button">Apply Filters</button>
+                <a asp-action="GetAll" class="room-button room-button--ghost">Clear</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="room-surface" data-animate>
+        <div class="room-surface__header">
+            <div>
+                <span class="room-section-tag">Room Directory</span>
+                <h2>Operational room list</h2>
+            </div>
+            <p>@Model.Rooms.Count room records ready for review.</p>
+        </div>
+
+        @if (Model.Rooms.Count == 0)
+        {
+            <div class="room-empty-state">
+                <h3>No rooms matched this filter.</h3>
+                <p>Try widening the nightly rate range, clearing a status, or creating a fresh room entry.</p>
+            </div>
+        }
+        else
+        {
+            <div class="room-card-grid">
+                @foreach (var room in Model.Rooms)
+                {
+                    <article class="room-card" data-animate>
+                        <div class="room-card__header">
+                            <div>
+                                <span class="room-chip">Room @room.RoomNumber</span>
+                                <h3>@room.CategoryName</h3>
+                            </div>
+                            <span class="room-status-pill">@room.StatusName</span>
+                        </div>
+                        <dl class="room-card__meta">
+                            <div>
+                                <dt>Floor</dt>
+                                <dd>@(room.FloorNumber?.ToString() ?? "Not assigned")</dd>
+                            </div>
+                            <div>
+                                <dt>Rate</dt>
+                                <dd>@room.NightlyRate.ToString("C")</dd>
+                            </div>
+                            <div>
+                                <dt>Status</dt>
+                                <dd>@room.StatusName</dd>
+                            </div>
+                            <div>
+                                <dt>Category</dt>
+                                <dd>@room.CategoryName</dd>
+                            </div>
+                        </dl>
+                        <div class="room-card__actions">
+                            <a asp-action="Details" asp-route-id="@room.Id" class="room-button">Open</a>
+                            <a asp-action="Edit" asp-route-id="@room.Id" class="room-button room-button--ghost">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@room.Id" class="room-button room-button--ghost room-button--danger">Delete</a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/room/index.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,52 @@
+@model HotelCarga.Models.Rooms.RoomDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Delete Room {Model.Room.RoomNumber}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/room/Styles.css" asp-append-version="true" />
+}
+
+<div class="room-shell" data-page="delete">
+    <section class="room-hero compact" data-animate>
+        <div class="room-hero__content">
+            <span class="room-eyebrow">Delete Confirmation</span>
+            <h1>Delete room @Model.Room.RoomNumber?</h1>
+            <p>This action removes the room record from the MVC workflow. Double-check related bookings and schedules before confirming.</p>
+        </div>
+    </section>
+
+    <section class="room-surface" data-animate>
+        <div class="room-delete-summary">
+            <div>
+                <span>Category</span>
+                <strong>@Model.Room.CategoryName</strong>
+            </div>
+            <div>
+                <span>Status</span>
+                <strong>@Model.Room.StatusName</strong>
+            </div>
+            <div>
+                <span>Bookings</span>
+                <strong>@Model.Bookings.Count</strong>
+            </div>
+            <div>
+                <span>Availability blocks</span>
+                <strong>@Model.Availabilities.Count</strong>
+            </div>
+        </div>
+
+        <form asp-action="Delete" method="post" class="room-delete-form">
+            <input type="hidden" name="id" value="@Model.Room.Id" />
+            <div class="room-form-actions">
+                <a asp-action="Details" asp-route-id="@Model.Room.Id" class="room-button room-button--ghost">Cancel</a>
+                <button type="submit" class="room-button room-button--danger">Delete Room</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/room/delete.js" asp-append-version="true"></script>
+}

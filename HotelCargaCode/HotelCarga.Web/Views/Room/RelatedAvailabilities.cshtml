@@ -1,0 +1,62 @@
+@model HotelCarga.Models.Rooms.RoomCollectionPageViewModel<HotelCarga.Models.Rooms.RoomAvailabilityViewModel>
+
+@{
+    ViewData["Title"] = "Room Availabilities";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/room/Styles.css" asp-append-version="true" />
+}
+
+<div class="room-shell" data-page="related">
+    <section class="room-hero compact" data-animate>
+        <div class="room-hero__content">
+            <span class="room-eyebrow">Availability</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.Description</p>
+        </div>
+    </section>
+
+    <section class="room-surface" data-animate>
+        <div class="room-form-actions room-form-actions--inline">
+            <a asp-action="Details" asp-route-id="@Model.Room.Id" class="room-button room-button--ghost">Back to Room</a>
+        </div>
+        @if (Model.Items.Count == 0)
+        {
+            <div class="room-empty-state">
+                <h3>No availability windows found.</h3>
+                <p>This room does not have registered schedule blocks yet.</p>
+            </div>
+        }
+        else
+        {
+            <div class="room-table-wrap">
+                <table class="room-table">
+                    <thead>
+                        <tr>
+                            <th>Availability Id</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var availability in Model.Items)
+                        {
+                            <tr>
+                                <td>@availability.Id</td>
+                                <td>@availability.StartSchedule.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td>@availability.EndSchedule.ToString("MMM dd, yyyy HH:mm")</td>
+                                <td>@(availability.CreatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "No timestamp")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/room/related-availabilities.js" asp-append-version="true"></script>
+}

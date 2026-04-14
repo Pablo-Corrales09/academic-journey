@@ -221,7 +221,6 @@ public class BookingController : BaseApiController
     }
 
 
-
     [HttpPut("Update")]
     public async Task<IActionResult> Update([FromBody] booking item, bool useJson = false)
     {

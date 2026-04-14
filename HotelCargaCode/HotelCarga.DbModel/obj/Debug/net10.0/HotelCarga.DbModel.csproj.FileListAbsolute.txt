@@ -13,3 +13,7 @@ C:\Git\academic-journey\HotelCargaCode\HotelCarga.DbModel\obj\Debug\net10.0\refi
 C:\Git\academic-journey\HotelCargaCode\HotelCarga.DbModel\obj\Debug\net10.0\HotelCarga.DbModel.pdb
 C:\Git\academic-journey\HotelCargaCode\HotelCarga.DbModel\obj\Debug\net10.0\HotelCarga.DbModel.genruntimeconfig.cache
 C:\Git\academic-journey\HotelCargaCode\HotelCarga.DbModel\obj\Debug\net10.0\ref\HotelCarga.DbModel.dll
+C:\Git\academic-journey\HotelCargaCode\artifacts\room-api-client-build\HotelCarga.DbModel.deps.json
+C:\Git\academic-journey\HotelCargaCode\artifacts\room-api-client-build\HotelCarga.DbModel.runtimeconfig.json
+C:\Git\academic-journey\HotelCargaCode\artifacts\room-api-client-build\HotelCarga.DbModel.dll
+C:\Git\academic-journey\HotelCargaCode\artifacts\room-api-client-build\HotelCarga.DbModel.pdb

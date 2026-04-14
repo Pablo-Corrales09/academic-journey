@@ -10,7 +10,7 @@ using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Cargamos la cadena de conexión de forma segura (desde user-secrets en desarrollo)
+// 1. Cargamos la cadena de conexion de forma segura (desde user-secrets en desarrollo)
 string connectionString = builder.Configuration.GetConnectionString("myConnectionString");
 
 // Debug: Intenta acceso alternativo si el primero falla
@@ -19,7 +19,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
     connectionString = builder.Configuration["ConnectionStrings:myConnectionString"];
 }
 
-// 2. Validamos que no sea nula y que NO esté vacía
+// 2. Validamos que no sea nula y que NO este vacia
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     var environment = builder.Environment.EnvironmentName;
@@ -37,61 +37,10 @@ builder.Services.AddDbContext<HotelCargaContext>(options =>
 // 4. Register Repository Pattern Services
 RegisterRepositories(builder.Services);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// ¡SOLO UN builder.Build()!
 var app = builder.Build();
 
-// ============================================================
-// 🛠️ BLOQUE DE PRUEBA DE CONEXIÓN A LA BASE DE DATOS
-// ============================================================
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<HotelCargaContext>();
-        
-        Console.WriteLine("Intentando conectar a la base de datos...");
-        
-        bool isConnected = await context.Database.CanConnectAsync();
-
-        if (isConnected)
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("====================================================");
-            Console.WriteLine("✅ ¡ÉXITO! Conexión a MySQL en Azure establecida.");
-            Console.WriteLine("====================================================");
-            Console.ResetColor();
-        }
-        else
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("====================================================");
-            Console.WriteLine("⚠️ ADVERTENCIA: No se pudo conectar a la base de datos.");
-            Console.WriteLine("====================================================");
-            Console.ResetColor();
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("====================================================");
-        Console.WriteLine($"❌ EXCEPCIÓN AL CONECTAR: {ex.Message}");
-        if (ex.InnerException != null)
-        {
-            Console.WriteLine($"🔍 Detalle interno: {ex.InnerException.Message}");
-        }
-        Console.WriteLine("====================================================");
-        Console.ResetColor();
-    }
-}
-// ============================================================
-// FIN DEL BLOQUE DE PRUEBA
-// ============================================================
-
-// Configure the HTTP request pipeline (Limpio y sin duplicados)
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -111,18 +60,13 @@ app.MapControllerRoute(
 
 app.Run();
 
-// ============================================================
-// Repository Pattern Dependency Injection Extension
-// ============================================================
 static void RegisterRepositories(IServiceCollection services)
 {
-    // Status Repositories
     services.AddScoped<IUserStatusRepository, UserStatusRepository>();
     services.AddScoped<IRoomStatusRepository, RoomStatusRepository>();
     services.AddScoped<IBookingStatusRepository, BookingStatusRepository>();
     services.AddScoped<IQueueStatusRepository, QueueStatusRepository>();
 
-    // Entity Repositories
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<IRoleRepository, RoleRepository>();
     services.AddScoped<IRoomCategoryRepository, RoomCategoryRepository>();
@@ -133,7 +77,6 @@ static void RegisterRepositories(IServiceCollection services)
     services.AddScoped<IBookingHistoryRepository, BookingHistoryRepository>();
     services.AddScoped<IWaitingQueueRepository, WaitingQueueRepository>();
 
-    // View Repositories
     services.AddScoped<ICustomerBookingViewRepository, CustomerBookingViewRepository>();
     services.AddScoped<IWaitingQueueReportViewRepository, WaitingQueueReportViewRepository>();
 }

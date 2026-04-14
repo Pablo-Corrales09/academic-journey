@@ -1,0 +1,71 @@
+@model HotelCarga.Models.Rooms.RoomCollectionPageViewModel<HotelCarga.Models.Rooms.RoomBookingViewModel>
+
+@{
+    ViewData["Title"] = "Room Bookings";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/room/Styles.css" asp-append-version="true" />
+}
+
+<div class="room-shell" data-page="related">
+    <section class="room-hero compact" data-animate>
+        <div class="room-hero__content">
+            <span class="room-eyebrow">Bookings</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.Description</p>
+        </div>
+        <div class="room-hero__panel">
+            <div class="room-glance-card">
+                <span class="room-glance-card__label">Room</span>
+                <strong>@Model.Room.RoomNumber</strong>
+                <p>@Model.Room.CategoryName, @Model.Room.StatusName</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="room-surface" data-animate>
+        <div class="room-form-actions room-form-actions--inline">
+            <a asp-action="Details" asp-route-id="@Model.Room.Id" class="room-button room-button--ghost">Back to Room</a>
+        </div>
+        @if (Model.Items.Count == 0)
+        {
+            <div class="room-empty-state">
+                <h3>No bookings found.</h3>
+                <p>This room currently has no reservation records attached.</p>
+            </div>
+        }
+        else
+        {
+            <div class="room-table-wrap">
+                <table class="room-table">
+                    <thead>
+                        <tr>
+                            <th>Reserve #</th>
+                            <th>Guest</th>
+                            <th>Status</th>
+                            <th>Stay</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var booking in Model.Items)
+                        {
+                            <tr>
+                                <td>@booking.ReserveNumber</td>
+                                <td>@booking.CustomerName</td>
+                                <td>@booking.StatusName</td>
+                                <td>@booking.CheckIn.ToString("MMM dd, yyyy") - @booking.CheckOut.ToString("MMM dd, yyyy")</td>
+                                <td>@booking.TotalPrice.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/room/related-bookings.js" asp-append-version="true"></script>
+}

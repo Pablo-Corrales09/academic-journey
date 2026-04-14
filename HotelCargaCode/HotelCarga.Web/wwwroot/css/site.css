@@ -1,1 +1,13 @@
-/* Add custom styles here */
+body {
+    min-height: 100vh;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.footer {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(8px);
+}

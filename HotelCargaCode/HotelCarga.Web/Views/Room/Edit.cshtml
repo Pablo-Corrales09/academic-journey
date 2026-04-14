@@ -1,0 +1,16 @@
+@model HotelCarga.Models.Rooms.RoomFormViewModel
+
+@{
+    ViewData["Title"] = "Edit Room";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/room/Styles.css" asp-append-version="true" />
+}
+
+<partial name="_RoomForm" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/room/form.js" asp-append-version="true"></script>
+}

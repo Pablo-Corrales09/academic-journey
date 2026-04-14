@@ -1,0 +1,134 @@
+@model HotelCarga.Models.Rooms.RoomDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Room {Model.Room.RoomNumber}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/room/Styles.css" asp-append-version="true" />
+}
+
+<div class="room-shell" data-page="details">
+    <section class="room-hero compact" data-animate>
+        <div class="room-hero__content">
+            <span class="room-eyebrow">Room Profile</span>
+            <h1>Room @Model.Room.RoomNumber</h1>
+            <p>@Model.Room.CategoryName suite profile with current status <strong>@Model.Room.StatusName</strong> and nightly rate <strong>@Model.Room.NightlyRate.ToString("C")</strong>.</p>
+            <div class="room-hero__actions">
+                <a asp-action="Edit" asp-route-id="@Model.Room.Id" class="room-button">Edit Room</a>
+                <a asp-action="Index" class="room-button room-button--ghost">Back to Rooms</a>
+            </div>
+        </div>
+        <div class="room-hero__panel">
+            <div class="room-stat-grid">
+                <article class="room-stat-card">
+                    <span>Bookings</span>
+                    <strong>@Model.Bookings.Count</strong>
+                </article>
+                <article class="room-stat-card">
+                    <span>History events</span>
+                    <strong>@Model.BookingHistories.Count</strong>
+                </article>
+                <article class="room-stat-card">
+                    <span>Availability blocks</span>
+                    <strong>@Model.Availabilities.Count</strong>
+                </article>
+                <article class="room-stat-card">
+                    <span>Floor</span>
+                    <strong>@(Model.Room.FloorNumber?.ToString() ?? "N/A")</strong>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="room-alert room-alert--success" data-animate>@successMessage</div>
+    }
+
+    <section class="room-surface" data-animate>
+        <div class="room-surface__header">
+            <div>
+                <span class="room-section-tag">Overview</span>
+                <h2>Service snapshot</h2>
+            </div>
+            <p>Cross-check the room record with all related navigation data from reservations and scheduling.</p>
+        </div>
+        <div class="room-detail-grid">
+            <article class="room-detail-card">
+                <span>Category</span>
+                <strong>@Model.Room.CategoryName</strong>
+            </article>
+            <article class="room-detail-card">
+                <span>Status</span>
+                <strong>@Model.Room.StatusName</strong>
+            </article>
+            <article class="room-detail-card">
+                <span>Nightly Rate</span>
+                <strong>@Model.Room.NightlyRate.ToString("C")</strong>
+            </article>
+            <article class="room-detail-card">
+                <span>Room Classification</span>
+                <strong>@Model.Room.StatusName / @Model.Room.CategoryName</strong>
+            </article>
+        </div>
+    </section>
+
+    <section class="room-surface" data-animate>
+        <div class="room-surface__header">
+            <div>
+                <span class="room-section-tag">Related Data</span>
+                <h2>Navigation collections</h2>
+            </div>
+            <p>Jump into the same relationship sets surfaced by the API controller.</p>
+        </div>
+        <div class="room-related-links">
+            <a asp-action="GetBookingsByRoomId" asp-route-roomId="@Model.Room.Id" class="room-related-link">
+                <strong>Bookings</strong>
+                <span>@Model.Bookings.Count reservation records</span>
+            </a>
+            <a asp-action="GetBookingHistoriesByRoomId" asp-route-roomId="@Model.Room.Id" class="room-related-link">
+                <strong>Booking Histories</strong>
+                <span>@Model.BookingHistories.Count timeline items</span>
+            </a>
+            <a asp-action="GetAvailabilitiesByRoomId" asp-route-roomId="@Model.Room.Id" class="room-related-link">
+                <strong>Availabilities</strong>
+                <span>@Model.Availabilities.Count scheduling windows</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="room-surface" data-animate>
+        <div class="room-surface__header">
+            <div>
+                <span class="room-section-tag">Latest Activity</span>
+                <h2>Recent booking history</h2>
+            </div>
+            <p>The three most recent operational events linked to this room.</p>
+        </div>
+        @if (Model.BookingHistories.Count == 0)
+        {
+            <div class="room-empty-state">
+                <h3>No booking history yet.</h3>
+                <p>This room has not recorded any booking events so far.</p>
+            </div>
+        }
+        else
+        {
+            <div class="room-timeline">
+                @foreach (var history in Model.BookingHistories.Take(3))
+                {
+                    <article class="room-timeline__item">
+                        <strong>@history.ActionType</strong>
+                        <span>@history.StatusName</span>
+                        <p>@history.CheckIn.ToString("MMM dd, yyyy") to @history.CheckOut.ToString("MMM dd, yyyy")</p>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/room/details.js" asp-append-version="true"></script>
+}
