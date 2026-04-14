@@ -83,6 +83,8 @@ public class BookingController : BaseApiController
         // Verify that the dates of stay are correct
             if(!AreDatesValid(item.check_in, item.check_out, out string errorMessage)) return Conflict(new { error = true, message = errorMessage });
 
+        using var transaction = await DbContext.Database.BeginTransactionAsync();
+
         try
         {
             // Retrieve the room to check availability and price
@@ -98,10 +100,16 @@ public class BookingController : BaseApiController
             // Calculate total price based on room's nightly rate.
             item.total_price = calculate_total_price(room.nightly_rate, item.check_in, item.check_out);
 
-            // Update room status
-            room.status_id = 2; // Occupied
+            //Booking status update
+            item.status_id = 2; 
             await DbContext.Set<booking>().AddAsync(item);
             await DbContext.SaveChangesAsync();
+
+            //Room status update  
+            room.status_id = 2; // Occupied
+            await DbContext.SaveChangesAsync();
+
+            await transaction.CommitAsync();
 
             return CreatedAtAction(
             nameof(GetById), 
@@ -114,7 +122,8 @@ public class BookingController : BaseApiController
         }
         catch (Exception ex)
         {
-            return BadRequest(new { error = true, message = "Processing error: " + ex.Message });
+            string realError = ex.InnerException?.Message ?? ex.Message;
+            return BadRequest(new { error = true, message = "Processing error: " + realError });
         }
     }
 
@@ -219,23 +228,97 @@ public class BookingController : BaseApiController
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
 
-        DbContext.Set<booking>().Update(item);
-        await DbContext.SaveChangesAsync();
-        return Ok(item);
+        try
+        {
+            var existingBooking = await DbContext.Set<booking>().FindAsync(item.id);
+            if (existingBooking == null) 
+            {
+                return NotFound(new { error = true, message = "Reserva no encontrada." });
+            }
+
+            // Checks if the room is being changed.
+            if (existingBooking.room_id != item.room_id)
+            { 
+                var newRoom = await DbContext.Set<room>().FindAsync(item.room_id);
+                if (newRoom == null) return NotFound(new { error = true, message = "La nueva habitación no existe." });
+                
+                if(IsRoomAvailable(newRoom, item.room_id, out string errorMessage))
+                {
+                    var oldRoom = await DbContext.Set<room>().FindAsync(existingBooking.room_id);
+                    if (oldRoom != null) 
+                    {
+                        oldRoom.status_id = 1; // Releases the previous room
+                    }
+                    
+                    newRoom.status_id = 2; // Occupies the new room
+                    existingBooking.room_id = item.room_id; 
+
+                    // Updates the reservation's nightly rate with the price of the new room
+                    existingBooking.nightly_rate = newRoom.nightly_rate; 
+                }
+                else
+                {
+                    return Conflict(new { error = true, message = errorMessage });
+                }
+            }
+
+            // existingBooking.status_id = item.status_id; 
+            
+            // Updates the dates
+            existingBooking.check_in = item.check_in;
+            existingBooking.check_out = item.check_out;
+
+            // Rate update
+            // Uses the rate the reservation currently has and the updated dates
+            existingBooking.total_price = calculate_total_price(existingBooking.nightly_rate, existingBooking.check_in, existingBooking.check_out);
+
+            await DbContext.SaveChangesAsync();
+
+            return Ok(new { 
+                success = true,
+                message = "Reserva actualizada exitosamente. Tu número de reserva es: " + existingBooking.reserve_number,
+                data = BuildBookingResponse(existingBooking) 
+            });
+
+
+        }
+        catch (Exception ex)
+        {
+            string realError = ex.InnerException?.Message ?? ex.Message;
+            return BadRequest(new { error = true, message = "Processing error: " + realError });
+        }
     }
 
     [HttpDelete("Delete")]
-    public async Task<IActionResult> Delete(uint id, bool useJson = false)
+    public async Task<IActionResult> Delete([FromBody] booking item, bool useJson = false)
     {
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
 
-        var item = await DbContext.Set<booking>().FindAsync(id);
-        if (item is null) return NotFound();
+        try{
+        
+            var existingBooking = await DbContext.Set<booking>().FindAsync(item.id);
+            if (existingBooking == null) return NotFound(new { error = true, message = "Reserva no encontrada." });
 
-        DbContext.Set<booking>().Remove(item);
-        await DbContext.SaveChangesAsync();
-        return NoContent();
+            // Aplica Soft Delete (Cancelamos la reserva)
+            existingBooking.status_id = 3; 
+
+            //Liberla habitación
+            var room = await DbContext.Set<room>().FindAsync(existingBooking.room_id);
+            if (room != null) 
+            {
+                room.status_id = 1; // 1 es AVAILABLE
+            }
+
+            await DbContext.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Reserva cancelada y habitación liberada exitosamente." });
+        }
+        catch (Exception ex)
+        {
+            string realError = ex.InnerException?.Message ?? ex.Message;
+            return BadRequest(new { error = true, message = "Processing error: " + realError });
+        }
     }
 
     [HttpGet("GetReserveNumberById")]
