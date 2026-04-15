@@ -1,0 +1,92 @@
+@model HotelCarga.Models.Users.UserLookupResultViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell" data-page="lookup">
+    <section class="user-hero user-hero--compact" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Endpoint Result</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.Description</p>
+            <div class="user-query-pill">
+                <span>@Model.QueryLabel</span>
+                <strong>@Model.QueryValue</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Response</span>
+                <h2>@Model.ResultLabel</h2>
+            </div>
+            <p>Rendered from the JSON payload returned by the API endpoint.</p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.NotFoundMessage))
+        {
+            <div class="user-empty-state">
+                <h3>No result returned.</h3>
+                <p>@Model.NotFoundMessage</p>
+            </div>
+        }
+        else if (Model.BooleanResult.HasValue)
+        {
+            <div class="user-result-banner @(Model.BooleanResult.Value ? "user-result-banner--true" : "user-result-banner--false")">
+                <span>@Model.ResultLabel</span>
+                <strong>@(Model.BooleanResult.Value ? "True" : "False")</strong>
+            </div>
+        }
+        else if (!string.IsNullOrWhiteSpace(Model.ScalarResult))
+        {
+            <div class="user-result-banner">
+                <span>@Model.ResultLabel</span>
+                <strong>@Model.ScalarResult</strong>
+            </div>
+        }
+        else if (Model.UserResult is not null)
+        {
+            <div class="user-detail-grid">
+                <article class="user-detail-card">
+                    <span>Username</span>
+                    <strong>@Model.UserResult.Username</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Email</span>
+                    <strong>@Model.UserResult.Email</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Role</span>
+                    <strong>@Model.UserResult.RoleName (@Model.UserResult.RoleId)</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Status Id</span>
+                    <strong>@Model.UserResult.StatusId</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Customer Id</span>
+                    <strong>@(Model.UserResult.CustomerId?.ToString() ?? "None")</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Credential Stored</span>
+                    <strong>@(Model.UserResult.HasStoredCredential ? "Yes" : "No")</strong>
+                </article>
+            </div>
+        }
+
+        <div class="user-form-actions">
+            <a asp-action="Index" class="user-button">Back to Users</a>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/user/lookup.js" asp-append-version="true"></script>
+}

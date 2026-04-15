@@ -293,9 +293,9 @@ public class RoomController : Controller
 
 
 
-    public async Task<IActionResult> GetAll()
+    public IActionResult GetAll()
     {
-        return await Index(new RoomFiltersViewModel());
+        return RedirectToAction(nameof(Index));
     }
 
     // Removed GetByRoomNumber - use Index filter or service

@@ -1,0 +1,25 @@
+@model HotelCarga.Models.Customers.CustomerFormViewModel
+
+@{
+    ViewData["Title"] = Model.PageTitle;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell customer-shell" data-page="customer-form">
+    <section class="user-hero user-hero--compact" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">@Model.HeroEyebrow</span>
+            <h1>@Model.PageTitle</h1>
+            <p>@Model.IntroText</p>
+        </div>
+    </section>
+
+    <partial name="_CustomerForm" model="Model" />
+</div>
+
+@section Scripts {
+    <script src="~/js/customer/form.js" asp-append-version="true"></script>
+}

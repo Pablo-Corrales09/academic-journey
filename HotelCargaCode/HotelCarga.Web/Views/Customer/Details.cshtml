@@ -1,0 +1,95 @@
+@model HotelCarga.Models.Customers.CustomerDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Customer {Model.Customer.FirstName} {Model.Customer.LastName}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell customer-shell" data-page="customer-details">
+    <section class="user-hero user-hero--compact" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Customer Profile</span>
+            <h1>@Model.Customer.FirstName @Model.Customer.LastName</h1>
+            <p>Document <strong>@Model.Customer.DocumentNumber</strong> with user account <strong>@Model.Customer.Username</strong> and current status <strong>@Model.Customer.StatusName</strong>.</p>
+            <div class="user-hero__actions">
+                <a asp-action="Update" asp-route-id="@Model.Customer.Id" class="user-button">Update Customer</a>
+                <a asp-action="Index" class="user-button user-button--ghost">Back to Customers</a>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="user-alert user-alert--success" data-animate>@successMessage</div>
+    }
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Overview</span>
+                <h2>Identity and contact details</h2>
+            </div>
+            <p>Customer data blended with User navigation properties returned by the API.</p>
+        </div>
+
+        <div class="user-detail-grid">
+            <article class="user-detail-card">
+                <span>Email</span>
+                <strong>@Model.Customer.Email</strong>
+            </article>
+            <article class="user-detail-card">
+                <span>Phone</span>
+                <strong>@Model.Customer.Phone</strong>
+            </article>
+            <article class="user-detail-card">
+                <span>Location</span>
+                <strong>@Model.Customer.City, @Model.Customer.Country</strong>
+                <p>@Model.Customer.Address</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Linked User Id</span>
+                <strong>@(Model.Customer.UserId?.ToString() ?? "Not resolved")</strong>
+            </article>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Relationships</span>
+                <h2>Navigation id sets</h2>
+            </div>
+            <p>Ids are sourced from the dedicated relationship endpoints in CustomerController.</p>
+        </div>
+
+        <div class="user-detail-grid user-detail-grid--two">
+            <article class="user-detail-card">
+                <span>Booking Ids</span>
+                <strong>@Model.BookingIds.Count</strong>
+                <p>@(Model.BookingIds.Count == 0 ? "No booking links." : string.Join(", ", Model.BookingIds))</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Booking History Ids</span>
+                <strong>@Model.BookingHistoryIds.Count</strong>
+                <p>@(Model.BookingHistoryIds.Count == 0 ? "No booking history links." : string.Join(", ", Model.BookingHistoryIds))</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Waiting Queue Ids</span>
+                <strong>@Model.WaitingQueueIds.Count</strong>
+                <p>@(Model.WaitingQueueIds.Count == 0 ? "No waiting queue links." : string.Join(", ", Model.WaitingQueueIds))</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Timestamps</span>
+                <strong>@(Model.CreatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Not available")</strong>
+                <p>Updated: @(Model.UpdatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Not available")</p>
+            </article>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/customer/details.js" asp-append-version="true"></script>
+}

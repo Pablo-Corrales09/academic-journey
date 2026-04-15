@@ -1,0 +1,139 @@
+@model HotelCarga.Models.Users.UserDetailsViewModel
+
+@{
+    ViewData["Title"] = $"User {Model.User.Username}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell" data-page="details">
+    <section class="user-hero user-hero--compact" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">User Profile</span>
+            <h1>@Model.User.Username</h1>
+            <p>@Model.User.Email is assigned to the <strong>@Model.User.RoleName</strong> role and currently marked as <strong>@Model.User.StatusName</strong>.</p>
+            <div class="user-hero__actions">
+                <a asp-action="Update" asp-route-id="@Model.User.Id" class="user-button">Update User</a>
+                <a asp-action="Index" class="user-button user-button--ghost">Back to Users</a>
+            </div>
+        </div>
+        <div class="user-hero__panel">
+            <div class="user-stat-grid">
+                <article class="user-stat-card">
+                    <span>User Id</span>
+                    <strong>@Model.User.Id</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Customer link</span>
+                    <strong>@(Model.User.CustomerId?.ToString() ?? "None")</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Credential</span>
+                    <strong>@(Model.HasStoredCredential ? "Stored" : "Missing")</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Status</span>
+                    <strong>@Model.User.StatusName</strong>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="user-alert user-alert--success" data-animate>@successMessage</div>
+    }
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Overview</span>
+                <h2>Navigation property snapshot</h2>
+            </div>
+            <p>Review the User controller response together with role, status, and customer linkage.</p>
+        </div>
+
+        <div class="user-detail-grid">
+            <article class="user-detail-card">
+                <span>Role</span>
+                <strong>@Model.User.RoleName</strong>
+                <p>@Model.RoleDescription</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Status</span>
+                <strong>@Model.User.StatusName</strong>
+                <p>@Model.StatusDescription</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Customer</span>
+                <strong>@(Model.User.CustomerId?.ToString() ?? "No linked customer")</strong>
+                <p>The API exposes the linked customer relationship as an id in the user response.</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Credential Preview</span>
+                <strong>@Model.CredentialPreview</strong>
+                <p>The API expects a hashed credential string for create and update requests.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Audit</span>
+                <h2>Lifecycle markers</h2>
+            </div>
+            <p>Track when the account entered the system and whether it was updated later.</p>
+        </div>
+
+        <div class="user-detail-grid user-detail-grid--two">
+            <article class="user-detail-card">
+                <span>Created At</span>
+                <strong>@(Model.CreatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Not available")</strong>
+            </article>
+            <article class="user-detail-card">
+                <span>Updated At</span>
+                <strong>@(Model.UpdatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Not available")</strong>
+            </article>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Endpoint Shortcuts</span>
+                <h2>Run user controller helpers</h2>
+            </div>
+            <p>Jump straight into the API-backed lookups for this account.</p>
+        </div>
+
+        <div class="user-related-links">
+            <a asp-action="GetUsernameById" asp-route-id="@Model.User.Id" class="user-related-link">
+                <strong>GetUsernameById</strong>
+                <span>Resolve the username from the current id</span>
+            </a>
+            <a asp-action="GetUserWithRoleByUsername" asp-route-username="@Model.User.Username" class="user-related-link">
+                <strong>GetUserWithRoleByUsername</strong>
+                <span>Inspect the role-aware payload using the current username</span>
+            </a>
+            <a asp-action="GetUserWithRoleByEmail" asp-route-email="@Model.User.Email" class="user-related-link">
+                <strong>GetUserWithRoleByEmail</strong>
+                <span>Inspect the role-aware payload using the current email</span>
+            </a>
+            <a asp-action="UsernameExists" asp-route-username="@Model.User.Username" class="user-related-link">
+                <strong>UsernameExists</strong>
+                <span>Validate whether the username is still present</span>
+            </a>
+            <a asp-action="EmailExists" asp-route-email="@Model.User.Email" class="user-related-link">
+                <strong>EmailExists</strong>
+                <span>Validate whether the email is still present</span>
+            </a>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/user/details.js" asp-append-version="true"></script>
+}

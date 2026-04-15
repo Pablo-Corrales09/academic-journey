@@ -1,0 +1,69 @@
+@model HotelCarga.Models.Customers.CustomerFormViewModel
+
+<section class="user-surface" data-animate>
+    <div class="user-surface__header">
+        <div>
+            <span class="user-section-tag">Customer Form</span>
+            <h2>@Model.PageTitle</h2>
+        </div>
+        <p>@Model.IntroText</p>
+    </div>
+
+    <form asp-action="@ViewContext.RouteData.Values["action"]" asp-route-id="@Model.Id" method="post" class="user-form-grid">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="user-validation"></div>
+
+        <div class="user-field">
+            <label asp-for="UserId"></label>
+            <input asp-for="UserId" class="user-input" />
+            <span asp-validation-for="UserId" class="text-danger"></span>
+        </div>
+
+        <div class="user-field">
+            <label asp-for="DocumentNumber"></label>
+            <input asp-for="DocumentNumber" class="user-input" />
+            <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+        </div>
+
+        <div class="user-field">
+            <label asp-for="FirstName"></label>
+            <input asp-for="FirstName" class="user-input" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+
+        <div class="user-field">
+            <label asp-for="LastName"></label>
+            <input asp-for="LastName" class="user-input" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+
+        <div class="user-field">
+            <label asp-for="Phone"></label>
+            <input asp-for="Phone" class="user-input" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+
+        <div class="user-field user-field--wide">
+            <label asp-for="Address"></label>
+            <input asp-for="Address" class="user-input" />
+            <span asp-validation-for="Address" class="text-danger"></span>
+        </div>
+
+        <div class="user-field">
+            <label asp-for="City"></label>
+            <input asp-for="City" class="user-input" />
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+
+        <div class="user-field">
+            <label asp-for="Country"></label>
+            <input asp-for="Country" class="user-input" />
+            <span asp-validation-for="Country" class="text-danger"></span>
+        </div>
+
+        <div class="user-form-actions">
+            <button type="submit" class="user-button">@Model.SubmitLabel</button>
+            <a asp-action="Index" class="user-button user-button--ghost">Cancel</a>
+        </div>
+    </form>
+</section>

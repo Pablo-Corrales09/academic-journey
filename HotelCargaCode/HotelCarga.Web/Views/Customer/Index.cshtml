@@ -1,0 +1,227 @@
+@model HotelCarga.Models.Customers.CustomerIndexViewModel
+
+@{
+    ViewData["Title"] = "Customers";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell customer-shell" data-page="customer-index">
+    <section class="user-hero" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Guest Profiles</span>
+            <h1>Curate customer records with concierge-level clarity.</h1>
+            <p>Filter profiles, inspect linked user identity data, and run customer relationship endpoints from one operational dashboard.</p>
+            <div class="user-hero__actions">
+                <a asp-action="Create" class="user-button">Create Customer</a>
+                <a asp-action="GetAll" class="user-button user-button--ghost">Reset Filters</a>
+            </div>
+        </div>
+        <div class="user-hero__panel">
+            <div class="user-stat-grid">
+                <article class="user-stat-card">
+                    <span>Total customers</span>
+                    <strong data-count="@Model.Stats.TotalCustomers">@Model.Stats.TotalCustomers</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Matching profiles</span>
+                    <strong data-count="@Model.Stats.MatchingCustomers">@Model.Stats.MatchingCustomers</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Linked users</span>
+                    <strong data-count="@Model.Stats.LinkedUsers">@Model.Stats.LinkedUsers</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Active linked users</span>
+                    <strong data-count="@Model.Stats.ActiveLinkedUsers">@Model.Stats.ActiveLinkedUsers</strong>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="user-alert user-alert--success" data-animate>@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="user-alert user-alert--error" data-animate>@errorMessage</div>
+    }
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Search & Filter</span>
+                <h2>Find customer profiles</h2>
+            </div>
+            <p>@Model.ActiveFilterSummary</p>
+        </div>
+
+        <form asp-action="Index" method="get" class="user-filter-grid">
+            <div class="user-field">
+                <label asp-for="Filters.Name"></label>
+                <input asp-for="Filters.Name" class="user-input" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.DocumentNumber"></label>
+                <input asp-for="Filters.DocumentNumber" class="user-input" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.Phone"></label>
+                <input asp-for="Filters.Phone" class="user-input" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.Country"></label>
+                <input asp-for="Filters.Country" class="user-input" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.HasLinkedUser"></label>
+                <select asp-for="Filters.HasLinkedUser" class="user-input">
+                    <option value="">All profiles</option>
+                    <option value="true">With linked user</option>
+                    <option value="false">Without linked user</option>
+                </select>
+            </div>
+            <div class="user-form-actions user-form-actions--inline">
+                <button type="submit" class="user-button">Apply Filters</button>
+                <a asp-action="GetAll" class="user-button user-button--ghost">Clear</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">API Lookups</span>
+                <h2>Run customer endpoints</h2>
+            </div>
+            <p>Each mini-form maps directly to an endpoint in CustomerController.</p>
+        </div>
+
+        <div class="user-lookup-grid">
+            <form asp-action="SearchByName" method="get" class="user-lookup-card">
+                <h3>SearchByName</h3>
+                <p>Search first and last names.</p>
+                <label for="lookup-name">Search String</label>
+                <input id="lookup-name" name="searchString" class="user-input" required />
+                <button type="submit" class="user-button">Search</button>
+            </form>
+            <form asp-action="GetByDocumentNumber" method="get" class="user-lookup-card">
+                <h3>GetByDocumentNumber</h3>
+                <p>Find a customer by document id.</p>
+                <label for="lookup-document">Document</label>
+                <input id="lookup-document" name="documentNumber" class="user-input" required />
+                <button type="submit" class="user-button">Resolve</button>
+            </form>
+            <form asp-action="GetByPhone" method="get" class="user-lookup-card">
+                <h3>GetByPhone</h3>
+                <p>Find a customer by phone number.</p>
+                <label for="lookup-phone">Phone</label>
+                <input id="lookup-phone" name="phone" class="user-input" required />
+                <button type="submit" class="user-button">Resolve</button>
+            </form>
+            <form asp-action="GetByDocumentNumberOrPhone" method="get" class="user-lookup-card">
+                <h3>GetByDocumentNumberOrPhone</h3>
+                <p>Return the first profile matching either key.</p>
+                <label for="lookup-document-or-phone-document">Document</label>
+                <input id="lookup-document-or-phone-document" name="documentNumber" class="user-input" required />
+                <label for="lookup-document-or-phone-phone">Phone</label>
+                <input id="lookup-document-or-phone-phone" name="phone" class="user-input" required />
+                <button type="submit" class="user-button">Resolve</button>
+            </form>
+            <form asp-action="GetByUserId" method="get" class="user-lookup-card">
+                <h3>GetByUserId</h3>
+                <p>Find the customer mapped to a user id.</p>
+                <label for="lookup-user-id">User Id</label>
+                <input id="lookup-user-id" name="userId" type="number" min="1" class="user-input" required />
+                <button type="submit" class="user-button">Resolve</button>
+            </form>
+            <form asp-action="GetBookingIdsByCustomerId" method="get" class="user-lookup-card">
+                <h3>GetBookingIdsByCustomerId</h3>
+                <p>List booking ids tied to a customer.</p>
+                <label for="lookup-booking-customer-id">Customer Id</label>
+                <input id="lookup-booking-customer-id" name="customerId" type="number" min="1" class="user-input" required />
+                <button type="submit" class="user-button">List Ids</button>
+            </form>
+            <form asp-action="GetBookingHistoryIdsByCustomerId" method="get" class="user-lookup-card">
+                <h3>GetBookingHistoryIdsByCustomerId</h3>
+                <p>List booking history ids tied to a customer.</p>
+                <label for="lookup-history-customer-id">Customer Id</label>
+                <input id="lookup-history-customer-id" name="customerId" type="number" min="1" class="user-input" required />
+                <button type="submit" class="user-button">List Ids</button>
+            </form>
+            <form asp-action="GetWaitingQueueIdsByCustomerId" method="get" class="user-lookup-card">
+                <h3>GetWaitingQueueIdsByCustomerId</h3>
+                <p>List waiting queue ids tied to a customer.</p>
+                <label for="lookup-queue-customer-id">Customer Id</label>
+                <input id="lookup-queue-customer-id" name="customerId" type="number" min="1" class="user-input" required />
+                <button type="submit" class="user-button">List Ids</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Customer Directory</span>
+                <h2>Profile list</h2>
+            </div>
+            <p>@Model.Customers.Count customer records ready for review.</p>
+        </div>
+
+        @if (Model.Customers.Count == 0)
+        {
+            <div class="user-empty-state">
+                <h3>No customers matched this filter.</h3>
+                <p>Try broader filters or create a new customer profile.</p>
+            </div>
+        }
+        else
+        {
+            <div class="user-card-grid">
+                @foreach (var customer in Model.Customers)
+                {
+                    <article class="user-card" data-animate>
+                        <div class="user-card__header">
+                            <div>
+                                <span class="user-chip">@customer.RoleName</span>
+                                <h3>@customer.FirstName @customer.LastName</h3>
+                            </div>
+                            <span class="user-status-pill">@customer.StatusName</span>
+                        </div>
+                        <dl class="user-card__meta">
+                            <div>
+                                <dt>Document</dt>
+                                <dd>@customer.DocumentNumber</dd>
+                            </div>
+                            <div>
+                                <dt>Phone</dt>
+                                <dd>@customer.Phone</dd>
+                            </div>
+                            <div>
+                                <dt>User</dt>
+                                <dd>@customer.Username</dd>
+                            </div>
+                            <div>
+                                <dt>Bookings</dt>
+                                <dd>@customer.BookingsCount</dd>
+                            </div>
+                        </dl>
+                        <div class="user-card__actions">
+                            <a asp-action="GetById" asp-route-id="@customer.Id" class="user-button">Open</a>
+                            <a asp-action="Update" asp-route-id="@customer.Id" class="user-button user-button--ghost">Update</a>
+                            <a asp-action="Delete" asp-route-id="@customer.Id" class="user-button user-button--ghost user-button--danger">Delete</a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/customer/index.js" asp-append-version="true"></script>
+}

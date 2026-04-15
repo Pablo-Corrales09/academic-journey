@@ -1,0 +1,212 @@
+@model HotelCarga.Models.Users.UserIndexViewModel
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell" data-page="index">
+    <section class="user-hero" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Account Operations</span>
+            <h1>Shape the hotel identity layer with a clear, guest-aware workflow.</h1>
+            <p>Review every user account, filter the directory, and jump into API-backed lookup tools for usernames, roles, and account availability checks.</p>
+            <div class="user-hero__actions">
+                <a asp-action="Create" class="user-button">Create User</a>
+                <a asp-action="GetAll" class="user-button user-button--ghost">Reset Filters</a>
+            </div>
+        </div>
+        <div class="user-hero__panel">
+            <div class="user-stat-grid">
+                <article class="user-stat-card">
+                    <span>Total accounts</span>
+                    <strong data-count="@Model.Stats.TotalUsers">@Model.Stats.TotalUsers</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Matching users</span>
+                    <strong data-count="@Model.Stats.MatchingUsers">@Model.Stats.MatchingUsers</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Active accounts</span>
+                    <strong data-count="@Model.Stats.ActiveUsers">@Model.Stats.ActiveUsers</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Linked customers</span>
+                    <strong data-count="@Model.Stats.LinkedCustomers">@Model.Stats.LinkedCustomers</strong>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="user-alert user-alert--success" data-animate>@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="user-alert user-alert--error" data-animate>@errorMessage</div>
+    }
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Search & Filter</span>
+                <h2>Scan the account directory</h2>
+            </div>
+            <p>@Model.ActiveFilterSummary</p>
+        </div>
+
+        <form asp-action="Index" method="get" class="user-filter-grid">
+            <div class="user-field">
+                <label asp-for="Filters.Username"></label>
+                <input asp-for="Filters.Username" class="user-input" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.Email"></label>
+                <input asp-for="Filters.Email" class="user-input" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.RoleId"></label>
+                <select asp-for="Filters.RoleId" asp-items="Model.RoleOptions" class="user-input">
+                    <option value="">All roles</option>
+                </select>
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.StatusId"></label>
+                <select asp-for="Filters.StatusId" asp-items="Model.StatusOptions" class="user-input">
+                    <option value="">All statuses</option>
+                </select>
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.HasCustomer"></label>
+                <select asp-for="Filters.HasCustomer" class="user-input">
+                    <option value="">All accounts</option>
+                    <option value="true">With linked customer</option>
+                    <option value="false">Without linked customer</option>
+                </select>
+            </div>
+            <div class="user-form-actions user-form-actions--inline">
+                <button type="submit" class="user-button">Apply Filters</button>
+                <a asp-action="GetAll" class="user-button user-button--ghost">Clear</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">API Tools</span>
+                <h2>Run controller lookups</h2>
+            </div>
+            <p>Each form below maps to a dedicated endpoint from the API User controller.</p>
+        </div>
+
+        <div class="user-lookup-grid">
+            <form asp-action="GetUsernameById" method="get" class="user-lookup-card">
+                <h3>Username by Id</h3>
+                <p>Resolve the direct username helper endpoint.</p>
+                <label for="lookup-user-id">User Id</label>
+                <input id="lookup-user-id" name="id" type="number" min="1" class="user-input" required />
+                <button type="submit" class="user-button">Run Lookup</button>
+            </form>
+
+            <form asp-action="GetUserWithRoleByUsername" method="get" class="user-lookup-card">
+                <h3>User With Role by Username</h3>
+                <p>Inspect the account payload resolved from a username.</p>
+                <label for="lookup-username">Username</label>
+                <input id="lookup-username" name="username" class="user-input" required />
+                <button type="submit" class="user-button">Inspect Account</button>
+            </form>
+
+            <form asp-action="GetUserWithRoleByEmail" method="get" class="user-lookup-card">
+                <h3>User With Role by Email</h3>
+                <p>Inspect the account payload resolved from an email address.</p>
+                <label for="lookup-email">Email</label>
+                <input id="lookup-email" name="email" type="email" class="user-input" required />
+                <button type="submit" class="user-button">Inspect Account</button>
+            </form>
+
+            <form asp-action="UsernameExists" method="get" class="user-lookup-card">
+                <h3>Username Exists</h3>
+                <p>Check availability before creating a new account.</p>
+                <label for="exists-username">Username</label>
+                <input id="exists-username" name="username" class="user-input" required />
+                <button type="submit" class="user-button">Check Username</button>
+            </form>
+
+            <form asp-action="EmailExists" method="get" class="user-lookup-card">
+                <h3>Email Exists</h3>
+                <p>Check whether an email is already in use.</p>
+                <label for="exists-email">Email</label>
+                <input id="exists-email" name="email" type="email" class="user-input" required />
+                <button type="submit" class="user-button">Check Email</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">User Directory</span>
+                <h2>Operational account list</h2>
+            </div>
+            <p>@Model.Users.Count account records ready for review.</p>
+        </div>
+
+        @if (Model.Users.Count == 0)
+        {
+            <div class="user-empty-state">
+                <h3>No users matched this filter.</h3>
+                <p>Broaden the search criteria or create a new account to extend the directory.</p>
+            </div>
+        }
+        else
+        {
+            <div class="user-card-grid">
+                @foreach (var user in Model.Users)
+                {
+                    <article class="user-card" data-animate>
+                        <div class="user-card__header">
+                            <div>
+                                <span class="user-chip">@user.RoleName</span>
+                                <h3>@user.Username</h3>
+                            </div>
+                            <span class="user-status-pill">@user.StatusName</span>
+                        </div>
+                        <dl class="user-card__meta">
+                            <div>
+                                <dt>Email</dt>
+                                <dd>@user.Email</dd>
+                            </div>
+                            <div>
+                                <dt>Customer</dt>
+                                <dd>@(user.CustomerId?.ToString() ?? "Not linked")</dd>
+                            </div>
+                            <div>
+                                <dt>Role</dt>
+                                <dd>@user.RoleName</dd>
+                            </div>
+                            <div>
+                                <dt>Status</dt>
+                                <dd>@user.StatusName</dd>
+                            </div>
+                        </dl>
+                        <div class="user-card__actions">
+                            <a asp-action="GetById" asp-route-id="@user.Id" class="user-button">Open</a>
+                            <a asp-action="Update" asp-route-id="@user.Id" class="user-button user-button--ghost">Update</a>
+                            <a asp-action="Delete" asp-route-id="@user.Id" class="user-button user-button--ghost user-button--danger">Delete</a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/user/index.js" asp-append-version="true"></script>
+}

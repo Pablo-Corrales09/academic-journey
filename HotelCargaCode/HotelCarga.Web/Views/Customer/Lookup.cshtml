@@ -1,0 +1,104 @@
+@model HotelCarga.Models.Customers.CustomerLookupResultViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell customer-shell" data-page="customer-lookup">
+    <section class="user-hero user-hero--compact" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Endpoint Result</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.Description</p>
+            <div class="user-query-pill">
+                <span>@Model.QueryLabel</span>
+                <strong>@Model.QueryValue</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Response</span>
+                <h2>@Model.ResultLabel</h2>
+            </div>
+            <p>Payload rendered from the selected Customer controller endpoint.</p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.NotFoundMessage))
+        {
+            <div class="user-empty-state">
+                <h3>No result returned.</h3>
+                <p>@Model.NotFoundMessage</p>
+            </div>
+        }
+        else if (Model.IdListResult.Count > 0)
+        {
+            <div class="user-result-banner">
+                <span>@Model.ResultLabel</span>
+                <strong>@string.Join(", ", Model.IdListResult)</strong>
+            </div>
+        }
+        else if (Model.CustomerResult is not null)
+        {
+            <div class="user-detail-grid user-detail-grid--two">
+                <article class="user-detail-card">
+                    <span>Name</span>
+                    <strong>@Model.CustomerResult.FirstName @Model.CustomerResult.LastName</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Document</span>
+                    <strong>@Model.CustomerResult.DocumentNumber</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Phone</span>
+                    <strong>@Model.CustomerResult.Phone</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>User Id</span>
+                    <strong>@(Model.CustomerResult.UserId?.ToString() ?? "Not resolved")</strong>
+                </article>
+            </div>
+        }
+        else if (Model.CustomerListResult.Count > 0)
+        {
+            <div class="user-card-grid">
+                @foreach (var customer in Model.CustomerListResult)
+                {
+                    <article class="user-card">
+                        <div class="user-card__header">
+                            <div>
+                                <span class="user-chip">User Id @customer.UserId</span>
+                                <h3>@customer.FirstName @customer.LastName</h3>
+                            </div>
+                            <span class="user-status-pill">@customer.Country</span>
+                        </div>
+                        <dl class="user-card__meta">
+                            <div>
+                                <dt>Document</dt>
+                                <dd>@customer.DocumentNumber</dd>
+                            </div>
+                            <div>
+                                <dt>Phone</dt>
+                                <dd>@customer.Phone</dd>
+                            </div>
+                        </dl>
+                    </article>
+                }
+            </div>
+        }
+
+        <div class="user-form-actions">
+            <a asp-action="Index" class="user-button">Back to Customers</a>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/customer/lookup.js" asp-append-version="true"></script>
+}
