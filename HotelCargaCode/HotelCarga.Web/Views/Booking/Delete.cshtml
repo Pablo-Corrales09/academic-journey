@@ -1,0 +1,58 @@
+@model HotelCarga.Models.Bookings.BookingListItemViewModel
+
+@{
+    ViewData["Title"] = $"Cancel {Model.ReserveNumber}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell booking-shell" data-page="booking-delete">
+    <section class="user-hero user-hero--compact" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Cancellation Review</span>
+            <h1>Cancel @Model.ReserveNumber?</h1>
+            <p>This uses the API soft-delete flow, which cancels the reservation and releases the room.</p>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Cancellation Check</span>
+                <h2>Reservation summary</h2>
+            </div>
+            <p>Review the booking details before confirming cancellation.</p>
+        </div>
+
+        <div class="user-detail-grid user-detail-grid--two">
+            <article class="user-detail-card">
+                <span>Guest</span>
+                <strong>@Model.CustomerName</strong>
+            </article>
+            <article class="user-detail-card">
+                <span>Room</span>
+                <strong>@Model.RoomNumber</strong>
+            </article>
+            <article class="user-detail-card">
+                <span>Check-In</span>
+                <strong>@Model.CheckIn.ToString("MMM dd, yyyy")</strong>
+            </article>
+            <article class="user-detail-card">
+                <span>Total</span>
+                <strong>@Model.TotalPrice.ToString("C")</strong>
+            </article>
+        </div>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="user-form-actions">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="user-button user-button--danger">Cancel Booking</button>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="user-button user-button--ghost">Go Back</a>
+        </form>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/booking/delete.js" asp-append-version="true"></script>
+}

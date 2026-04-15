@@ -1,0 +1,121 @@
+@model HotelCarga.Models.Bookings.BookingDetailsViewModel
+
+@{
+    ViewData["Title"] = $"Booking {Model.Booking.ReserveNumber}";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell booking-shell" data-page="booking-details">
+    <section class="user-hero user-hero--compact" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Reservation Profile</span>
+            <h1>@Model.Booking.ReserveNumber</h1>
+            <p>@Model.Booking.CustomerName is booked into room <strong>@Model.Booking.RoomNumber</strong> with status <strong>@Model.Booking.StatusName</strong>.</p>
+            <div class="user-hero__actions">
+                <a asp-action="Update" asp-route-id="@Model.Booking.Id" class="user-button">Update Booking</a>
+                <a asp-action="Index" class="user-button user-button--ghost">Back to Bookings</a>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="user-alert user-alert--success" data-animate>@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="user-alert user-alert--error" data-animate>@errorMessage</div>
+    }
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Overview</span>
+                <h2>Stay summary</h2>
+            </div>
+            <p>Operational booking data blended with the current room, customer, and status relationships.</p>
+        </div>
+
+        <div class="user-detail-grid">
+            <article class="user-detail-card">
+                <span>Customer</span>
+                <strong>@Model.Booking.CustomerName</strong>
+                <p>Customer Id @Model.Booking.CustomerId</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Room</span>
+                <strong>@Model.Booking.RoomNumber</strong>
+                <p>Room Id @Model.Booking.RoomId</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Stay Length</span>
+                <strong>@Model.StayLengthNights night(s)</strong>
+                <p>@Model.Booking.CheckIn.ToString("MMM dd, yyyy") to @Model.Booking.CheckOut.ToString("MMM dd, yyyy")</p>
+            </article>
+            <article class="user-detail-card">
+                <span>Pricing</span>
+                <strong>@Model.Booking.TotalPrice.ToString("C")</strong>
+                <p>@Model.Booking.NightlyRate.ToString("C") per night</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Status</span>
+                <h2>Reservation state</h2>
+            </div>
+            <p>@Model.StatusDescription</p>
+        </div>
+
+        <div class="user-detail-grid user-detail-grid--two">
+            <article class="user-detail-card">
+                <span>Status</span>
+                <strong>@Model.Booking.StatusName</strong>
+            </article>
+            <article class="user-detail-card">
+                <span>Booking History Ids</span>
+                <strong>@Model.BookingHistoryIds.Count</strong>
+                <p>@(Model.BookingHistoryIds.Count == 0 ? "No related booking history ids." : string.Join(", ", Model.BookingHistoryIds))</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Endpoint Shortcuts</span>
+                <h2>Run booking helpers</h2>
+            </div>
+            <p>Jump directly into helper endpoints using the current reservation context.</p>
+        </div>
+
+        <div class="user-related-links">
+            <a asp-action="GetReserveNumberById" asp-route-id="@Model.Booking.Id" class="user-related-link">
+                <strong>GetReserveNumberById</strong>
+                <span>Confirm the reserve code for this booking</span>
+            </a>
+            <a asp-action="GetRoomIdByReserveNumber" asp-route-reserveNumber="@Model.Booking.ReserveNumber" class="user-related-link">
+                <strong>GetRoomIdByReserveNumber</strong>
+                <span>Resolve the room id from the current reserve number</span>
+            </a>
+            <a asp-action="GetBookingHistoryIdsByReserveNumber" asp-route-reserveNumber="@Model.Booking.ReserveNumber" class="user-related-link">
+                <strong>GetBookingHistoryIdsByReserveNumber</strong>
+                <span>Inspect all booking history ids attached to this reservation</span>
+            </a>
+            <a asp-action="GetTotalPriceByReserveNumber" asp-route-reserveNumber="@Model.Booking.ReserveNumber" class="user-related-link">
+                <strong>GetTotalPriceByReserveNumber</strong>
+                <span>Check the current booking total via API</span>
+            </a>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/booking/details.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,105 @@
+@model HotelCarga.Models.Bookings.BookingLookupResultViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell booking-shell" data-page="booking-lookup">
+    <section class="user-hero user-hero--compact" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Endpoint Result</span>
+            <h1>@Model.Title</h1>
+            <p>@Model.Description</p>
+            <div class="user-query-pill">
+                <span>@Model.QueryLabel</span>
+                <strong>@Model.QueryValue</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Response</span>
+                <h2>@Model.ResultLabel</h2>
+            </div>
+            <p>Rendered from the Booking controller JSON payload.</p>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.NotFoundMessage))
+        {
+            <div class="user-empty-state">
+                <h3>No result returned.</h3>
+                <p>@Model.NotFoundMessage</p>
+            </div>
+        }
+        else if (Model.BookingResult is not null)
+        {
+            <div class="user-detail-grid user-detail-grid--two">
+                <article class="user-detail-card">
+                    <span>Reserve Number</span>
+                    <strong>@Model.BookingResult.ReserveNumber</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Guest</span>
+                    <strong>@Model.BookingResult.CustomerName</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Room</span>
+                    <strong>@Model.BookingResult.RoomNumber</strong>
+                </article>
+                <article class="user-detail-card">
+                    <span>Total</span>
+                    <strong>@Model.BookingResult.TotalPrice.ToString("C")</strong>
+                </article>
+            </div>
+        }
+        else if (Model.IdListResult.Count > 0)
+        {
+            <div class="user-result-banner">
+                <span>@Model.ResultLabel</span>
+                <strong>@string.Join(", ", Model.IdListResult)</strong>
+            </div>
+        }
+        else if (Model.ReserveNumbers.Count > 0)
+        {
+            <div class="user-result-banner">
+                <span>@Model.ResultLabel</span>
+                <strong>@string.Join(", ", Model.ReserveNumbers)</strong>
+            </div>
+        }
+        else if (!string.IsNullOrWhiteSpace(Model.ScalarResult))
+        {
+            <div class="user-result-banner">
+                <span>@Model.ResultLabel</span>
+                <strong>@Model.ScalarResult</strong>
+            </div>
+        }
+        else if (Model.UIntResult.HasValue)
+        {
+            <div class="user-result-banner">
+                <span>@Model.ResultLabel</span>
+                <strong>@Model.UIntResult.Value</strong>
+            </div>
+        }
+        else if (Model.DecimalResult.HasValue)
+        {
+            <div class="user-result-banner">
+                <span>@Model.ResultLabel</span>
+                <strong>@Model.DecimalResult.Value.ToString("C")</strong>
+            </div>
+        }
+
+        <div class="user-form-actions">
+            <a asp-action="Index" class="user-button">Back to Bookings</a>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/booking/lookup.js" asp-append-version="true"></script>
+}

@@ -1,915 +1,547 @@
+/* ==========================================================================
+   SISTEMA HOTELERIA - CSS REFACTORIZADO (V3 - UI/UX SENIOR)
+   Enfoque: Accesibilidad, contraste de botones y tematizacion de cabeceras
+   ========================================================================== */
+
 :root {
-    --user-ink: #132238;
-    --user-muted: #58708a;
-    --user-surface: rgba(255, 255, 255, 0.9);
-    --user-panel: rgba(19, 34, 56, 0.86);
-    --user-border: rgba(19, 34, 56, 0.1);
-    --user-accent: #0e9f8a;
-    --user-accent-soft: rgba(14, 159, 138, 0.14);
-    --user-warm: #f4c978;
-    --user-danger: #c1504d;
-    --user-shadow: 0 24px 60px rgba(19, 34, 56, 0.12);
+    /* PALETA DE COLORES GLOBAL (Optimizada para WCAG AA) */
+    --color-primary: #0f766e;        /* Primario general (Botones) */
+    --color-primary-hover: #115e59;
+    --color-primary-focus: rgba(15, 118, 110, 0.4);
+    
+    --color-bg-app: #f8fafc;         /* Fondo app */
+    --color-surface: #ffffff;        /* Fondo tarjetas */
+    
+    --color-border: #cbd5e1;         /* Bordes definidos y visibles */
+    --color-border-hover: #94a3b8;
+    
+    --color-text-main: #0f172a;      /* Alta legibilidad (casi negro) */
+    --color-text-muted: #475569;     /* Textos secundarios legibles */
+    --color-text-inverse: #ffffff;   /* Texto sobre fondos oscuros */
+    
+    /* Estados Semanticos */
+    --color-success: #059669;
+    --color-success-bg: #d1fae5;
+    --color-danger: #dc2626;
+    --color-danger-hover: #b91c1c;
+    --color-danger-bg: #fee2e2;
+    --color-warning: #d97706;
+    --color-warning-bg: #fef3c7;
+
+    /* TIPOGRAFIA Y JERARQUIA */
+    --text-h1: clamp(1.5rem, 2vw, 1.75rem);
+    --text-h2: clamp(1.25rem, 1.5vw, 1.5rem);
+    --text-h3: clamp(1.125rem, 1.2vw, 1.25rem);
+    --text-h4: 1rem;
+    --text-base: 1rem;
+    --text-small: 0.875rem;
+
+    /* ESPACIADOS (Sistema Base 4px/8px) */
+    --spacing-xs: 0.25rem;   /* 4px */
+    --spacing-sm: 0.5rem;    /* 8px */
+    --spacing-md: 0.75rem;   /* 12px */
+    --spacing-lg: 1rem;      /* 16px */
+    --spacing-xl: 1.5rem;    /* 24px */
+
+    /* BORDES */
+    --radius-main: 12px;
+    --radius-card: 8px;
+    --radius-btn: 6px;
+    --radius-input: 6px;
+    
+    /* SOMBRAS (Mas limpias) */
+    --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+    
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   1. RESET Y ESTILOS BASE
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    background:
-        radial-gradient(circle at top left, rgba(244, 201, 120, 0.26), transparent 28%),
-        radial-gradient(circle at top right, rgba(14, 159, 138, 0.18), transparent 24%),
-        linear-gradient(180deg, #f8fbfd 0%, #eef4f7 100%);
+    background: var(--color-bg-app);
+    color: var(--color-text-main);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: var(--text-base);
+    line-height: 1.5;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
-.user-shell {
-    display: grid;
-    gap: 1.5rem;
-    padding-bottom: 2rem;
+h1, h2, h3, h4 {
+    color: var(--color-text-main);
+    font-weight: 600;
 }
 
-.user-hero,
-.user-surface {
-    border: 1px solid var(--user-border);
-    border-radius: 28px;
-    box-shadow: var(--user-shadow);
+h1 { font-size: var(--text-h1); line-height: 1.2; margin-bottom: var(--spacing-md); }
+h2 { font-size: var(--text-h2); line-height: 1.3; margin-bottom: var(--spacing-sm); }
+h3 { font-size: var(--text-h3); line-height: 1.4; margin-bottom: var(--spacing-xs); }
+h4 { font-size: var(--text-h4); line-height: 1.4; margin-bottom: var(--spacing-xs); }
+p { color: var(--color-text-muted); margin-bottom: var(--spacing-md); }
+small, dt { font-size: var(--text-small); }
+
+/* ==========================================================================
+   2. CONTENEDORES PRINCIPALES
+   ========================================================================== */
+.user-shell, .room-shell, .customer-shell, .booking-shell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    padding: var(--spacing-xl) var(--spacing-lg);
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
 }
 
-.user-hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
-    gap: 1.5rem;
-    padding: 2rem;
-    background:
-        linear-gradient(135deg, rgba(19, 34, 56, 0.96), rgba(36, 69, 106, 0.9)),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
-    color: #f5fbff;
+/* ==========================================================================
+   3. HEROS Y PANELES SUPERIORES (Identidad por seccion)
+   ========================================================================== */
+/* Base comun para todos los heros */
+.user-hero, .room-hero {
+    border-radius: var(--radius-main);
+    padding: var(--spacing-xl) var(--spacing-xl);
+    color: var(--color-text-inverse);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
     position: relative;
     overflow: hidden;
 }
 
-.user-hero::after {
+/* Patrón de fondo sutil comun */
+.user-hero::before, .room-hero::before {
     content: "";
     position: absolute;
-    inset: auto -10% -35% auto;
-    width: 300px;
-    height: 300px;
+    top: -30%; right: -5%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 60%);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(244, 201, 120, 0.34), transparent 65%);
+    pointer-events: none;
 }
 
-.user-hero--compact {
-    grid-template-columns: minmax(0, 1fr);
+/* Tipografia dentro del hero asegurando contraste */
+.user-hero h1, .room-hero h1 { 
+    color: var(--color-text-inverse); 
+    margin-bottom: 0; 
 }
 
-.user-hero__content,
-.user-hero__panel {
-    position: relative;
-    z-index: 1;
+.user-hero p, .room-hero p { 
+    color: rgba(255, 255, 255, 0.9); 
+    margin-bottom: 0; 
+    max-width: 800px; 
+    font-size: 1.05rem;
 }
 
-.user-eyebrow,
-.user-section-tag,
-.user-chip,
-.user-query-pill span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.35rem 0.75rem;
-    border-radius: 999px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.75rem;
+/* TEMAS POR SECCION (Gradientes elegantes, profesionales y de alto contraste) */
+
+/* Rooms -> Azul Profesional */
+.room-shell .room-hero, .room-shell .user-hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
 }
 
-.user-eyebrow,
-.user-chip,
-.user-query-pill {
-    background: rgba(255, 255, 255, 0.12);
+/* Users -> Verde Suave/Teal */
+.user-shell .user-hero {
+    background: linear-gradient(135deg, #0f766e 0%, #042f2e 100%);
 }
 
-.user-section-tag {
-    color: var(--user-accent);
-    background: var(--user-accent-soft);
+/* Customers -> Morado Elegante */
+.customer-shell .user-hero {
+    background: linear-gradient(135deg, #5b21b6 0%, #2e1065 100%);
 }
 
-.user-hero h1,
-.user-surface h2,
-.user-card h3,
-.user-lookup-card h3 {
-    font-family: Georgia, "Times New Roman", serif;
+/* Bookings -> Naranja/Bronce Sutil */
+.booking-shell .user-hero {
+    background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
 }
 
-.user-hero h1 {
-    margin: 0.75rem 0;
-    font-size: clamp(2.2rem, 4vw, 3.4rem);
-    line-height: 1.05;
+/* Surfaces (Paneles secundarios blancos) */
+.user-surface, .room-surface {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-main);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
 }
 
-.user-hero p,
-.user-surface__header p,
-.user-card dd,
-.user-detail-card p,
-.user-lookup-card p,
-.user-helper {
-    color: rgba(245, 251, 255, 0.82);
-}
-
-.user-surface {
-    padding: 1.5rem;
-    background: var(--user-surface);
-    backdrop-filter: blur(12px);
-}
-
-.user-surface__header {
+.user-surface__header, .room-surface__header {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
-    align-items: end;
-    margin-bottom: 1.25rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
 }
 
-.user-surface__header h2,
-.user-card h3,
-.user-lookup-card h3,
-.user-empty-state h3 {
-    color: var(--user-ink);
-    margin: 0.35rem 0 0;
-}
+.user-surface__header h2, .room-surface__header h2 { margin-bottom: 0; }
+.user-surface__header p, .room-surface__header p { margin-bottom: 0; margin-top: var(--spacing-xs); }
 
-.user-surface__header p,
-.user-card dd,
-.user-card dt,
-.user-detail-card p,
-.user-empty-state p,
-.user-lookup-card p,
-.user-query-pill strong {
-    color: var(--user-muted);
-}
-
-.user-stat-grid,
-.user-card-grid,
-.user-detail-grid,
-.user-lookup-grid {
+/* ==========================================================================
+   4. SISTEMA DE GRILLAS
+   ========================================================================== */
+.user-stat-grid, .room-stat-grid {
     display: grid;
-    gap: 1rem;
+    gap: var(--spacing-md);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
 }
 
-.user-stat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.user-card-grid, .room-card-grid, .user-detail-grid, .room-detail-grid {
+    display: grid;
+    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
 }
 
-.user-card-grid,
-.user-detail-grid {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+.user-filter-grid, .room-filter-grid, .user-form-grid, .room-form-grid {
+    display: grid;
+    gap: var(--spacing-lg);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
 }
 
-.user-detail-grid--two {
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+/* ==========================================================================
+   5. TARJETAS (Cards)
+   ========================================================================== */
+.user-card, .room-card, .user-lookup-card, .user-detail-card, .room-detail-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-.user-stat-card,
-.user-card,
-.user-detail-card,
-.user-lookup-card,
-.user-related-link,
-.user-result-banner,
-.user-empty-state {
-    border-radius: 22px;
-    border: 1px solid var(--user-border);
+.user-card:hover, .room-card:hover, .user-lookup-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-border-hover);
 }
 
-.user-stat-card {
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.08);
+.user-lookup-card h3, .user-card h3, .room-card h3 {
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
-.user-stat-card span,
-.user-status-pill,
-.user-detail-card span,
-.user-card dt,
-.user-result-banner span {
-    color: rgba(245, 251, 255, 0.72);
-    font-size: 0.82rem;
+.user-card__header, .room-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.user-card__meta, .room-card__meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    width: 100%;
+}
+
+.user-card__meta dt, .room-card__meta dt {
+    color: var(--color-text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
-.user-stat-card strong,
-.user-status-pill,
-.user-detail-card strong,
-.user-result-banner strong {
-    display: block;
-    margin-top: 0.45rem;
-    font-size: 1.3rem;
+.user-card__meta dd, .room-card__meta dd {
+    color: var(--color-text-main);
+    font-weight: 500;
+    font-size: var(--text-small);
 }
 
-.user-button {
+.user-stat-card, .room-stat-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.user-stat-card span, .room-stat-card span {
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.user-stat-card strong, .room-stat-card strong {
+    font-size: var(--text-h1);
+    color: var(--color-text-main);
+    margin-top: var(--spacing-xs);
+    line-height: 1;
+}
+
+/* ==========================================================================
+   6. SISTEMA DE BOTONES (Contraste estricto y estados consistentes)
+   ========================================================================== */
+.user-card__actions, .room-card__actions, .user-form-actions, .room-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    margin-top: auto;
+    width: 100%;
+}
+
+/* Base del boton */
+.user-button, .room-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.45rem;
-    padding: 0.8rem 1.15rem;
-    border: none;
-    border-radius: 999px;
-    background: linear-gradient(135deg, var(--user-accent), #23b5a3);
-    color: #082128;
-    font-weight: 700;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-btn);
+    font-size: var(--text-small);
+    font-weight: 600;
     text-decoration: none;
-    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
-    box-shadow: 0 14px 24px rgba(14, 159, 138, 0.24);
+    border: 2px solid transparent; /* Reservado para outlines y focus */
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: center;
+    line-height: 1.2;
+    flex: 1;
 }
 
-.user-button:hover {
-    color: #082128;
-    transform: translateY(-1px);
-    box-shadow: 0 18px 28px rgba(14, 159, 138, 0.28);
-}
-
-.user-button--ghost {
-    background: transparent;
-    color: inherit;
-    border: 1px solid currentColor;
-    box-shadow: none;
-}
-
-.user-button--danger {
-    background: linear-gradient(135deg, var(--user-danger), #d86a67);
-    color: #fff;
-}
-
-.user-hero__actions,
-.user-form-actions,
-.user-form-actions--inline,
-.user-card__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-}
-
-.user-filter-grid,
-.user-form-grid,
-.user-lookup-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 1rem;
-}
-
-.user-field,
-.user-lookup-card {
-    display: grid;
-    gap: 0.45rem;
-}
-
-.user-field--wide {
-    grid-column: 1 / -1;
-}
-
-.user-input {
-    width: 100%;
-    padding: 0.85rem 0.95rem;
-    border-radius: 16px;
-    border: 1px solid rgba(19, 34, 56, 0.14);
-    background: rgba(255, 255, 255, 0.92);
-    color: var(--user-ink);
-}
-
-.user-input:focus {
+/* Accesibilidad: Estado Focus Global para botones */
+.user-button:focus-visible, .room-button:focus-visible {
     outline: none;
-    border-color: rgba(14, 159, 138, 0.65);
-    box-shadow: 0 0 0 4px rgba(14, 159, 138, 0.15);
+    box-shadow: 0 0 0 3px var(--color-surface), 0 0 0 5px var(--color-primary);
 }
 
-.user-card,
-.user-detail-card,
-.user-lookup-card,
-.user-related-link,
-.user-result-banner,
-.user-empty-state {
-    padding: 1.15rem;
-    background: rgba(255, 255, 255, 0.82);
+/* Boton Primario (Accion principal) */
+.user-button, .room-button {
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
 }
 
-.user-card__header,
-.user-card__meta {
-    display: grid;
-    gap: 0.8rem;
+.user-button:hover, .room-button:hover {
+    background-color: var(--color-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
 }
 
-.user-card__header {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: start;
+.user-button:active, .room-button:active {
+    transform: translateY(0);
+    background-color: #0f5e5c;
 }
 
-.user-card__meta {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin: 1rem 0;
+/* Boton Ghost / Outline (Ej: Reset Filters) - Alta visibilidad */
+.user-button--ghost, .room-button--ghost {
+    background-color: transparent;
+    border-color: #94a3b8; /* Borde claramente visible */
+    color: var(--color-text-main); /* Texto oscuro para buen contraste */
 }
 
-.user-card__meta div,
-.user-detail-card,
-.user-result-banner,
-.user-query-pill {
-    display: grid;
-    gap: 0.25rem;
+.user-button--ghost:hover, .room-button--ghost:hover {
+    background-color: #f1f5f9; /* Fondo ligero en hover */
+    border-color: #64748b; /* Borde oscurecido */
+    color: #0f172a;
+    transform: translateY(-1px);
 }
 
-.user-card dt,
-.user-card dd {
-    margin: 0;
-}
-
-.user-status-pill {
-    padding: 0.55rem 0.75rem;
-    border-radius: 16px;
-    background: var(--user-panel);
-}
-
-.user-related-links {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
-}
-
-.user-related-link {
-    text-decoration: none;
-    color: var(--user-ink);
-    transition: transform 160ms ease, border-color 160ms ease;
-}
-
-.user-related-link:hover {
-    color: var(--user-ink);
-    transform: translateY(-2px);
-    border-color: rgba(14, 159, 138, 0.35);
-}
-
-.user-alert {
-    padding: 1rem 1.15rem;
-    border-radius: 18px;
-    border: 1px solid transparent;
-}
-
-.user-alert--success {
-    background: rgba(14, 159, 138, 0.12);
-    color: #0a5e52;
-    border-color: rgba(14, 159, 138, 0.25);
-}
-
-.user-alert--error {
-    background: rgba(193, 80, 77, 0.12);
-    color: #8f2e2c;
-    border-color: rgba(193, 80, 77, 0.24);
-}
-
-.user-result-banner {
-    align-items: start;
-}
-
-.user-result-banner--true {
-    border-color: rgba(14, 159, 138, 0.25);
-}
-
-.user-result-banner--false {
-    border-color: rgba(193, 80, 77, 0.24);
-}
-
-.user-query-pill {
-    display: inline-grid;
-    gap: 0.2rem;
-    padding: 0.8rem 1rem;
-    border-radius: 18px;
-    max-width: 340px;
-}
-
-[data-animate] {
-    opacity: 0;
-    transform: translateY(18px);
-    transition: opacity 500ms ease, transform 500ms ease;
-}
-
-[data-animate].is-visible {
-    opacity: 1;
+.user-button--ghost:active, .room-button--ghost:active {
+    background-color: #e2e8f0;
     transform: translateY(0);
 }
 
-@media (max-width: 991px) {
-    .user-hero {
-        grid-template-columns: 1fr;
-    }
+/* Boton Danger (Eliminar, cancelar) */
+.user-button--danger, .room-button--danger {
+    background-color: var(--color-danger);
+    color: var(--color-text-inverse);
+    flex: 0.5; /* Ligeramente mas pequeno si comparte fila */
 }
 
-@media (max-width: 767px) {
-    .user-surface__header,
-    .user-card__header,
-    .user-card__meta {
-        grid-template-columns: 1fr;
-    }
-
-    .user-card__meta {
-        gap: 0.7rem;
-    }
-
-    .user-shell {
-        gap: 1rem;
-    }
-
-    .user-hero,
-    .user-surface {
-        padding: 1.15rem;
-        border-radius: 22px;
-    }
+.user-button--danger:hover, .room-button--danger:hover {
+    background-color: var(--color-danger-hover);
+    transform: translateY(-1px);
 }
 
-/* Customer theme overrides */
-.customer-shell {
-    --user-ink: #102422;
-    --user-muted: #4f6662;
-    --user-surface: rgba(255, 255, 255, 0.92);
-    --user-panel: rgba(16, 36, 34, 0.88);
-    --user-border: rgba(16, 36, 34, 0.11);
-    --user-accent: #d59d2a;
-    --user-accent-soft: rgba(213, 157, 42, 0.16);
-    --user-warm: #f6dfaa;
-    --user-danger: #c1504d;
-    --user-shadow: 0 24px 60px rgba(16, 36, 34, 0.15);
-}
-
-.customer-shell .user-hero {
-    background:
-        linear-gradient(135deg, rgba(16, 36, 34, 0.95), rgba(33, 70, 67, 0.9)),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
-}
-
-.customer-shell .user-button {
-    background: linear-gradient(135deg, var(--user-accent), #f1be5f);
-    color: #2b1f07;
-    box-shadow: 0 14px 24px rgba(213, 157, 42, 0.24);
-}
-
-.customer-shell .user-button:hover {
-    color: #2b1f07;
-    box-shadow: 0 18px 28px rgba(213, 157, 42, 0.28);
-}
-
-.customer-shell .user-button--ghost {
-    background: transparent;
-}
-
-.customer-shell .user-button--danger {
-    background: linear-gradient(135deg, var(--user-danger), #d86a67);
-    color: #fff;
-}
-
-.customer-shell .user-status-pill {
-    background: rgba(16, 36, 34, 0.92);
-}
-
-/* Room theme */
-:root {
-    --room-bg: #f8fafc;
-    --room-surface: #ffffff;
-    --room-border: #e2e8f0;
-    --room-ink: #0f172a;
-    --room-muted: #64748b;
-    --room-brand: #2563eb;
-    --room-brand-deep: #1d4ed8;
-    --room-accent: #eff6ff;
-    --room-danger: #ef4444;
-    --room-success-bg: #dcfce7;
-    --room-success-text: #166534;
-    --room-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-    --text-h1: clamp(1.8rem, 4vw, 2.5rem);
-    --text-h2: clamp(1.4rem, 3vw, 1.8rem);
-    --text-base: clamp(0.95rem, 1vw + 0.5rem, 1.05rem);
-    --spacing-container: clamp(1.2rem, 3vw, 2.5rem);
-    --radius-main: 24px;
-    --radius-small: 16px;
-}
-
-body:has(.room-shell) {
-    background: var(--room-bg);
-    color: var(--room-ink);
-    font-size: var(--text-base);
-    line-height: 1.6;
-}
-
-.room-shell {
-    display: grid;
-    gap: clamp(1rem, 2vw, 1.5rem);
-    padding: clamp(1rem, 3vw, 3rem) 0;
-    color: var(--room-ink);
-}
-
-.room-hero,
-.room-surface {
-    background: var(--room-surface);
-    border: 1px solid var(--room-border);
-    border-radius: var(--radius-main);
-    box-shadow: var(--room-shadow);
-    padding: var(--spacing-container);
-}
-
-.room-hero {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-    overflow: hidden;
-    position: relative;
-}
-
-.room-hero::after {
-    background: radial-gradient(circle, rgba(37, 99, 235, 0.08), transparent 70%);
-    content: "";
-    height: 18rem;
-    inset: auto -5rem -5rem auto;
-    position: absolute;
-    width: 18rem;
-    z-index: 0;
-}
-
-.room-hero__content {
-    position: relative;
-    z-index: 1;
-}
-
-.room-hero.compact {
-    grid-template-columns: 1.4fr 0.8fr;
-}
-
-.room-eyebrow,
-.room-section-tag,
-.room-chip {
-    align-items: center;
-    background: var(--room-accent);
-    border-radius: 999px;
-    color: var(--room-brand-deep);
-    display: inline-flex;
-    font-size: 0.82rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    padding: 0.4rem 0.8rem;
-    text-transform: uppercase;
-}
-
-.room-hero__content h1 {
-    font-size: var(--text-h1);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin: 0.8rem 0;
-}
-
-.room-surface__header h2 {
-    font-size: var(--text-h2);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin: 0.5rem 0;
-}
-
-.room-hero__content p,
-.room-surface__header p,
-.room-glance-card p,
-.room-empty-state p,
-.room-timeline__item p {
-    color: var(--room-muted);
-    margin: 0;
-}
-
-.room-hero__actions,
-.room-form-actions,
-.room-card__actions,
-.room-related-links {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.85rem;
-    margin-top: 0.5rem;
-}
-
-.room-button {
-    align-items: center;
-    background: var(--room-brand);
-    border: 1px solid transparent;
-    border-radius: 999px;
-    color: #fff;
-    cursor: pointer;
-    display: inline-flex;
-    font-weight: 600;
-    justify-content: center;
-    padding: clamp(0.7rem, 2vw, 0.85rem) clamp(1.2rem, 3vw, 1.8rem);
-    text-decoration: none;
-    transition: all 0.25s ease;
-}
-
-.room-button:hover {
-    background: var(--room-brand-deep);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
-    color: #fff;
-    transform: translateY(-2px);
-}
-
-.room-button--ghost {
-    background: transparent;
-    border-color: var(--room-border);
-    color: var(--room-ink);
-}
-
-.room-button--ghost:hover {
-    background: var(--room-bg);
+/* Estado Disabled */
+.user-button:disabled, .room-button:disabled {
+    background-color: #e2e8f0;
+    border-color: transparent;
+    color: #94a3b8;
+    cursor: not-allowed;
+    transform: none;
     box-shadow: none;
-    color: var(--room-brand-deep);
 }
 
-.room-button--danger {
-    background: var(--room-danger);
-}
-
-.room-button--danger:hover {
-    background: #dc2626;
-    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25);
-}
-
-.room-detail-grid,
-.room-delete-summary {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(140px, 30vw, 200px), 3fr));
-}
-
-.room-stat-grid {
-    display: grid;
-    gap: 1.2rem;
-    grid-template-columns: repeat(4, 1fr);
+/* ==========================================================================
+   7. BADGES Y ETIQUETAS
+   ========================================================================== */
+.user-status-pill, .room-status-pill {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-}
-
-.room-stat-card,
-.room-detail-card,
-.room-delete-summary > div,
-.room-glance-card,
-.room-card,
-.room-related-link {
-    background: var(--room-surface);
-    border: 1px solid var(--room-border);
-    border-radius: var(--radius-small);
-    padding: 1.2rem;
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.room-stat-card:hover,
-.room-card:hover {
-    border-color: rgba(37, 99, 235, 0.3);
-    box-shadow: var(--room-shadow);
-}
-
-.room-stat-card span,
-.room-detail-card span,
-.room-delete-summary span {
-    color: var(--room-muted);
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-.room-stat-card strong,
-.room-detail-card strong,
-.room-delete-summary strong {
-    color: var(--room-ink);
-    display: block;
-    font-size: clamp(1.3rem, 3vw, 1.6rem);
-    margin-top: 0.3rem;
-}
-
-.room-surface__header {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-}
-
-.room-filter-grid,
-.room-form-grid {
-    display: grid;
-    gap: 1.2rem;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 40vw, 300px), 1fr));
-}
-
-.room-field {
-    display: grid;
-    gap: 0.5rem;
-}
-
-.room-field label {
-    color: var(--room-ink);
-    font-size: 0.92rem;
-    font-weight: 600;
-}
-
-.room-input,
-.room-table {
-    width: 100%;
-}
-
-.room-input {
-    background: var(--room-bg);
-    border: 1px solid var(--room-border);
-    border-radius: 12px;
-    color: var(--room-ink);
-    font-family: inherit;
-    font-size: 1rem;
-    min-height: 3.2rem;
-    padding: 0.8rem 1rem;
-    transition: all 0.2s ease;
-}
-
-.room-input:focus,
-.room-field.is-active .room-input {
-    background: var(--room-surface);
-    border-color: var(--room-brand);
-    box-shadow: 0 0 0 4px var(--room-accent);
-    outline: none;
-}
-
-.room-field--wide {
-    grid-column: 1 / -1;
-}
-
-.room-form-actions--inline {
-    margin-top: 0;
-}
-
-.room-card-grid {
-    display: grid;
-    gap: 1.2rem;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 45vw, 350px), 1fr));
-}
-
-.room-card__header {
-    align-items: flex-start;
-    display: flex;
-    gap: 1rem;
-    justify-content: space-between;
-    margin-bottom: 1.2rem;
-}
-
-.room-card__header h3 {
-    font-size: 1.2rem;
-    margin: 0;
-}
-
-.room-status-pill {
-    background: var(--room-success-bg);
-    border-radius: 999px;
-    color: var(--room-success-text);
-    display: inline-flex;
-    font-size: 0.8rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
     font-weight: 700;
-    padding: 0.35rem 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid rgba(5, 150, 105, 0.2);
+    align-self: flex-start;
     white-space: nowrap;
 }
 
-.room-card__meta {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(2, 1fr);
-}
-
-.room-card__meta dt {
-    color: var(--room-muted);
-    font-size: 0.85rem;
-    margin-bottom: 0.2rem;
-}
-
-.room-card__meta dd {
-    color: var(--room-ink);
+.user-eyebrow, .room-eyebrow, .user-chip, .room-chip {
+    display: inline-flex;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
     font-weight: 600;
-    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-text-inverse);
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.room-related-link {
-    align-items: center;
-    color: var(--room-ink);
+/* ==========================================================================
+   8. FORMULARIOS E INPUTS
+   ========================================================================== */
+.user-field, .room-field {
     display: flex;
-    gap: 0.75rem;
-    text-decoration: none;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    width: 100%;
+    margin-bottom: var(--spacing-md);
 }
 
-.room-related-link:hover {
-    border-color: var(--room-brand);
-    color: var(--room-brand-deep);
-    transform: translateY(-2px);
+.user-field label, .room-field label {
+    font-size: var(--text-small);
+    font-weight: 600;
+    color: var(--color-text-main);
 }
 
-.room-timeline {
-    display: grid;
-    gap: 1rem;
+.user-input, .room-input {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    border-radius: var(--radius-input);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+    font-family: inherit;
+    font-size: var(--text-small);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.room-timeline--full {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+.user-input::placeholder, .room-input::placeholder {
+    color: #94a3b8;
 }
 
-.room-timeline__item {
-    border-left: 3px solid var(--room-border);
-    padding: 0.5rem 0 0.5rem 1.2rem;
-    position: relative;
+.user-input:focus, .room-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-focus);
 }
 
-.room-timeline__item::before {
-    background: var(--room-brand);
-    border-radius: 50%;
-    content: "";
-    height: 9px;
-    left: -6px;
-    position: absolute;
-    top: 12px;
-    width: 9px;
-}
-
-.room-empty-state,
-.room-validation,
-.room-alert {
-    border-radius: var(--radius-small);
-    padding: 1.5rem;
-}
-
-.room-empty-state {
-    background: var(--room-bg);
-    border: 2px dashed var(--room-border);
-    text-align: center;
-}
-
-.room-validation,
-.room-alert {
-    border: 1px solid var(--room-border);
-}
-
-.room-alert--success {
-    background: var(--room-success-bg);
-    border-color: rgba(22, 101, 52, 0.2);
-    color: var(--room-success-text);
-}
-
-.room-alert--error {
-    background: #fef2f2;
-    border-color: rgba(239, 68, 68, 0.2);
-    color: #991b1b;
-}
-
+/* ==========================================================================
+   9. TABLAS DE DATOS
+   ========================================================================== */
 .room-table-wrap {
-    border: 1px solid var(--room-border);
-    border-radius: var(--radius-small);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
     overflow-x: auto;
+    background: var(--color-surface);
+    margin-bottom: var(--spacing-md);
 }
 
 .room-table {
+    width: 100%;
     border-collapse: collapse;
+    text-align: left;
+    font-size: var(--text-small);
 }
 
 .room-table th {
-    background: var(--room-bg);
-    color: var(--room-muted);
-    font-size: 0.85rem;
+    background-color: var(--color-bg-app);
+    color: var(--color-text-muted);
     font-weight: 600;
     text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
 }
 
-.room-table th,
 .room-table td {
-    border-bottom: 1px solid var(--room-border);
-    padding: 1rem 1.2rem;
-    text-align: left;
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-main);
+    transition: background-color var(--transition-fast);
+}
+
+.room-table tbody tr:hover td {
+    background-color: #f1f5f9;
 }
 
 .room-table tr:last-child td {
     border-bottom: none;
 }
 
+/* ==========================================================================
+   10. RESPONSIVE DESIGN
+   ========================================================================== */
 @media (max-width: 991px) {
-    .room-hero,
-    .room-hero.compact {
-        grid-template-columns: 1fr;
+    .user-shell, .room-shell, .customer-shell, .booking-shell {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+    .user-hero, .room-hero {
+        padding: var(--spacing-lg);
+    }
+    .user-surface, .room-surface {
+        padding: var(--spacing-lg);
     }
 }
 
-@media (max-width: 576px) {
-    .room-shell {
-        padding-bottom: 2rem;
-    }
-
-    .room-hero__actions {
+@media (max-width: 768px) {
+    .user-surface__header, .room-surface__header, 
+    .user-card__header, .room-card__header {
         flex-direction: column;
-    }
-
-    .room-button,
-    .room-related-link {
-        width: 100%;
-    }
-
-    .room-surface__header {
         align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .user-card__meta, .room-card__meta {
+        grid-template-columns: 1fr;
+    }
+
+    .user-card__actions, .room-card__actions, .user-form-actions {
         flex-direction: column;
     }
+    
+    .user-button, .room-button {
+        width: 100%;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Animaciones */
+[data-animate] {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+[data-animate].is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }

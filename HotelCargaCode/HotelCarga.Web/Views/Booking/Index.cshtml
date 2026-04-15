@@ -1,0 +1,239 @@
+@model HotelCarga.Models.Bookings.BookingIndexViewModel
+
+@{
+    ViewData["Title"] = "Bookings";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell booking-shell" data-page="booking-index">
+    <section class="user-hero" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Reservation Desk</span>
+            <h1>Track the booking ledger with front-desk precision.</h1>
+            <p>Filter reservations, manage room assignments, and run the Booking controller helper endpoints from one operational view.</p>
+            <div class="user-hero__actions">
+                <a asp-action="Create" class="user-button">Create Booking</a>
+                <a asp-action="GetAll" class="user-button user-button--ghost">Reset Filters</a>
+            </div>
+        </div>
+        <div class="user-hero__panel">
+            <div class="user-stat-grid">
+                <article class="user-stat-card">
+                    <span>Total bookings</span>
+                    <strong data-count="@Model.Stats.TotalBookings">@Model.Stats.TotalBookings</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Matching bookings</span>
+                    <strong data-count="@Model.Stats.MatchingBookings">@Model.Stats.MatchingBookings</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Active bookings</span>
+                    <strong data-count="@Model.Stats.ActiveBookings">@Model.Stats.ActiveBookings</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Total revenue</span>
+                    <strong>@Model.Stats.TotalRevenue.ToString("C")</strong>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="user-alert user-alert--success" data-animate>@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="user-alert user-alert--error" data-animate>@errorMessage</div>
+    }
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Search & Filter</span>
+                <h2>Locate reservations fast</h2>
+            </div>
+            <p>@Model.ActiveFilterSummary</p>
+        </div>
+
+        <form asp-action="Index" method="get" class="user-filter-grid">
+            <div class="user-field">
+                <label asp-for="Filters.ReserveNumber"></label>
+                <input asp-for="Filters.ReserveNumber" class="user-input" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.CustomerId"></label>
+                <select asp-for="Filters.CustomerId" asp-items="Model.CustomerOptions" class="user-input">
+                    <option value="">All customers</option>
+                </select>
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.RoomId"></label>
+                <select asp-for="Filters.RoomId" asp-items="Model.RoomOptions" class="user-input">
+                    <option value="">All rooms</option>
+                </select>
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.StatusId"></label>
+                <select asp-for="Filters.StatusId" asp-items="Model.StatusOptions" class="user-input">
+                    <option value="">All statuses</option>
+                </select>
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.CheckInDate"></label>
+                <input asp-for="Filters.CheckInDate" class="user-input" />
+            </div>
+            <div class="user-form-actions user-form-actions--inline">
+                <button type="submit" class="user-button">Apply Filters</button>
+                <a asp-action="GetAll" class="user-button user-button--ghost">Clear</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">API Lookups</span>
+                <h2>Run booking helpers</h2>
+            </div>
+            <p>Every mini-form below maps directly to a Booking controller endpoint.</p>
+        </div>
+
+        <div class="user-lookup-grid">
+            <form asp-action="GetReserveNumberById" method="get" class="user-lookup-card">
+                <h3>GetReserveNumberById</h3>
+                <p>Resolve a reserve code from the booking id.</p>
+                <label for="booking-id-lookup">Booking Id</label>
+                <input id="booking-id-lookup" name="id" type="number" min="1" class="user-input" required />
+                <button type="submit" class="user-button">Run Lookup</button>
+            </form>
+            <form asp-action="GetRoomIdByReserveNumber" method="get" class="user-lookup-card">
+                <h3>GetRoomIdByReserveNumber</h3>
+                <p>Resolve a room id from the reserve number.</p>
+                <label for="room-by-reserve">Reserve Number</label>
+                <input id="room-by-reserve" name="reserveNumber" class="user-input" required />
+                <button type="submit" class="user-button">Run Lookup</button>
+            </form>
+            <form asp-action="GetBookingHistoryIdsByReserveNumber" method="get" class="user-lookup-card">
+                <h3>GetBookingHistoryIdsByReserveNumber</h3>
+                <p>List history ids tied to the reserve number.</p>
+                <label for="history-by-reserve">Reserve Number</label>
+                <input id="history-by-reserve" name="reserveNumber" class="user-input" required />
+                <button type="submit" class="user-button">List Ids</button>
+            </form>
+            <form asp-action="GetOverlappingReserveNumbers" method="get" class="user-lookup-card">
+                <h3>GetOverlappingReserveNumbers</h3>
+                <p>Find overlapping stays in a date window.</p>
+                <label for="overlap-start">Start Date</label>
+                <input id="overlap-start" name="startDate" type="date" class="user-input" required />
+                <label for="overlap-end">End Date</label>
+                <input id="overlap-end" name="endDate" type="date" class="user-input" required />
+                <button type="submit" class="user-button">Find Overlaps</button>
+            </form>
+            <form asp-action="GetReserveNumbersByCheckInDate" method="get" class="user-lookup-card">
+                <h3>GetReserveNumbersByCheckInDate</h3>
+                <p>List reserve numbers starting on a specific day.</p>
+                <label for="checkin-lookup">Check-In Date</label>
+                <input id="checkin-lookup" name="checkInDate" type="date" class="user-input" required />
+                <button type="submit" class="user-button">List Reserve Numbers</button>
+            </form>
+            <form asp-action="GetTotalPriceByReserveNumber" method="get" class="user-lookup-card">
+                <h3>GetTotalPriceByReserveNumber</h3>
+                <p>Resolve the total price for a reserve code.</p>
+                <label for="price-by-reserve">Reserve Number</label>
+                <input id="price-by-reserve" name="reserveNumber" class="user-input" required />
+                <button type="submit" class="user-button">Show Price</button>
+            </form>
+            <form asp-action="GetReserveNumbersByStatusId" method="get" class="user-lookup-card">
+                <h3>GetReserveNumbersByStatusId</h3>
+                <p>List reserve numbers by booking status.</p>
+                <label for="reserve-by-status">Status</label>
+                <select id="reserve-by-status" name="statusId" class="user-input" required>
+                    @foreach (var item in Model.StatusOptions)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                </select>
+                <button type="submit" class="user-button">List Reserve Numbers</button>
+            </form>
+            <form asp-action="GetReserveNumbersByCustomerId" method="get" class="user-lookup-card">
+                <h3>GetReserveNumbersByCustomerId</h3>
+                <p>List reserve numbers by customer.</p>
+                <label for="reserve-by-customer">Customer</label>
+                <select id="reserve-by-customer" name="customerId" class="user-input" required>
+                    @foreach (var item in Model.CustomerOptions)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                </select>
+                <button type="submit" class="user-button">List Reserve Numbers</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Booking Ledger</span>
+                <h2>Reservation list</h2>
+            </div>
+            <p>@Model.Bookings.Count booking records ready for review.</p>
+        </div>
+
+        @if (Model.Bookings.Count == 0)
+        {
+            <div class="user-empty-state">
+                <h3>No bookings matched this filter.</h3>
+                <p>Widen the search or create a new reservation from the intake flow.</p>
+            </div>
+        }
+        else
+        {
+            <div class="user-card-grid">
+                @foreach (var booking in Model.Bookings)
+                {
+                    <article class="user-card" data-animate>
+                        <div class="user-card__header">
+                            <div>
+                                <span class="user-chip">@booking.ReserveNumber</span>
+                                <h3>@booking.CustomerName</h3>
+                            </div>
+                            <span class="user-status-pill">@booking.StatusName</span>
+                        </div>
+                        <dl class="user-card__meta">
+                            <div>
+                                <dt>Room</dt>
+                                <dd>@booking.RoomNumber</dd>
+                            </div>
+                            <div>
+                                <dt>Check-In</dt>
+                                <dd>@booking.CheckIn.ToString("MMM dd, yyyy")</dd>
+                            </div>
+                            <div>
+                                <dt>Check-Out</dt>
+                                <dd>@booking.CheckOut.ToString("MMM dd, yyyy")</dd>
+                            </div>
+                            <div>
+                                <dt>Total</dt>
+                                <dd>@booking.TotalPrice.ToString("C")</dd>
+                            </div>
+                        </dl>
+                        <div class="user-card__actions">
+                            <a asp-action="GetById" asp-route-id="@booking.Id" class="user-button">Open</a>
+                            <a asp-action="Update" asp-route-id="@booking.Id" class="user-button user-button--ghost">Update</a>
+                            <a asp-action="Delete" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button--danger">Cancel</a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/booking/index.js" asp-append-version="true"></script>
+}
