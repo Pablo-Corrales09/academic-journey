@@ -10,32 +10,11 @@ using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Cargamos la cadena de conexion de forma segura (desde user-secrets en desarrollo)
-string connectionString = builder.Configuration.GetConnectionString("myConnectionString");
+builder.Services.AddHttpClient();
 
-// Debug: Intenta acceso alternativo si el primero falla
-if (string.IsNullOrWhiteSpace(connectionString))
-{
-    connectionString = builder.Configuration["ConnectionStrings:myConnectionString"];
-}
+builder.Services.Configure<HotelCarga.Web.Services.ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
-// 2. Validamos que no sea nula y que NO este vacia
-if (string.IsNullOrWhiteSpace(connectionString))
-{
-    var environment = builder.Environment.EnvironmentName;
-    throw new InvalidOperationException(
-        $"Connection string 'myConnectionString' not found in {environment} environment. " +
-        $"Set it via: dotnet user-secrets set \"ConnectionStrings:myConnectionString\" \"<connection-string>\"");
-}
-
-// 3. Inyectamos el DbContext
-builder.Services.AddDbContext<HotelCargaContext>(options =>
-{
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-});
-
-// 4. Register Repository Pattern Services
-RegisterRepositories(builder.Services);
+builder.Services.AddScoped<HotelCarga.Web.Services.IRoomApiService, HotelCarga.Web.Services.RoomApiService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -60,23 +39,4 @@ app.MapControllerRoute(
 
 app.Run();
 
-static void RegisterRepositories(IServiceCollection services)
-{
-    services.AddScoped<IUserStatusRepository, UserStatusRepository>();
-    services.AddScoped<IRoomStatusRepository, RoomStatusRepository>();
-    services.AddScoped<IBookingStatusRepository, BookingStatusRepository>();
-    services.AddScoped<IQueueStatusRepository, QueueStatusRepository>();
 
-    services.AddScoped<IUserRepository, UserRepository>();
-    services.AddScoped<IRoleRepository, RoleRepository>();
-    services.AddScoped<IRoomCategoryRepository, RoomCategoryRepository>();
-    services.AddScoped<IRoomAvailabilityRepository, RoomAvailabilityRepository>();
-    services.AddScoped<IRoomRepository, RoomRepository>();
-    services.AddScoped<ICustomerRepository, CustomerRepository>();
-    services.AddScoped<IBookingRepository, BookingRepository>();
-    services.AddScoped<IBookingHistoryRepository, BookingHistoryRepository>();
-    services.AddScoped<IWaitingQueueRepository, WaitingQueueRepository>();
-
-    services.AddScoped<ICustomerBookingViewRepository, CustomerBookingViewRepository>();
-    services.AddScoped<IWaitingQueueReportViewRepository, WaitingQueueReportViewRepository>();
-}

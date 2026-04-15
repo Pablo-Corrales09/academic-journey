@@ -50,9 +50,9 @@ body {
 }
 
 .room-hero {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: 1.5fr 1fr;
+    display: flex;
+    flex-direction: column; 
+    gap: 2.5rem; 
     overflow: hidden;
     position: relative;
 }
@@ -120,9 +120,10 @@ body {
 .room-card__actions,
 .room-related-links {
     display: flex;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.85rem;
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
 }
 
 /* Botones con padding fluido */
@@ -170,12 +171,20 @@ body {
 }
 
 /* Grillas adaptativas */
-.room-stat-grid,
 .room-detail-grid,
 .room-delete-summary {
     display: grid;
     gap: 1rem;
-    grid-template-columns: repeat(auto-fit, minmax(clamp(140px, 30vw, 200px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(clamp(140px, 30vw, 200px), 3fr));
+}
+
+/* Regla específica para el panel del Hero (2x2) */
+.room-stat-grid {
+    display: grid;
+    gap: 1.2rem;
+    grid-template-columns: repeat(4, 1fr); 
+    align-items: center;
+    justify-content: center;
 }
 
 .room-stat-card,
@@ -189,6 +198,10 @@ body {
     border-radius: var(--radius-small);
     padding: 1.2rem;
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .room-stat-card:hover,
@@ -461,4 +474,5 @@ body {
         align-items: flex-start;
         flex-direction: column;
     }
+
 }

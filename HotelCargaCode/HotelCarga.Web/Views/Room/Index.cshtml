@@ -14,10 +14,7 @@
             <span class="room-eyebrow">Hotel Inventory</span>
             <h1>Manage rooms with a calm, guest-first workflow.</h1>
             <p>Filter the room catalog, review pricing posture, and open each room profile to inspect bookings, histories, and availability windows.</p>
-            <div class="room-hero__actions">
-                <a asp-action="Create" class="room-button">Create Room</a>
-                <a asp-action="GetAll" class="room-button room-button--ghost">Reset Filters</a>
-            </div>
+            
         </div>
         <div class="room-hero__panel">
             <div class="room-stat-grid">
@@ -39,6 +36,11 @@
                 </article>
             </div>
         </div>
+
+        <div class="room-hero__actions">
+                <a asp-action="Create" class="room-button">Create Room</a>
+                <a asp-action="GetAll" class="room-button room-button--ghost">Reset Filters</a>
+            </div>
     </section>
 
     @if (TempData["SuccessMessage"] is string successMessage)

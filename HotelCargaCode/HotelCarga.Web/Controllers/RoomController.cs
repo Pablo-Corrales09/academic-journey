@@ -1,91 +1,83 @@
-using HotelCarga.HotelCarga.DbModel.Entities;
 using HotelCarga.Models.Rooms;
-using HotelCarga.RepositoryModel.Interfaces;
+using HotelCarga.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+using System.Net.Http;
+using System.Linq;
 
-namespace HotelCarga.Controllers;
+namespace HotelCarga.Web.Controllers;
 
 public class RoomController : Controller
 {
-    private readonly HotelCargaContext _context;
-    private readonly IRoomRepository _roomRepository;
-    private readonly IRoomStatusRepository _roomStatusRepository;
-    private readonly IRoomCategoryRepository _roomCategoryRepository;
+    private readonly IRoomApiService _service;
+    private const string ApiUnavailableMessage = "Room service is unavailable. Start HotelCarga.ApiModel and try again.";
 
-    public RoomController(
-        HotelCargaContext context,
-        IRoomRepository roomRepository,
-        IRoomStatusRepository roomStatusRepository,
-        IRoomCategoryRepository roomCategoryRepository)
+
+    public RoomController(IRoomApiService service)
     {
-        _context = context;
-        _roomRepository = roomRepository;
-        _roomStatusRepository = roomStatusRepository;
-        _roomCategoryRepository = roomCategoryRepository;
+        _service = service;
     }
 
     public async Task<IActionResult> Index(RoomFiltersViewModel filters)
     {
-        var query = _context.rooms
-            .AsNoTracking()
-            .Include(room => room.status)
-            .Include(room => room.category)
-            .AsQueryable();
+        List<RoomDto> allRooms;
+        try
+        {
+            allRooms = await _service.GetAllAsync();
+        }
+        catch (HttpRequestException)
+        {
+            TempData["ErrorMessage"] = ApiUnavailableMessage;
+            return View(BuildUnavailableIndexModel(filters));
+        }
+
+        var filteredRooms = allRooms.AsQueryable();
 
         if (filters.RoomNumber.HasValue)
         {
-            query = query.Where(room => room.room_number == filters.RoomNumber.Value);
+            filteredRooms = filteredRooms.Where(r => r.room_number == filters.RoomNumber.Value);
         }
 
         if (filters.MinRate.HasValue)
         {
-            query = query.Where(room => room.nightly_rate >= filters.MinRate.Value);
+            filteredRooms = filteredRooms.Where(r => r.nightly_rate >= filters.MinRate.Value);
         }
 
         if (filters.MaxRate.HasValue)
         {
-            query = query.Where(room => room.nightly_rate <= filters.MaxRate.Value);
+            filteredRooms = filteredRooms.Where(r => r.nightly_rate <= filters.MaxRate.Value);
         }
 
         if (filters.StatusId.HasValue)
         {
-            query = query.Where(room => room.status_id == filters.StatusId.Value);
+            filteredRooms = filteredRooms.Where(r => r.status_id == filters.StatusId.Value);
         }
 
         if (filters.CategoryId.HasValue)
         {
-            query = query.Where(room => room.category_id == filters.CategoryId.Value);
+            filteredRooms = filteredRooms.Where(r => r.category_id == filters.CategoryId.Value);
         }
 
         if (filters.FloorNumber.HasValue)
         {
-            query = query.Where(room => room.floor_number == filters.FloorNumber.Value);
+            filteredRooms = filteredRooms.Where(r => r.floor_number == filters.FloorNumber.Value);
         }
 
-        var filteredRooms = await query
-            .OrderBy(room => room.room_number)
-            .ToListAsync();
-
-        var allRooms = await _context.rooms
-            .AsNoTracking()
-            .Include(room => room.status)
-            .ToListAsync();
+        var filteredList = filteredRooms.OrderBy(r => r.room_number).ToList();
 
         var model = new RoomIndexViewModel
         {
             Filters = filters,
-            Rooms = filteredRooms.Select(MapRoom).ToList(),
+            Rooms = filteredList.Select(MapRoomDto).ToList(),
             StatusOptions = await BuildStatusOptionsAsync(filters.StatusId),
             CategoryOptions = await BuildCategoryOptionsAsync(filters.CategoryId),
             ActiveFilterSummary = await BuildFilterSummaryAsync(filters),
             Stats = new RoomIndexStatsViewModel
             {
                 TotalRooms = allRooms.Count,
-                MatchingRooms = filteredRooms.Count,
-                AvailableRooms = allRooms.Count(room => string.Equals(room.status?.status_name, "Available", StringComparison.OrdinalIgnoreCase)),
-                AverageNightlyRate = allRooms.Count == 0 ? 0 : allRooms.Average(room => room.nightly_rate)
+                MatchingRooms = filteredList.Count,
+                AvailableRooms = allRooms.Count(r => string.Equals(r.status_name, "Available", StringComparison.OrdinalIgnoreCase)),
+                AverageNightlyRate = allRooms.Count == 0 ? 0 : allRooms.Average(r => r.nightly_rate)
             }
         };
 
@@ -94,81 +86,135 @@ public class RoomController : Controller
 
     public async Task<IActionResult> Details(uint id)
     {
-        var room = await LoadRoomGraphAsync(id);
-        if (room is null)
+        RoomDto? roomDto;
+        try
+        {
+            roomDto = await _service.GetByIdAsync(id);
+        }
+        catch (HttpRequestException)
+        {
+            TempData["ErrorMessage"] = ApiUnavailableMessage;
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (roomDto is null)
         {
             return NotFound();
         }
 
-        return View(BuildDetailsModel(room));
+        List<BookingDto> bookings;
+        List<BookingHistoryDto> histories;
+        List<RoomAvailabilityDto> availabilities;
+
+        try
+        {
+            bookings = await _service.GetBookingsByRoomIdAsync(id);
+            histories = await _service.GetBookingHistoriesByRoomIdAsync(id);
+            availabilities = await _service.GetAvailabilitiesByRoomIdAsync(id);
+        }
+        catch (HttpRequestException)
+        {
+            TempData["ErrorMessage"] = ApiUnavailableMessage;
+            return RedirectToAction(nameof(Index));
+        }
+
+        return View(new RoomDetailsViewModel
+        {
+            Room = MapRoomDto(roomDto),
+            Bookings = bookings.Select(MapBookingDto).OrderBy(b => b.CheckIn).ToList(),
+            BookingHistories = histories.Select(MapBookingHistoryDto).OrderByDescending(h => h.CreatedAt).ToList(),
+            Availabilities = availabilities.Select(MapAvailabilityDto).OrderBy(a => a.StartSchedule).ToList()
+        });
     }
 
     public async Task<IActionResult> Create()
     {
-        return View(await BuildFormModelAsync(new RoomFormViewModel
+        try
         {
-            PageTitle = "Create Room",
-            IntroText = "Capture a polished room record with pricing, placement, and service availability in one flow.",
-            SubmitLabel = "Create Room",
-            HeroEyebrow = "Inventory Setup"
-        }));
+            return View(await BuildFormModelAsync(new RoomFormViewModel
+            {
+                PageTitle = "Create Room",
+                IntroText = "Capture a polished room record with pricing, placement, and service availability in one flow.",
+                SubmitLabel = "Create Room",
+                HeroEyebrow = "Inventory Setup"
+            }));
+        }
+        catch (HttpRequestException)
+        {
+            return RedirectToIndexWithApiError();
+        }
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(RoomFormViewModel model)
     {
-        if (await RoomNumberExistsAsync(model.RoomNumber))
+        try
         {
-            ModelState.AddModelError(nameof(model.RoomNumber), $"Room {model.RoomNumber} already exists.");
+            if (await RoomNumberExistsAsync(model.RoomNumber))
+            {
+                ModelState.AddModelError(nameof(model.RoomNumber), $"Room {model.RoomNumber} already exists.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.PageTitle = "Create Room";
+                model.IntroText = "Capture a polished room record with pricing, placement, and service availability in one flow.";
+                model.SubmitLabel = "Create Room";
+                model.HeroEyebrow = "Inventory Setup";
+                return View(await BuildFormModelAsync(model));
+            }
+
+            var dto = new CreateRoomDto(model.RoomNumber, model.StatusId, model.CategoryId, model.NightlyRate, model.FloorNumber);
+
+            var newRoom = await _service.CreateAsync(dto);
+
+            TempData["SuccessMessage"] = $"Room {newRoom.room_number} was created successfully.";
+            return RedirectToAction(nameof(Details), new { id = newRoom.id });
         }
-
-        if (!ModelState.IsValid)
+        catch (HttpRequestException)
         {
-            model.PageTitle = "Create Room";
-            model.IntroText = "Capture a polished room record with pricing, placement, and service availability in one flow.";
-            model.SubmitLabel = "Create Room";
-            model.HeroEyebrow = "Inventory Setup";
-            return View(await BuildFormModelAsync(model));
+            return RedirectToIndexWithApiError();
         }
-
-        var entity = new room
-        {
-            room_number = model.RoomNumber,
-            status_id = model.StatusId,
-            category_id = model.CategoryId,
-            nightly_rate = model.NightlyRate,
-            floor_number = model.FloorNumber
-        };
-
-        _context.rooms.Add(entity);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = $"Room {entity.room_number} was created successfully.";
-        return RedirectToAction(nameof(Details), new { id = entity.id });
     }
 
     public async Task<IActionResult> Edit(uint id)
     {
-        var room = await _context.rooms.AsNoTracking().FirstOrDefaultAsync(room => room.id == id);
+        RoomDto? room;
+        try
+        {
+            room = await _service.GetByIdAsync(id);
+        }
+        catch (HttpRequestException)
+        {
+            return RedirectToIndexWithApiError();
+        }
+
         if (room is null)
         {
             return NotFound();
         }
 
-        return View(await BuildFormModelAsync(new RoomFormViewModel
+        try
         {
-            Id = room.id,
-            RoomNumber = room.room_number,
-            StatusId = room.status_id,
-            CategoryId = room.category_id,
-            NightlyRate = room.nightly_rate,
-            FloorNumber = room.floor_number,
-            PageTitle = "Edit Room",
-            IntroText = "Refine the room profile and keep front-desk, housekeeping, and revenue data aligned.",
-            SubmitLabel = "Save Changes",
-            HeroEyebrow = "Room Refresh"
-        }));
+            return View(await BuildFormModelAsync(new RoomFormViewModel
+            {
+                Id = room.id,
+                RoomNumber = room.room_number,
+                StatusId = room.status_id,
+                CategoryId = room.category_id,
+                NightlyRate = room.nightly_rate,
+                FloorNumber = room.floor_number,
+                PageTitle = "Edit Room",
+                IntroText = "Refine the room profile and keep front-desk, housekeeping, and revenue data aligned.",
+                SubmitLabel = "Save Changes",
+                HeroEyebrow = "Room Refresh"
+            }));
+        }
+        catch (HttpRequestException)
+        {
+            return RedirectToIndexWithApiError();
+        }
     }
 
     [HttpPost]
@@ -180,86 +226,82 @@ public class RoomController : Controller
             return BadRequest();
         }
 
-        if (await RoomNumberExistsAsync(model.RoomNumber, model.Id))
+        try
         {
-            ModelState.AddModelError(nameof(model.RoomNumber), $"Room {model.RoomNumber} already exists.");
-        }
+            if (await RoomNumberExistsAsync(model.RoomNumber, model.Id))
+            {
+                ModelState.AddModelError(nameof(model.RoomNumber), $"Room {model.RoomNumber} already exists.");
+            }
 
-        if (!ModelState.IsValid)
+            if (!ModelState.IsValid)
+            {
+                model.PageTitle = "Edit Room";
+                model.IntroText = "Refine the room profile and keep front-desk, housekeeping, and revenue data aligned.";
+                model.SubmitLabel = "Save Changes";
+                model.HeroEyebrow = "Room Refresh";
+                return View(await BuildFormModelAsync(model));
+            }
+
+            var dto = new RoomDto(id, model.RoomNumber, model.FloorNumber, model.NightlyRate, model.StatusId, model.CategoryId, null, null);
+            var updatedRoom = await _service.UpdateAsync(dto);
+
+            TempData["SuccessMessage"] = $"Room {updatedRoom.room_number} was updated successfully.";
+            return RedirectToAction(nameof(Details), new { id = updatedRoom.id });
+        }
+        catch (HttpRequestException)
         {
-            model.PageTitle = "Edit Room";
-            model.IntroText = "Refine the room profile and keep front-desk, housekeeping, and revenue data aligned.";
-            model.SubmitLabel = "Save Changes";
-            model.HeroEyebrow = "Room Refresh";
-            return View(await BuildFormModelAsync(model));
+            return RedirectToIndexWithApiError();
         }
-
-        var entity = await _context.rooms.FirstOrDefaultAsync(room => room.id == id);
-        if (entity is null)
-        {
-            return NotFound();
-        }
-
-        entity.room_number = model.RoomNumber;
-        entity.status_id = model.StatusId;
-        entity.category_id = model.CategoryId;
-        entity.nightly_rate = model.NightlyRate;
-        entity.floor_number = model.FloorNumber;
-
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = $"Room {entity.room_number} was updated successfully.";
-        return RedirectToAction(nameof(Details), new { id = entity.id });
     }
 
     public async Task<IActionResult> Delete(uint id)
     {
-        var room = await LoadRoomGraphAsync(id);
-        if (room is null)
+        RoomDto? roomDto;
+        try
+        {
+            roomDto = await _service.GetByIdAsync(id);
+        }
+        catch (HttpRequestException)
+        {
+            return RedirectToIndexWithApiError();
+        }
+
+        if (roomDto is null)
         {
             return NotFound();
         }
 
-        return View(BuildDetailsModel(room));
+        return View(MapRoomDto(roomDto));
     }
 
-    [HttpPost, ActionName(nameof(Delete))]
+    [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(uint id)
     {
-        var room = await _context.rooms.FirstOrDefaultAsync(room => room.id == id);
-        if (room is null)
+        try
         {
-            return NotFound();
+            await _service.DeleteAsync(id);
+        }
+        catch (HttpRequestException)
+        {
+            return RedirectToIndexWithApiError();
         }
 
-        _context.rooms.Remove(room);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = $"Room {room.room_number} was deleted successfully.";
+        TempData["SuccessMessage"] = $"Room deleted successfully.";
         return RedirectToAction(nameof(Index));
     }
 
-    public async Task<IActionResult> GetById(uint id)
-    {
-        return await Details(id);
-    }
+
 
     public async Task<IActionResult> GetAll()
     {
         return await Index(new RoomFiltersViewModel());
     }
 
-    public async Task<IActionResult> GetByRoomNumber(uint roomNumber)
+    // Removed GetByRoomNumber - use Index filter or service
+    public IActionResult GetByRoomNumber(uint roomNumber)
     {
-        var room = await _roomRepository.GetByRoomNumberAsync(roomNumber);
-        if (room is null)
-        {
-            TempData["ErrorMessage"] = $"Room {roomNumber} was not found.";
-            return RedirectToAction(nameof(Index), new { RoomNumber = roomNumber });
-        }
-
-        return RedirectToAction(nameof(Details), new { id = room.id });
+        return RedirectToAction(nameof(Index), new { RoomNumber = roomNumber });
     }
 
     public IActionResult GetByNightlyRateRange(decimal minRate, decimal maxRate)
@@ -282,87 +324,49 @@ public class RoomController : Controller
         return RedirectToAction(nameof(Index), new { FloorNumber = floorNumber });
     }
 
-    public async Task<IActionResult> GetBookingsByRoomId(uint roomId)
-    {
-        var room = await LoadRoomGraphAsync(roomId);
-        if (room is null)
-        {
-            return NotFound();
-        }
 
-        return View("RelatedBookings", new RoomCollectionPageViewModel<RoomBookingViewModel>
-        {
-            Room = MapRoom(room),
-            Title = "Bookings Linked To This Room",
-            Description = "Review active and historical reservations tied to this accommodation.",
-            Items = room.bookings
-                .OrderBy(booking => booking.check_in)
-                .Select(MapBooking)
-                .ToList()
-        });
-    }
-
+    // Redirect to Details for simplicity
     public async Task<IActionResult> GetBookingHistoriesByRoomId(uint roomId)
     {
-        var room = await LoadRoomGraphAsync(roomId);
-        if (room is null)
-        {
-            return NotFound();
-        }
-
-        return View("RelatedHistories", new RoomCollectionPageViewModel<RoomBookingHistoryViewModel>
-        {
-            Room = MapRoom(room),
-            Title = "Booking History Timeline",
-            Description = "See every operational change recorded for this room across the guest journey.",
-            Items = room.booking_histories
-                .OrderByDescending(history => history.created_at)
-                .Select(MapBookingHistory)
-                .ToList()
-        });
+        return RedirectToAction(nameof(Details), new { id = roomId });
     }
 
+    // Redirect to Details for simplicity
     public async Task<IActionResult> GetAvailabilitiesByRoomId(uint roomId)
     {
-        var room = await LoadRoomGraphAsync(roomId);
-        if (room is null)
-        {
-            return NotFound();
-        }
-
-        return View("RelatedAvailabilities", new RoomCollectionPageViewModel<RoomAvailabilityViewModel>
-        {
-            Room = MapRoom(room),
-            Title = "Availability Windows",
-            Description = "Track future availability blocks and scheduling ranges for this room.",
-            Items = room.room_availabilities
-                .OrderBy(availability => availability.start_schedule)
-                .Select(MapAvailability)
-                .ToList()
-        });
+        return RedirectToAction(nameof(Details), new { id = roomId });
     }
 
-    private async Task<room?> LoadRoomGraphAsync(uint id)
-    {
-        return await _context.rooms
-            .AsNoTracking()
-            .Include(room => room.status)
-            .Include(room => room.category)
-            .Include(room => room.bookings)
-                .ThenInclude(booking => booking.customer)
-            .Include(room => room.bookings)
-                .ThenInclude(booking => booking.status)
-            .Include(room => room.booking_histories)
-                .ThenInclude(history => history.status)
-            .Include(room => room.room_availabilities)
-            .FirstOrDefaultAsync(room => room.id == id);
-    }
+
 
     private async Task<bool> RoomNumberExistsAsync(uint roomNumber, uint? excludedId = null)
     {
-        return await _context.rooms.AnyAsync(room =>
-            room.room_number == roomNumber &&
-            (!excludedId.HasValue || room.id != excludedId.Value));
+        return await _service.RoomNumberExistsAsync(roomNumber, excludedId);
+    }
+
+    private static RoomIndexViewModel BuildUnavailableIndexModel(RoomFiltersViewModel filters)
+    {
+        return new RoomIndexViewModel
+        {
+            Filters = filters,
+            Rooms = new List<RoomListItemViewModel>(),
+            StatusOptions = new List<SelectListItem>(),
+            CategoryOptions = new List<SelectListItem>(),
+            ActiveFilterSummary = "Room API is offline.",
+            Stats = new RoomIndexStatsViewModel
+            {
+                TotalRooms = 0,
+                MatchingRooms = 0,
+                AvailableRooms = 0,
+                AverageNightlyRate = 0
+            }
+        };
+    }
+
+    private IActionResult RedirectToIndexWithApiError()
+    {
+        TempData["ErrorMessage"] = ApiUnavailableMessage;
+        return RedirectToAction(nameof(Index));
     }
 
     private async Task<RoomFormViewModel> BuildFormModelAsync(RoomFormViewModel model)
@@ -374,23 +378,25 @@ public class RoomController : Controller
 
     private async Task<List<SelectListItem>> BuildStatusOptionsAsync(byte? selectedId)
     {
-        var statuses = await _roomStatusRepository.GetAllStatusesAsync();
-        return statuses
-            .OrderBy(status => status.status_name)
-            .Select(status => new SelectListItem(status.status_name, status.id.ToString(), status.id == selectedId))
-            .ToList();
+        var allRooms = await _service.GetAllAsync();
+        var statuses = allRooms
+            .GroupBy(r => new { r.status_id, r.status_name })
+            .OrderBy(g => g.Key.status_name)
+            .Select(g => new SelectListItem(g.Key.status_name ?? "Unknown", g.Key.status_id.ToString(), g.Key.status_id == selectedId));
+        return statuses.ToList();
     }
 
     private async Task<List<SelectListItem>> BuildCategoryOptionsAsync(byte? selectedId)
     {
-        var categories = await _roomCategoryRepository.GetAllCategoriesAsync();
-        return categories
-            .OrderBy(category => category.category_name)
-            .Select(category => new SelectListItem(category.category_name, category.id.ToString(), category.id == selectedId))
-            .ToList();
+        var allRooms = await _service.GetAllAsync();
+        var categories = allRooms
+            .GroupBy(r => new { r.category_id, r.category_name })
+            .OrderBy(g => g.Key.category_name)
+            .Select(g => new SelectListItem(g.Key.category_name ?? "Unknown", g.Key.category_id.ToString(), g.Key.category_id == selectedId));
+        return categories.ToList();
     }
 
-    private static RoomListItemViewModel MapRoom(room room)
+    private static RoomListItemViewModel MapRoomDto(RoomDto room)
     {
         return new RoomListItemViewModel
         {
@@ -400,74 +406,54 @@ public class RoomController : Controller
             NightlyRate = room.nightly_rate,
             StatusId = room.status_id,
             CategoryId = room.category_id,
-            StatusName = room.status?.status_name ?? "Unknown",
-            CategoryName = room.category?.category_name ?? "Unknown"
+            StatusName = room.status_name ?? "Unknown",
+            CategoryName = room.category_name ?? "Unknown"
         };
     }
 
-    private static RoomBookingViewModel MapBooking(booking booking)
+    private static RoomBookingViewModel MapBookingDto(BookingDto dto)
     {
         return new RoomBookingViewModel
         {
-            Id = booking.id,
-            ReserveNumber = booking.reserve_number ?? $"BK-{booking.id}",
-            CustomerId = booking.customer_id,
-            CustomerName = booking.customer is null
-                ? $"Guest #{booking.customer_id}"
-                : $"{booking.customer.first_name} {booking.customer.last_name}",
-            StatusName = booking.status?.status_name ?? "Unknown",
-            CheckIn = booking.check_in,
-            CheckOut = booking.check_out,
-            TotalPrice = booking.total_price
+            Id = dto.id,
+            ReserveNumber = dto.reserveNumber,
+            CustomerId = dto.customerId,
+            CustomerName = dto.customerName,
+            StatusName = dto.statusName,
+            CheckIn = dto.checkIn,
+            CheckOut = dto.checkOut,
+            TotalPrice = dto.totalPrice
         };
     }
 
-    private static RoomBookingHistoryViewModel MapBookingHistory(booking_history history)
+    private static RoomBookingHistoryViewModel MapBookingHistoryDto(BookingHistoryDto dto)
     {
         return new RoomBookingHistoryViewModel
         {
-            Id = history.id,
-            BookingId = history.booking_id,
-            CustomerId = history.customer_id,
-            ActionType = history.action_type,
-            StatusName = history.status?.status_name ?? "Unknown",
-            CheckIn = history.check_in,
-            CheckOut = history.check_out,
-            CreatedAt = history.created_at,
-            TotalPrice = history.total_price
+            Id = dto.id,
+            BookingId = dto.bookingId,
+            CustomerId = dto.customerId,
+            ActionType = dto.actionType,
+            StatusName = dto.statusName,
+            CheckIn = dto.checkIn,
+            CheckOut = dto.checkOut,
+            CreatedAt = dto.createdAt,
+            TotalPrice = dto.totalPrice
         };
     }
 
-    private static RoomAvailabilityViewModel MapAvailability(room_availability availability)
+    private static RoomAvailabilityViewModel MapAvailabilityDto(RoomAvailabilityDto dto)
     {
         return new RoomAvailabilityViewModel
         {
-            Id = availability.id,
-            StartSchedule = availability.start_schedule,
-            EndSchedule = availability.end_schedule,
-            CreatedAt = availability.creation_at
+            Id = dto.id,
+            StartSchedule = dto.startSchedule,
+            EndSchedule = dto.endSchedule,
+            CreatedAt = dto.createdAt
         };
     }
 
-    private static RoomDetailsViewModel BuildDetailsModel(room room)
-    {
-        return new RoomDetailsViewModel
-        {
-            Room = MapRoom(room),
-            Bookings = room.bookings
-                .OrderBy(booking => booking.check_in)
-                .Select(MapBooking)
-                .ToList(),
-            BookingHistories = room.booking_histories
-                .OrderByDescending(history => history.created_at)
-                .Select(MapBookingHistory)
-                .ToList(),
-            Availabilities = room.room_availabilities
-                .OrderBy(availability => availability.start_schedule)
-                .Select(MapAvailability)
-                .ToList()
-        };
-    }
+
 
     private async Task<string> BuildFilterSummaryAsync(RoomFiltersViewModel filters)
     {
@@ -487,14 +473,12 @@ public class RoomController : Controller
 
         if (filters.StatusId.HasValue)
         {
-            var status = await _roomStatusRepository.GetByIdAsync(filters.StatusId.Value);
-            segments.Add($"status {status?.status_name ?? filters.StatusId.Value.ToString()}");
+            segments.Add($"status ID {filters.StatusId.Value}");
         }
 
         if (filters.CategoryId.HasValue)
         {
-            var category = await _roomCategoryRepository.GetByIdAsync(filters.CategoryId.Value);
-            segments.Add($"category {category?.category_name ?? filters.CategoryId.Value.ToString()}");
+            segments.Add($"category ID {filters.CategoryId.Value}");
         }
 
         if (filters.FloorNumber.HasValue)

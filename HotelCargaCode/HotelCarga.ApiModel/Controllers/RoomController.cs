@@ -95,7 +95,13 @@ public class RoomController : BaseApiController
         }
         await DbContext.Set<room>().AddAsync(item);
         await DbContext.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = item.id }, item);
+
+        var createdRoom = await DbContext.Set<room>()
+            .Include(r => r.status)
+            .Include(r => r.category)
+            .FirstAsync(r => r.id == item.id);
+
+        return CreatedAtAction(nameof(GetById), new { id = item.id }, BuilderRoomResponse(createdRoom));
     }
 
 
@@ -108,11 +114,13 @@ public class RoomController : BaseApiController
 
         DbContext.Set<room>().Update(item);
         await DbContext.SaveChangesAsync();
-        return Ok(new
-        {
-            message = "Habitación actualizada exitosamente",
-            data = BuilderRoomResponse(item)
-        });
+
+        var updatedRoom = await DbContext.Set<room>()
+            .Include(r => r.status)
+            .Include(r => r.category)
+            .FirstAsync(r => r.id == item.id);
+
+        return Ok(BuilderRoomResponse(updatedRoom));
     }
 
     [HttpDelete("Delete")]
