@@ -8,15 +8,26 @@ using HotelCarga.DbModel;
 using HotelCargaJsonRepositoryModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using HotelCarga.ApiModel.Services;
+using Microsoft.Extensions.Logging;
 
 namespace HotelCarga.ApiModel.Controllers;
+
+// DTO for creating bookings - matches client's SaveBookingDto
+public record SaveBookingDto(uint customer_id, uint room_id, DateTime check_in, DateTime check_out, byte? status_id = null);
 
 [Route("[controller]")]
 public class BookingController : BaseApiController
 {
-    public BookingController(HotelCargaContext? dbContext = null, JsonDataContext? jsonContext = null)
+    private readonly BookingAlertService? _alertService;
+    private readonly ILogger<BookingController>? _logger;
+
+    // Constructor with dependency injection for alert service and logger
+    public BookingController(HotelCargaContext? dbContext = null, JsonDataContext? jsonContext = null, BookingAlertService? alertService = null, ILogger<BookingController>? logger = null)
         : base(dbContext, jsonContext)
     {
+        _alertService = alertService;
+        _logger = logger;
     }
 
     [HttpGet("GetById")]
@@ -76,22 +87,52 @@ public class BookingController : BaseApiController
     }
 
    [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] booking item, bool useJson = false)
+    public async Task<IActionResult> Create([FromBody] SaveBookingDto dto, bool useJson = false, bool addToQueueIfUnavailable = true)
     {
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
         // Verify that the dates of stay are correct
-            if(!AreDatesValid(item.check_in, item.check_out, out string errorMessage)) return Conflict(new { error = true, message = errorMessage });
+        if(!AreDatesValid(dto.check_in, dto.check_out, out string errorMessage)) return Conflict(new { error = true, message = errorMessage });
 
         using var transaction = await DbContext.Database.BeginTransactionAsync();
 
         try
         {
             // Retrieve the room to check availability and price
-            var room = await DbContext.Set<room>().FindAsync(item.room_id);
-                       
-            // Verify room availability 
-            if(IsRoomAvailable(room, item.room_id, out errorMessage) != true) return Conflict(new { error = true, message = errorMessage });
+            var room = await DbContext.Set<room>().FindAsync(dto.room_id);
+            
+            // Verify room exists
+            if (room == null)
+            {
+                await transaction.RollbackAsync();
+                return NotFound(new { error = true, message = "La habitación seleccionada no existe." });
+            }
+
+            // Check room availability status
+            bool isAvailable = IsRoomAvailable(room, dto.room_id, out errorMessage);
+
+            // If room is not available and addToQueueIfUnavailable is true, add to waiting queue instead
+            if (!isAvailable && addToQueueIfUnavailable)
+            {
+                await transaction.RollbackAsync();
+                return await AddToWaitingQueue(dto);
+            }
+
+            // If room is not available and not adding to queue, return error
+            if (!isAvailable)
+            {
+                await transaction.RollbackAsync();
+                return Conflict(new { error = true, message = errorMessage });
+            }
+
+            // Create the booking entity from DTO
+            var item = new booking
+            {
+                customer_id = dto.customer_id,
+                room_id = dto.room_id,
+                check_in = dto.check_in,
+                check_out = dto.check_out
+            };
 
             // Prepare the reservation data
             item.reserve_number = await AssignReserveNumber();
@@ -235,6 +276,10 @@ public class BookingController : BaseApiController
                 return NotFound(new { error = true, message = "Reserva no encontrada." });
             }
 
+            uint? releasedRoomId = null;
+            var releasedCheckIn = existingBooking.check_in;
+            var releasedCheckOut = existingBooking.check_out;
+
             // Checks if the room is being changed.
             if (existingBooking.room_id != item.room_id)
             { 
@@ -247,6 +292,7 @@ public class BookingController : BaseApiController
                     if (oldRoom != null) 
                     {
                         oldRoom.status_id = 1; // Releases the previous room
+                        releasedRoomId = oldRoom.id;
                     }
                     
                     newRoom.status_id = 2; // Occupies the new room
@@ -268,8 +314,22 @@ public class BookingController : BaseApiController
             existingBooking.check_out = item.check_out;
 
             // Rate update
-            // Uses the rate the reservation currently has and the updated dates
+            // Rate update - Uses the rate the reservation currently has and the updated dates
             existingBooking.total_price = calculate_total_price(existingBooking.nightly_rate, existingBooking.check_in, existingBooking.check_out);
+
+            // Generate alerts if room was released and there are waiting customers
+            if (_alertService != null && releasedRoomId.HasValue)
+            {
+                var notifications = await _alertService.GenerateAlertsForReleasedRoom(
+                    releasedRoomId.Value,
+                    releasedCheckIn,
+                    releasedCheckOut);
+
+                if (notifications.Count > 0)
+                {
+                    _logger?.LogInformation($"Generated {notifications.Count} alerts when booking {existingBooking.reserve_number} was rescheduled");
+                }
+            }
 
             await DbContext.SaveChangesAsync();
 
@@ -294,22 +354,35 @@ public class BookingController : BaseApiController
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
 
-        try{
-        
+        try
+        {
             var existingBooking = await DbContext.Set<booking>().FindAsync(item.id);
             if (existingBooking == null) return NotFound(new { error = true, message = "Reserva no encontrada." });
 
-            // Aplica Soft Delete (Cancelamos la reserva)
-            existingBooking.status_id = 3; 
+            // Store the old room info for alert generation
+            var oldRoom = await DbContext.Set<room>().FindAsync(existingBooking.room_id);
 
-            //Liberla habitación
-            var room = await DbContext.Set<room>().FindAsync(existingBooking.room_id);
-            if (room != null) 
+            // Aplica Soft Delete (Cancelamos la reserva)
+            existingBooking.status_id = 3;
+
+            // Libera la habitación
+            if (oldRoom != null)
             {
-                room.status_id = 1; // 1 es AVAILABLE
+                oldRoom.status_id = 1; // 1 = AVAILABLE
             }
 
             await DbContext.SaveChangesAsync();
+
+            // Generate alerts for waiting queue customers in FIFO order
+            if (_alertService != null && oldRoom != null)
+            {
+                var notifications = await _alertService.GenerateAlertsForReleasedRoom(
+                    existingBooking.room_id,
+                    existingBooking.check_in,
+                    existingBooking.check_out);
+
+                _logger?.LogInformation($"Generated {notifications.Count} alerts when booking {existingBooking.reserve_number} was cancelled");
+            }
 
             return Ok(new { success = true, message = "Reserva cancelada y habitación liberada exitosamente." });
         }
@@ -481,5 +554,71 @@ public class BookingController : BaseApiController
             b.total_price
         };
     }
-    
+
+    /// <summary>
+    /// Attempts to add a booking request to the waiting queue if the room is not available.
+    /// This allows customers to be notified when their requested room becomes available.
+    /// </summary>
+    private async Task<IActionResult> AddToWaitingQueue(SaveBookingDto dto)
+    {
+        try
+        {
+            var room = await DbContext!.Set<room>().FindAsync(dto.room_id);
+            if (room == null)
+                return NotFound(new { error = true, message = "La habitación seleccionada no existe." });
+
+            // Get room category for queue management
+            byte roomCategoryId = room.category_id;
+
+            // Queue Status: 1 = Pending
+            var queueEntry = new waiting_queue
+            {
+                customer_id = dto.customer_id,
+                room_category_id = roomCategoryId,
+                requested_check_in = dto.check_in,
+                check_out = dto.check_out,
+                status_id = 1, // Pending
+                created_at = DateTime.UtcNow,
+                updated_at = DateTime.UtcNow
+            };
+
+            await DbContext.Set<waiting_queue>().AddAsync(queueEntry);
+            await DbContext.SaveChangesAsync();
+
+            _logger?.LogInformation($"Customer {dto.customer_id} added to waiting queue for room category {roomCategoryId}");
+
+            return Conflict(new
+            {
+                error = true,
+                message = "La habitación no está disponible para las fechas solicitadas, pero se ha agregado a la lista de espera.",
+                waitingQueueId = queueEntry.id,
+                status = "ADDED_TO_QUEUE",
+                roomCategoryId = roomCategoryId,
+                requestedCheckIn = dto.check_in,
+                requestedCheckOut = dto.check_out,
+                createdAt = queueEntry.created_at
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "Error adding to waiting queue");
+            return StatusCode(500, new { error = true, message = "Error al agregar a la lista de espera: " + ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Retrieves pending alerts (notified customers) for operators to contact them about room availability.
+    /// Results are returned in FIFO order (by creation date).
+    /// </summary>
+    [HttpGet("GetOperatorAlerts")]
+    public async Task<IActionResult> GetOperatorAlerts(bool useJson = false)
+    {
+        if (_alertService == null)
+        {
+            return StatusCode(503, new { error = true, message = "Alert service not configured." });
+        }
+
+        var alerts = await _alertService.GetPendingAlertsForOperator();
+        return Ok(alerts);
+    }
 }

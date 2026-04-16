@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HotelCargaContext = HotelCarga.DbModel.HotelCargaContext;
@@ -156,5 +157,89 @@ public class WaitingQueueController : BaseApiController
         if (UseJsonBackend(useJson)) return Ok(JsonContext!.waiting_queues);
         if (DbContext is null) return DbBackendMissing();
         return Ok(await DbContext.Set<waiting_queue>().ToListAsync());
+    }
+
+    [HttpGet("GetFIFOQueueByRoomCategoryAndDateRange")]
+    public async Task<IActionResult> GetFIFOQueueByRoomCategoryAndDateRange(byte roomCategoryId, DateTime checkInDate, DateTime checkOutDate, bool useJson = false)
+    {
+        if (UseJsonBackend(useJson))
+        {
+            var entries = JsonContext!.waiting_queues
+                .Where(w => w.room_category_id == roomCategoryId && w.status_id == 1 && w.requested_check_in >= checkInDate && (w.check_out == null || w.check_out <= checkOutDate))
+                .OrderBy(w => w.created_at)
+                .ToList();
+            return Ok(entries);
+        }
+
+        if (DbContext is null) return DbBackendMissing();
+        var queueEntries = await DbContext.Set<waiting_queue>()
+            .Where(w => w.room_category_id == roomCategoryId && w.status_id == 1 && w.requested_check_in >= checkInDate && (w.check_out == null || w.check_out <= checkOutDate))
+            .OrderBy(w => w.created_at)
+            .Include(w => w.customer)
+            .Include(w => w.room_category)
+            .Include(w => w.status)
+            .ToListAsync();
+        return Ok(queueEntries);
+    }
+
+    [HttpGet("GetFIFOQueueByRoomCategory")]
+    public async Task<IActionResult> GetFIFOQueueByRoomCategory(byte roomCategoryId, bool useJson = false)
+    {
+        if (UseJsonBackend(useJson))
+        {
+            var entries = JsonContext!.waiting_queues
+                .Where(w => w.room_category_id == roomCategoryId && w.status_id == 1)
+                .OrderBy(w => w.created_at)
+                .ToList();
+            return Ok(entries);
+        }
+
+        if (DbContext is null) return DbBackendMissing();
+        var queueEntries = await DbContext.Set<waiting_queue>()
+            .Where(w => w.room_category_id == roomCategoryId && w.status_id == 1)
+            .OrderBy(w => w.created_at)
+            .Include(w => w.customer)
+            .Include(w => w.room_category)
+            .Include(w => w.status)
+            .ToListAsync();
+        return Ok(queueEntries);
+    }
+
+    [HttpGet("GetNotifiedQueueFIFO")]
+    public async Task<IActionResult> GetNotifiedQueueFIFO(bool useJson = false)
+    {
+        if (UseJsonBackend(useJson))
+        {
+            var entries = JsonContext!.waiting_queues
+                .Where(w => w.status_id == 2)
+                .OrderBy(w => w.created_at)
+                .ToList();
+            return Ok(entries);
+        }
+
+        if (DbContext is null) return DbBackendMissing();
+        var notifiedEntries = await DbContext.Set<waiting_queue>()
+            .Where(w => w.status_id == 2)
+            .OrderBy(w => w.created_at)
+            .Include(w => w.customer)
+            .Include(w => w.room_category)
+            .Include(w => w.status)
+            .ToListAsync();
+        return Ok(notifiedEntries);
+    }
+
+    [HttpGet("CountPendingByRoomCategory")]
+    public async Task<IActionResult> CountPendingByRoomCategory(byte roomCategoryId, bool useJson = false)
+    {
+        if (UseJsonBackend(useJson))
+        {
+            var count = JsonContext!.waiting_queues.Count(w => w.room_category_id == roomCategoryId && w.status_id == 1);
+            return Ok(new { count });
+        }
+
+        if (DbContext is null) return DbBackendMissing();
+        var pendingCount = await DbContext.Set<waiting_queue>()
+            .CountAsync(w => w.room_category_id == roomCategoryId && w.status_id == 1);
+        return Ok(new { count = pendingCount });
     }
 }

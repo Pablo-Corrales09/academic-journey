@@ -25,6 +25,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Register booking alert service for FIFO notifications
+builder.Services.AddScoped<HotelCarga.ApiModel.Services.BookingAlertService>();
+
+// Register background services for room availability checks and queue expiration
+builder.Services.AddHostedService<HotelCarga.ApiModel.Services.RoomAvailabilitySchedulerService>();
+builder.Services.AddHostedService<HotelCarga.ApiModel.Services.WaitingQueueExpirationService>();
+
 var app = builder.Build();
 
 app.UseSwagger();

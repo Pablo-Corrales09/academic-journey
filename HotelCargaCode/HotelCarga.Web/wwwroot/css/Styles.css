@@ -309,7 +309,7 @@ small, dt { font-size: var(--text-small); }
     font-size: var(--text-small);
     font-weight: 600;
     text-decoration: none;
-    border: 2px solid transparent; /* Reservado para outlines y focus */
+    border: 2px solid transparent;
     cursor: pointer;
     transition: all var(--transition-fast);
     text-align: center;

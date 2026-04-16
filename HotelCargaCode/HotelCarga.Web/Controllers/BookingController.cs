@@ -171,6 +171,10 @@ public class BookingController : Controller
 
             if (!ModelState.IsValid)
             {
+                // Debug: Add model state errors to TempData for visibility
+                var errorSummary = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                TempData["ValidationErrors"] = errorSummary;
+                
                 model.PageTitle = "Create Booking";
                 model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
                 model.SubmitLabel = "Create Booking";
@@ -193,8 +197,9 @@ public class BookingController : Controller
             model.LockCustomerSelection = false;
             return View(await BuildFormModelAsync(model));
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
+            TempData["ErrorMessage"] = $"API Error: {ex.Message}";
             return RedirectToIndexWithApiError();
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using HotelCargaContext = HotelCarga.DbModel.HotelCargaContext;
@@ -96,6 +97,91 @@ public class RoomAvailabilityController : BaseApiController
 
         if (DbContext is null) return DbBackendMissing();
         return Ok(await DbContext.Set<room_availability>().Where(a => a.start_schedule < endDate && a.end_schedule > startDate).ToListAsync());
+    }
+
+    [HttpGet("IsRoomAvailableForDateRange")]
+    public async Task<IActionResult> IsRoomAvailableForDateRange(uint roomId, DateTime checkInDate, DateTime checkOutDate, bool useJson = false)
+    {
+        if ((checkOutDate.Date - checkInDate.Date).TotalDays > 15)
+        {
+            return BadRequest(new { error = true, message = "El rango maximo permitido es de 15 dias." });
+        }
+
+        if (UseJsonBackend(useJson))
+        {
+            var isAvailableJson = JsonContext!.room_availabilities.Any(a =>
+                a.room_id == roomId &&
+                a.start_schedule <= checkInDate &&
+                a.end_schedule >= checkOutDate);
+
+            return Ok(new { roomId, checkInDate, checkOutDate, isAvailable = isAvailableJson });
+        }
+
+        if (DbContext is null) return DbBackendMissing();
+
+        var isAvailable = await DbContext.Set<room_availability>().AnyAsync(a =>
+            a.room_id == roomId &&
+            a.start_schedule <= checkInDate &&
+            a.end_schedule >= checkOutDate);
+
+        return Ok(new { roomId, checkInDate, checkOutDate, isAvailable });
+    }
+
+    [HttpGet("GetNextAvailableDate")]
+    public async Task<IActionResult> GetNextAvailableDate(uint roomId, bool useJson = false)
+    {
+        if (UseJsonBackend(useJson))
+        {
+            var date = JsonContext!.room_availabilities
+                .Where(a => a.room_id == roomId)
+                .OrderBy(a => a.start_schedule)
+                .Select(a => (DateTime?)a.start_schedule)
+                .FirstOrDefault();
+            return Ok(new { roomId, nextAvailableDate = date, hasAvailability = date.HasValue });
+        }
+
+        if (DbContext is null) return DbBackendMissing();
+        var nextAvailableDate = await DbContext.Set<room_availability>()
+            .Where(a => a.room_id == roomId)
+            .OrderBy(a => a.start_schedule)
+            .Select(a => (DateTime?)a.start_schedule)
+            .FirstOrDefaultAsync();
+
+        return Ok(new { roomId, nextAvailableDate, hasAvailability = nextAvailableDate.HasValue });
+    }
+
+    [HttpGet("GetAvailableRoomsByDateRange")]
+    public async Task<IActionResult> GetAvailableRoomsByDateRange(DateTime checkInDate, DateTime checkOutDate, byte categoryId = 0, bool useJson = false)
+    {
+        if ((checkOutDate.Date - checkInDate.Date).TotalDays > 15)
+        {
+            return BadRequest(new { error = true, message = "El rango maximo permitido es de 15 dias." });
+        }
+
+        if (UseJsonBackend(useJson))
+        {
+            var availableRoomIds = JsonContext!.room_availabilities
+                .Where(a => a.start_schedule <= checkInDate && a.end_schedule >= checkOutDate)
+                .Select(a => a.room_id)
+                .Distinct()
+                .ToList();
+
+            var rooms = JsonContext.rooms.Where(r => availableRoomIds.Contains(r.id));
+            if (categoryId > 0) rooms = rooms.Where(r => r.category_id == categoryId);
+            return Ok(rooms.ToList());
+        }
+
+        if (DbContext is null) return DbBackendMissing();
+
+        var ids = await DbContext.Set<room_availability>()
+            .Where(a => a.start_schedule <= checkInDate && a.end_schedule >= checkOutDate)
+            .Select(a => a.room_id)
+            .Distinct()
+            .ToListAsync();
+
+        var query = DbContext.Set<room>().Where(r => ids.Contains(r.id));
+        if (categoryId > 0) query = query.Where(r => r.category_id == categoryId);
+        return Ok(await query.ToListAsync());
     }
 
     [HttpGet("GetRoomByAvailabilityId")]
