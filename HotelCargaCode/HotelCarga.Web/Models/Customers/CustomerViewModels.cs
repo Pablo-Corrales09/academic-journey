@@ -103,6 +103,7 @@ public class CustomerFormViewModel
     public string IntroText { get; set; } = string.Empty;
     public string SubmitLabel { get; set; } = string.Empty;
     public string HeroEyebrow { get; set; } = string.Empty;
+    public string? ReturnUrl { get; set; }
 }
 
 public class CustomerDetailsViewModel

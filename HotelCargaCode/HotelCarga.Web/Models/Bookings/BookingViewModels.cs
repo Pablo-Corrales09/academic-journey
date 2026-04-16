@@ -1,10 +1,14 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace HotelCarga.Models.Bookings;
 
 public class BookingFiltersViewModel
 {
+    [Display(Name = "Search")]
+    public string? SearchTerm { get; set; }
+
     [Display(Name = "Reserve Number")]
     public string? ReserveNumber { get; set; }
 
@@ -20,6 +24,10 @@ public class BookingFiltersViewModel
     [Display(Name = "Check-In Date")]
     [DataType(DataType.Date)]
     public DateTime? CheckInDate { get; set; }
+
+    public int Page { get; set; } = 1;
+
+    public int PageSize { get; set; } = 12;
 }
 
 public class BookingListItemViewModel
@@ -48,13 +56,36 @@ public class BookingIndexStatsViewModel
 
 public class BookingIndexViewModel
 {
+    public List<BookingRoomTypeCardViewModel> RoomTypes { get; init; } = [];
+    public string? SearchTerm { get; init; }
+    public bool IsApiAvailable { get; init; } = true;
     public List<BookingListItemViewModel> Bookings { get; init; } = [];
     public BookingFiltersViewModel Filters { get; init; } = new();
     public List<SelectListItem> CustomerOptions { get; init; } = [];
     public List<SelectListItem> RoomOptions { get; init; } = [];
     public List<SelectListItem> StatusOptions { get; init; } = [];
     public BookingIndexStatsViewModel Stats { get; init; } = new();
+    public BookingPaginationViewModel Pagination { get; init; } = new();
     public string ActiveFilterSummary { get; init; } = "Showing the full booking ledger.";
+}
+
+public class BookingPaginationViewModel
+{
+    public int CurrentPage { get; init; } = 1;
+    public int PageSize { get; init; } = 12;
+    public int TotalItems { get; init; }
+    public int TotalPages { get; init; }
+    public bool HasPrevious => CurrentPage > 1;
+    public bool HasNext => CurrentPage < TotalPages;
+}
+
+public class BookingRoomTypeCardViewModel
+{
+    public string CategoryName { get; init; } = "Room";
+    public string Description { get; init; } = string.Empty;
+    public decimal NightlyRateFrom { get; init; }
+    public decimal NightlyRateTo { get; init; }
+    public int AvailableRooms { get; init; }
 }
 
 public class BookingFormViewModel
@@ -92,6 +123,54 @@ public class BookingFormViewModel
     public string IntroText { get; set; } = string.Empty;
     public string SubmitLabel { get; set; } = string.Empty;
     public string HeroEyebrow { get; set; } = string.Empty;
+    public string? AddCustomerReturnUrl { get; set; }
+    public bool ShowNoAvailabilityPrompt { get; set; }
+    public string? NoAvailabilityPromptText { get; set; }
+    [ValidateNever]
+    public InlineCustomerCreateViewModel QuickCustomer { get; set; } = new();
+}
+
+public class InlineCustomerCreateViewModel
+{
+    [Required]
+    [Display(Name = "Linked User Id")]
+    [Range(1, uint.MaxValue)]
+    public uint UserId { get; set; }
+
+    [Required]
+    [Display(Name = "Document Number")]
+    [StringLength(40)]
+    public string DocumentNumber { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "First Name")]
+    [StringLength(80)]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Last Name")]
+    [StringLength(80)]
+    public string LastName { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Phone")]
+    [StringLength(30)]
+    public string Phone { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Address")]
+    [StringLength(180)]
+    public string Address { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "City")]
+    [StringLength(80)]
+    public string City { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Country")]
+    [StringLength(80)]
+    public string Country { get; set; } = string.Empty;
 }
 
 public class BookingDetailsViewModel

@@ -1,6 +1,7 @@
 using HotelCarga.Models.Customers;
 using HotelCarga.Web.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using System.Text.Json;
 
 namespace HotelCarga.Web.Controllers;
@@ -137,17 +138,19 @@ public class CustomerController : Controller
         return RedirectToAction(nameof(LookupSearchByName), new { searchString });
     }
 
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(string? returnUrl = null, uint? userId = null)
     {
         try
         {
             _ = await _service.GetAllAsync();
             return View(new CustomerFormViewModel
             {
+                UserId = userId ?? 0,
                 PageTitle = "Create Customer",
                 IntroText = "Register a guest profile with identity, contact details, and user account linkage for complete service history.",
                 SubmitLabel = "Create Customer",
-                HeroEyebrow = "Guest Profile Setup"
+                HeroEyebrow = "Guest Profile Setup",
+                ReturnUrl = returnUrl
             });
         }
         catch (HttpRequestException)
@@ -175,6 +178,18 @@ public class CustomerController : Controller
             }
 
             var id = await _service.CreateAsync(ToSaveModel(model));
+
+            if (!string.IsNullOrWhiteSpace(model.ReturnUrl))
+            {
+                var redirectUrl = QueryHelpers.AddQueryString(model.ReturnUrl, new Dictionary<string, string?>
+                {
+                    ["customerId"] = id.ToString(),
+                    ["customerCreated"] = "1"
+                });
+
+                return Redirect(redirectUrl);
+            }
+
             TempData["SuccessMessage"] = $"Customer {model.FirstName} {model.LastName} created successfully.";
             return RedirectToAction(nameof(Details), new { id });
         }

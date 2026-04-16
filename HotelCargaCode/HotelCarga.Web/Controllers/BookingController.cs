@@ -8,6 +8,7 @@ namespace HotelCarga.Web.Controllers;
 public class BookingController : Controller
 {
     private const string ApiUnavailableMessage = "Booking service is unavailable. Start HotelCarga.ApiModel and try again.";
+    private const string NoAvailabilityPrompt = "Habitación no disponible en el horario seleccionado ¿gusta añadirlo a la cola de solicitudes?";
 
     private readonly IBookingApiService _service;
     private readonly ICustomerApiService _customerService;
@@ -20,7 +21,44 @@ public class BookingController : Controller
         _roomService = roomService;
     }
 
-    public async Task<IActionResult> Index(BookingFiltersViewModel filters)
+    public async Task<IActionResult> Index(string? search = null)
+    {
+        try
+        {
+            var rooms = await _roomService.GetAllAsync();
+            var roomTypes = rooms
+                .Where(room => room.status_id == 1)
+                .GroupBy(room => room.category_name ?? "Standard")
+                .Select(group => new BookingRoomTypeCardViewModel
+                {
+                    CategoryName = group.Key,
+                    Description = BuildRoomTypeDescription(group.Key),
+                    NightlyRateFrom = group.Min(room => room.nightly_rate),
+                    NightlyRateTo = group.Max(room => room.nightly_rate),
+                    AvailableRooms = group.Count()
+                })
+                .OrderBy(card => card.CategoryName, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            return View(new BookingIndexViewModel
+            {
+                RoomTypes = roomTypes,
+                SearchTerm = search,
+                IsApiAvailable = true
+            });
+        }
+        catch (HttpRequestException)
+        {
+            TempData["ErrorMessage"] = ApiUnavailableMessage;
+            return View(new BookingIndexViewModel
+            {
+                IsApiAvailable = false,
+                ActiveFilterSummary = "Booking API is offline."
+            });
+        }
+    }
+
+    public async Task<IActionResult> List(BookingFiltersViewModel filters)
     {
         List<BookingSummaryDto> allBookings;
         List<CustomerSummaryDto> customers;
@@ -43,10 +81,27 @@ public class BookingController : Controller
         catch (HttpRequestException)
         {
             TempData["ErrorMessage"] = ApiUnavailableMessage;
-            return View(BuildUnavailableIndexModel(filters));
+            return View(new BookingIndexViewModel
+            {
+                Filters = filters,
+                Bookings = [],
+                CustomerOptions = [],
+                RoomOptions = [],
+                StatusOptions = [],
+                ActiveFilterSummary = "Booking API is offline.",
+                Stats = new BookingIndexStatsViewModel(),
+                IsApiAvailable = false
+            });
         }
 
         var filtered = allBookings.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(filters.SearchTerm))
+        {
+            filtered = filtered.Where(booking =>
+                (booking.reserve_number ?? string.Empty).Contains(filters.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                (booking.customer_name ?? string.Empty).Contains(filters.SearchTerm, StringComparison.OrdinalIgnoreCase));
+        }
 
         if (!string.IsNullOrWhiteSpace(filters.ReserveNumber))
         {
@@ -74,12 +129,25 @@ public class BookingController : Controller
             filtered = filtered.Where(booking => booking.check_in.Date == filters.CheckInDate.Value.Date);
         }
 
-        var list = filtered
+        var ordered = filtered
             .OrderByDescending(booking => booking.check_in)
+            .ThenByDescending(booking => booking.id);
+
+        var totalMatching = ordered.Count();
+        var pageSize = filters.PageSize <= 0 ? 12 : Math.Min(filters.PageSize, 100);
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalMatching / (double)pageSize));
+        var page = filters.Page <= 0 ? 1 : Math.Min(filters.Page, totalPages);
+
+        filters.Page = page;
+        filters.PageSize = pageSize;
+
+        var list = ordered
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(MapSummary)
             .ToList();
 
-        return View(new BookingIndexViewModel
+        return View("List", new BookingIndexViewModel
         {
             Filters = filters,
             Bookings = list,
@@ -90,10 +158,18 @@ public class BookingController : Controller
             Stats = new BookingIndexStatsViewModel
             {
                 TotalBookings = allBookings.Count,
-                MatchingBookings = list.Count,
+                MatchingBookings = totalMatching,
                 ActiveBookings = allBookings.Count(booking => booking.status_id != 3),
                 TotalRevenue = allBookings.Sum(booking => booking.total_price)
-            }
+            },
+            Pagination = new BookingPaginationViewModel
+            {
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalItems = totalMatching,
+                TotalPages = totalPages
+            },
+            IsApiAvailable = true
         });
     }
 
@@ -132,7 +208,7 @@ public class BookingController : Controller
 
     public IActionResult GetAll()
     {
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(List));
     }
 
     public IActionResult GetById(uint id)
@@ -140,19 +216,26 @@ public class BookingController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(uint? customerId = null, string? customerCreated = null)
     {
         try
         {
+            if (customerCreated == "1")
+            {
+                TempData["SuccessMessage"] = "Cliente agregado. Ahora puedes continuar con la reserva.";
+            }
+
             return View(await BuildFormModelAsync(new BookingFormViewModel
             {
+                CustomerId = customerId ?? 0,
                 CheckIn = DateTime.Today,
                 CheckOut = DateTime.Today.AddDays(1),
                 LockCustomerSelection = false,
                 PageTitle = "Create Booking",
                 IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.",
                 SubmitLabel = "Create Booking",
-                HeroEyebrow = "Reservation Intake"
+                HeroEyebrow = "Reservation Intake",
+                AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking")
             }));
         }
         catch (HttpRequestException)
@@ -161,9 +244,20 @@ public class BookingController : Controller
         }
     }
 
+    [HttpGet]
+    public IActionResult StartAddCustomerFlow()
+    {
+        var bookingReturnUrl = Url.Action(nameof(Create), "Booking") ?? "/Booking/Create";
+        return RedirectToAction("Create", "User", new
+        {
+            createCustomerAfter = true,
+            bookingReturnUrl
+        });
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(BookingFormViewModel model)
+    public async Task<IActionResult> Create(BookingFormViewModel model, bool addToQueueIfUnavailable = false)
     {
         try
         {
@@ -180,27 +274,107 @@ public class BookingController : Controller
                 model.SubmitLabel = "Create Booking";
                 model.HeroEyebrow = "Reservation Intake";
                 model.LockCustomerSelection = false;
+                model.AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking");
                 return View(await BuildFormModelAsync(model));
             }
 
-            var id = await _service.CreateAsync(new SaveBookingDto(model.CustomerId, model.RoomId, model.CheckIn, model.CheckOut));
+            var id = await _service.CreateAsync(
+                new SaveBookingDto(model.CustomerId, model.RoomId, model.CheckIn, model.CheckOut),
+                addToQueueIfUnavailable);
             TempData["SuccessMessage"] = "Booking created successfully.";
             return RedirectToAction(nameof(Details), new { id });
         }
         catch (BookingApiException ex)
         {
+            if (IsQueueAddedMessage(ex.Message))
+            {
+                TempData["SuccessMessage"] = ex.Message;
+                return RedirectToAction(nameof(Create), new { customerId = model.CustomerId });
+            }
+
             ModelState.AddModelError(string.Empty, ex.Message);
+            if (IsScheduleConflictMessage(ex.Message))
+            {
+                model.ShowNoAvailabilityPrompt = true;
+                model.NoAvailabilityPromptText = NoAvailabilityPrompt;
+            }
             model.PageTitle = "Create Booking";
             model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
             model.SubmitLabel = "Create Booking";
             model.HeroEyebrow = "Reservation Intake";
             model.LockCustomerSelection = false;
+            model.AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking");
             return View(await BuildFormModelAsync(model));
         }
         catch (HttpRequestException ex)
         {
-            TempData["ErrorMessage"] = $"API Error: {ex.Message}";
-            return RedirectToIndexWithApiError();
+            ModelState.AddModelError(string.Empty, $"API Error: {ex.Message}");
+            model.PageTitle = "Create Booking";
+            model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
+            model.SubmitLabel = "Create Booking";
+            model.HeroEyebrow = "Reservation Intake";
+            model.LockCustomerSelection = false;
+            model.AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking");
+            return View(await BuildFormModelAsync(model));
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, $"Booking creation failed: {ex.Message}");
+            model.PageTitle = "Create Booking";
+            model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
+            model.SubmitLabel = "Create Booking";
+            model.HeroEyebrow = "Reservation Intake";
+            model.LockCustomerSelection = false;
+            model.AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking");
+            return View(await BuildFormModelAsync(model));
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateCustomerInline([FromForm] InlineCustomerCreateViewModel customer)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState
+                .Where(entry => entry.Value?.Errors.Count > 0)
+                .SelectMany(entry => entry.Value!.Errors.Select(error => error.ErrorMessage))
+                .ToList();
+
+            return BadRequest(new
+            {
+                success = false,
+                message = errors.Count == 0 ? "Invalid customer data." : string.Join(" ", errors)
+            });
+        }
+
+        try
+        {
+            var newId = await _customerService.CreateAsync(new SaveCustomerDto(
+                customer.UserId,
+                customer.DocumentNumber,
+                customer.FirstName,
+                customer.LastName,
+                customer.Phone,
+                customer.Address,
+                customer.City,
+                customer.Country));
+
+            return Ok(new
+            {
+                success = true,
+                customerId = newId,
+                customerLabel = $"{customer.FirstName} {customer.LastName} - {customer.DocumentNumber}",
+                message = "Customer created and assigned to booking form."
+            });
+        }
+        catch (HttpRequestException)
+        {
+            return StatusCode(503, new
+            {
+                success = false,
+                message = "Customer service is unavailable. Start HotelCarga.ApiModel and try again."
+            });
         }
     }
 
@@ -258,6 +432,7 @@ public class BookingController : Controller
                 model.SubmitLabel = "Save Changes";
                 model.HeroEyebrow = "Reservation Update";
                 model.LockCustomerSelection = true;
+                model.AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking");
                 return View(await BuildFormModelAsync(model));
             }
 
@@ -279,6 +454,7 @@ public class BookingController : Controller
             model.SubmitLabel = "Save Changes";
             model.HeroEyebrow = "Reservation Update";
             model.LockCustomerSelection = true;
+            model.AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking");
             return View(await BuildFormModelAsync(model));
         }
         catch (HttpRequestException)
@@ -313,7 +489,7 @@ public class BookingController : Controller
         {
             await _service.DeleteAsync(id);
             TempData["SuccessMessage"] = "Booking cancelled successfully.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(List));
         }
         catch (BookingApiException ex)
         {
@@ -516,7 +692,7 @@ public class BookingController : Controller
     private IActionResult RedirectToIndexWithApiError()
     {
         TempData["ErrorMessage"] = ApiUnavailableMessage;
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(List));
     }
 
     private static BookingIndexViewModel BuildUnavailableIndexModel(BookingFiltersViewModel filters)
@@ -533,6 +709,63 @@ public class BookingController : Controller
         };
     }
 
+    private static string BuildRoomTypeDescription(string categoryName)
+    {
+        if (categoryName.Contains("suite", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Ideal para estadias premium con mayor espacio, sala de descanso y comodidades ejecutivas.";
+        }
+
+        if (categoryName.Contains("deluxe", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Disenada para comodidad superior con acabados modernos y ambiente relajado.";
+        }
+
+        if (categoryName.Contains("family", StringComparison.OrdinalIgnoreCase) || categoryName.Contains("familiar", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Pensada para grupos o familias, con distribucion amplia y confort para estancias largas.";
+        }
+
+        return "Habitacion funcional y confortable, adecuada para viajes de negocio o descanso.";
+    }
+
+    private static bool IsNoAvailabilityMessage(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return false;
+        }
+
+        return message.Contains("no disponible", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("no se encuentra disponible", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("lista de espera", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("cola", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("agenda", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsScheduleConflictMessage(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return false;
+        }
+
+        return message.Contains("solap", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("overlap", StringComparison.OrdinalIgnoreCase)
+            || IsNoAvailabilityMessage(message);
+    }
+
+    private static bool IsQueueAddedMessage(string message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return false;
+        }
+
+        return message.Contains("agregado a la lista de espera", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("added to the waiting queue", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static List<SelectListItem> BuildCustomerOptions(IEnumerable<CustomerSummaryDto> customers, uint? selectedId)
     {
         return customers
@@ -547,13 +780,30 @@ public class BookingController : Controller
 
     private static List<SelectListItem> BuildRoomOptions(IEnumerable<RoomDto> rooms, uint? selectedId, uint? currentRoomId)
     {
+        var groups = new Dictionary<string, SelectListGroup>(StringComparer.OrdinalIgnoreCase);
+
         return rooms
-            .Where(room => room.status_id == 1 || room.id == currentRoomId)
-            .OrderBy(room => room.room_number)
-            .Select(room => new SelectListItem(
-                $"Room {room.room_number} - {(room.status_name ?? "Unknown")}",
-                room.id.ToString(),
-                room.id == selectedId))
+            .Where(room => room.status_id != 3 || room.id == currentRoomId)
+            .OrderBy(room => room.category_name ?? string.Empty)
+            .ThenBy(room => room.nightly_rate)
+            .ThenBy(room => room.room_number)
+            .Select(room =>
+            {
+                var categoryName = room.category_name ?? "Room";
+                if (!groups.TryGetValue(categoryName, out var group))
+                {
+                    group = new SelectListGroup { Name = categoryName };
+                    groups[categoryName] = group;
+                }
+
+                return new SelectListItem(
+                    $"Room {room.room_number} | {room.nightly_rate:C} por noche",
+                    room.id.ToString(),
+                    room.id == selectedId)
+                {
+                    Group = group
+                };
+            })
             .ToList();
     }
 
@@ -595,6 +845,11 @@ public class BookingController : Controller
         if (!string.IsNullOrWhiteSpace(filters.ReserveNumber))
         {
             parts.Add($"reserve number contains '{filters.ReserveNumber}'");
+        }
+
+        if (!string.IsNullOrWhiteSpace(filters.SearchTerm))
+        {
+            parts.Add($"search matches '{filters.SearchTerm}'");
         }
 
         if (filters.CustomerId.HasValue)

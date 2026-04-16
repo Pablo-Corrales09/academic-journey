@@ -21,5 +21,6 @@
 </div>
 
 @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/js/user/form.js" asp-append-version="true"></script>
 }

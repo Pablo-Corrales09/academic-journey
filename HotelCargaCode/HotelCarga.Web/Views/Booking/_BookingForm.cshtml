@@ -9,9 +9,22 @@
         <p>@Model.IntroText</p>
     </div>
 
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="user-alert user-alert--success" data-animate>@successMessage</div>
+    }
+
+    @if (Model.ShowNoAvailabilityPrompt)
+    {
+        <div class="user-alert user-alert--error" data-animate>
+            @(Model.NoAvailabilityPromptText ?? "Habitación no disponible en el horario seleccionado ¿gusta añadirlo a la cola de solicitudes?")
+        </div>
+    }
+
     <form asp-action="@ViewContext.RouteData.Values["action"]" asp-route-id="@Model.Id" method="post" class="user-form-grid">
+        <input type="hidden" asp-for="Id" />
         @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="user-validation"></div>
+        <div asp-validation-summary="All" class="user-validation"></div>
 
         @if (!string.IsNullOrWhiteSpace(Model.CurrentReserveNumber))
         {
@@ -22,19 +35,9 @@
             </div>
         }
 
-        <div class="user-field">
-            <label asp-for="CustomerId"></label>
-            @if (Model.LockCustomerSelection)
-            {
-                <select asp-for="CustomerId" asp-items="Model.CustomerOptions" class="user-input" disabled></select>
-                <input asp-for="CustomerId" type="hidden" />
-                <small class="user-helper">Customer assignment is read-only here because the Booking API update flow only changes room and stay dates.</small>
-            }
-            else
-            {
-                <select asp-for="CustomerId" asp-items="Model.CustomerOptions" class="user-input"></select>
-            }
-            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        <div class="user-field user-field--wide">
+            <h3>Select the Room</h3>
+            <p class="user-helper">Choose room type and booking schedule. Room options include nightly rate.</p>
         </div>
 
         <div class="user-field">
@@ -55,6 +58,37 @@
             <span asp-validation-for="CheckOut" class="text-danger"></span>
         </div>
 
+        <div class="user-field user-field--wide">
+            <h3>Client Information</h3>
+            <p class="user-helper">Select an existing customer or add one on the fly and come back to assign it to this booking.</p>
+        </div>
+
+        <div class="user-field">
+            <label asp-for="CustomerId"></label>
+            @if (Model.LockCustomerSelection)
+            {
+                <select asp-for="CustomerId" asp-items="Model.CustomerOptions" class="user-input" disabled></select>
+                <input asp-for="CustomerId" type="hidden" />
+                <small class="user-helper">Customer assignment is read-only here because the Booking API update flow only changes room and stay dates.</small>
+            }
+            else
+            {
+                <select asp-for="CustomerId" asp-items="Model.CustomerOptions" class="user-input"></select>
+            }
+            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        </div>
+
+        @if (!Model.LockCustomerSelection)
+        {
+            <div class="user-field">
+                <label>Add Customer</label>
+                <a asp-action="StartAddCustomerFlow" class="user-button user-button--ghost">
+                    Add Customer
+                </a>
+                <small class="user-helper">Flow: create User first, then create Customer linked to that User, then return to booking.</small>
+            </div>
+        }
+
         @if (Model.CurrentNightlyRate > 0)
         {
             <div class="user-detail-grid user-detail-grid--two booking-form-metrics">
@@ -71,7 +105,12 @@
 
         <div class="user-form-actions">
             <button type="submit" class="user-button">@Model.SubmitLabel</button>
+            @if (Model.ShowNoAvailabilityPrompt)
+            {
+                <button type="submit" name="addToQueueIfUnavailable" value="true" class="user-button user-button--ghost">Add To Queue</button>
+            }
             <a asp-action="Index" class="user-button user-button--ghost">Cancel</a>
         </div>
     </form>
 </section>
+

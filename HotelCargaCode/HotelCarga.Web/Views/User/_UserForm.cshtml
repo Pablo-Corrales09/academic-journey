@@ -10,8 +10,11 @@
     </div>
 
     <form asp-action="@ViewContext.RouteData.Values["action"]" asp-route-id="@Model.Id" method="post" class="user-form-grid">
+        <input type="hidden" asp-for="Id" />
         @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="user-validation"></div>
+        <input type="hidden" name="createCustomerAfter" value="@((ViewData["CreateCustomerAfter"] as bool?) == true)" />
+        <input type="hidden" name="bookingReturnUrl" value="@(ViewData["BookingReturnUrl"]?.ToString())" />
+        <div asp-validation-summary="All" class="user-validation"></div>
 
         <div class="user-field">
             <label asp-for="Username"></label>

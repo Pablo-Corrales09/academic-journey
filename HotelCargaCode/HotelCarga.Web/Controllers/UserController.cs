@@ -2,6 +2,7 @@ using HotelCarga.Models.Users;
 using HotelCarga.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace HotelCarga.Web.Controllers;
 
@@ -147,17 +148,22 @@ public class UserController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(bool createCustomerAfter = false, string? bookingReturnUrl = null)
     {
         try
         {
-            return View(await BuildFormModelAsync(new UserFormViewModel
+            var model = await BuildFormModelAsync(new UserFormViewModel
             {
                 PageTitle = "Create User",
                 IntroText = "Open a new staff or customer-linked account with clear role assignment and operational status from the start.",
                 SubmitLabel = "Create User",
                 HeroEyebrow = "Account Setup"
-            }));
+            });
+
+            ViewData["CreateCustomerAfter"] = createCustomerAfter;
+            ViewData["BookingReturnUrl"] = bookingReturnUrl;
+
+            return View(model);
         }
         catch (HttpRequestException)
         {
@@ -167,7 +173,7 @@ public class UserController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(UserFormViewModel model)
+    public async Task<IActionResult> Create(UserFormViewModel model, bool createCustomerAfter = false, string? bookingReturnUrl = null)
     {
         try
         {
@@ -179,10 +185,28 @@ public class UserController : Controller
                 model.IntroText = "Open a new staff or customer-linked account with clear role assignment and operational status from the start.";
                 model.SubmitLabel = "Create User";
                 model.HeroEyebrow = "Account Setup";
+                ViewData["CreateCustomerAfter"] = createCustomerAfter;
+                ViewData["BookingReturnUrl"] = bookingReturnUrl;
                 return View(await BuildFormModelAsync(model));
             }
 
             var id = await _service.CreateAsync(new SaveUserDto(model.Username, model.Email, model.PasswordHash, model.RoleId, model.StatusId));
+
+            if (createCustomerAfter)
+            {
+                var fallback = Url.Action("Create", "Booking") ?? "/Booking/Create";
+                var safeReturn = string.IsNullOrWhiteSpace(bookingReturnUrl) ? fallback : bookingReturnUrl;
+                var customerCreateUrl = QueryHelpers.AddQueryString(
+                    Url.Action("Create", "Customer") ?? "/Customer/Create",
+                    new Dictionary<string, string?>
+                    {
+                        ["userId"] = id.ToString(),
+                        ["returnUrl"] = safeReturn
+                    });
+
+                return Redirect(customerCreateUrl);
+            }
+
             TempData["SuccessMessage"] = $"User {model.Username} was created successfully.";
             return RedirectToAction(nameof(Details), new { id });
         }

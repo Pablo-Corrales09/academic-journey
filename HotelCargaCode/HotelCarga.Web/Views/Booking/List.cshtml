@@ -1,0 +1,207 @@
+@model HotelCarga.Models.Bookings.BookingIndexViewModel
+
+@{
+    ViewData["Title"] = "All Bookings";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell booking-shell" data-page="booking-list">
+    <section class="user-hero" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">Booking Ledger</span>
+            <h1>Check all bookings</h1>
+            <p>Review reservations with filters and search by reserve number or customer name.</p>
+            <div class="user-hero__actions">
+                <a asp-action="Create" class="user-button">Create Booking</a>
+                <a asp-action="Index" class="user-button user-button--ghost">Back to Booking Home</a>
+            </div>
+        </div>
+        <div class="user-hero__panel">
+            <div class="user-stat-grid">
+                <article class="user-stat-card">
+                    <span>Total bookings</span>
+                    <strong>@Model.Stats.TotalBookings</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Matching bookings</span>
+                    <strong>@Model.Stats.MatchingBookings</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Active bookings</span>
+                    <strong>@Model.Stats.ActiveBookings</strong>
+                </article>
+                <article class="user-stat-card">
+                    <span>Total revenue</span>
+                    <strong>@Model.Stats.TotalRevenue.ToString("C")</strong>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    @if (TempData["SuccessMessage"] is string successMessage)
+    {
+        <div class="user-alert user-alert--success" data-animate>@successMessage</div>
+    }
+
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="user-alert user-alert--error" data-animate>@errorMessage</div>
+    }
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Search & Filter</span>
+                <h2>Locate reservations fast</h2>
+            </div>
+            <p>@Model.ActiveFilterSummary</p>
+        </div>
+
+        <form asp-action="List" method="get" class="user-filter-grid">
+            <input type="hidden" name="Page" value="1" />
+            <div class="user-field user-field--wide">
+                <label asp-for="Filters.SearchTerm"></label>
+                <input asp-for="Filters.SearchTerm" class="user-input" placeholder="Reserve number or customer name" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.ReserveNumber"></label>
+                <input asp-for="Filters.ReserveNumber" class="user-input" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.CustomerId"></label>
+                <select asp-for="Filters.CustomerId" asp-items="Model.CustomerOptions" class="user-input">
+                    <option value="">All customers</option>
+                </select>
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.RoomId"></label>
+                <select asp-for="Filters.RoomId" asp-items="Model.RoomOptions" class="user-input">
+                    <option value="">All rooms</option>
+                </select>
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.StatusId"></label>
+                <select asp-for="Filters.StatusId" asp-items="Model.StatusOptions" class="user-input">
+                    <option value="">All statuses</option>
+                </select>
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.CheckInDate"></label>
+                <input asp-for="Filters.CheckInDate" class="user-input" />
+            </div>
+            <div class="user-field">
+                <label asp-for="Filters.PageSize">Page Size</label>
+                <select asp-for="Filters.PageSize" class="user-input">
+                    <option value="6">6</option>
+                    <option value="12">12</option>
+                    <option value="24">24</option>
+                    <option value="48">48</option>
+                </select>
+            </div>
+            <div class="user-form-actions user-form-actions--inline">
+                <button type="submit" class="user-button">Apply Filters</button>
+                <a asp-action="List" class="user-button user-button--ghost">Clear</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Results</span>
+                <h2>Registered bookings</h2>
+            </div>
+            <p>@Model.Bookings.Count booking records ready for review.</p>
+        </div>
+
+        @if (Model.Bookings.Count == 0)
+        {
+            <div class="user-empty-state">
+                <h3>No bookings matched this filter.</h3>
+                <p>Widen the search or create a new reservation.</p>
+            </div>
+        }
+        else
+        {
+            <div class="user-card-grid">
+                @foreach (var booking in Model.Bookings)
+                {
+                    <article class="user-card" data-animate>
+                        <div class="user-card__header">
+                            <div>
+                                <span class="user-chip">@booking.ReserveNumber</span>
+                                <h3>@booking.CustomerName</h3>
+                            </div>
+                            <span class="user-status-pill">@booking.StatusName</span>
+                        </div>
+                        <dl class="user-card__meta">
+                            <div>
+                                <dt>Room</dt>
+                                <dd>@booking.RoomNumber</dd>
+                            </div>
+                            <div>
+                                <dt>Check-In</dt>
+                                <dd>@booking.CheckIn.ToString("MMM dd, yyyy")</dd>
+                            </div>
+                            <div>
+                                <dt>Check-Out</dt>
+                                <dd>@booking.CheckOut.ToString("MMM dd, yyyy")</dd>
+                            </div>
+                            <div>
+                                <dt>Total</dt>
+                                <dd>@booking.TotalPrice.ToString("C")</dd>
+                            </div>
+                        </dl>
+                        <div class="user-card__actions">
+                            <a asp-action="GetById" asp-route-id="@booking.Id" class="user-button">Open</a>
+                            <a asp-action="Update" asp-route-id="@booking.Id" class="user-button user-button--ghost">Update</a>
+                            <a asp-action="Delete" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button--danger">Cancel</a>
+                        </div>
+                    </article>
+                }
+            </div>
+
+            @if (Model.Pagination.TotalPages > 1)
+            {
+                <div class="user-pagination">
+                    <a asp-action="List"
+                       asp-route-SearchTerm="@Model.Filters.SearchTerm"
+                       asp-route-ReserveNumber="@Model.Filters.ReserveNumber"
+                       asp-route-CustomerId="@Model.Filters.CustomerId"
+                       asp-route-RoomId="@Model.Filters.RoomId"
+                       asp-route-StatusId="@Model.Filters.StatusId"
+                       asp-route-CheckInDate="@(Model.Filters.CheckInDate?.ToString("yyyy-MM-dd"))"
+                       asp-route-Page="@(Model.Pagination.CurrentPage - 1)"
+                       asp-route-PageSize="@Model.Pagination.PageSize"
+                       class="user-button user-button--ghost @(Model.Pagination.HasPrevious ? string.Empty : "is-disabled")"
+                       aria-disabled="@(!Model.Pagination.HasPrevious)">
+                        Previous
+                    </a>
+
+                    <span class="user-pagination__meta">Page @Model.Pagination.CurrentPage of @Model.Pagination.TotalPages (@Model.Pagination.TotalItems results)</span>
+
+                    <a asp-action="List"
+                       asp-route-SearchTerm="@Model.Filters.SearchTerm"
+                       asp-route-ReserveNumber="@Model.Filters.ReserveNumber"
+                       asp-route-CustomerId="@Model.Filters.CustomerId"
+                       asp-route-RoomId="@Model.Filters.RoomId"
+                       asp-route-StatusId="@Model.Filters.StatusId"
+                       asp-route-CheckInDate="@(Model.Filters.CheckInDate?.ToString("yyyy-MM-dd"))"
+                       asp-route-Page="@(Model.Pagination.CurrentPage + 1)"
+                       asp-route-PageSize="@Model.Pagination.PageSize"
+                       class="user-button user-button--ghost @(Model.Pagination.HasNext ? string.Empty : "is-disabled")"
+                       aria-disabled="@(!Model.Pagination.HasNext)">
+                        Next
+                    </a>
+                </div>
+            }
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/booking/index.js" asp-append-version="true"></script>
+}

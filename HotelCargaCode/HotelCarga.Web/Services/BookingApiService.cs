@@ -38,7 +38,7 @@ public interface IBookingApiService
 {
     Task<List<BookingSummaryDto>> GetAllAsync();
     Task<BookingSummaryDto?> GetByIdAsync(uint id);
-    Task<uint> CreateAsync(SaveBookingDto dto);
+    Task<uint> CreateAsync(SaveBookingDto dto, bool addToQueueIfUnavailable = false);
     Task UpdateAsync(uint id, SaveBookingDto dto);
     Task DeleteAsync(uint id);
     Task<string?> GetReserveNumberByIdAsync(uint id);
@@ -76,9 +76,10 @@ public class BookingApiService : IBookingApiService
         return await GetOptionalAsync<BookingSummaryDto>($"Booking/GetById?id={id}");
     }
 
-    public async Task<uint> CreateAsync(SaveBookingDto dto)
+    public async Task<uint> CreateAsync(SaveBookingDto dto, bool addToQueueIfUnavailable = false)
     {
-        var response = await _httpClient.PostAsJsonAsync("Booking/Create", dto);
+        var endpoint = $"Booking/Create?addToQueueIfUnavailable={addToQueueIfUnavailable.ToString().ToLowerInvariant()}";
+        var response = await _httpClient.PostAsJsonAsync(endpoint, dto);
         if (!response.IsSuccessStatusCode)
         {
             throw await BuildApiExceptionAsync(response, "Booking creation failed.");

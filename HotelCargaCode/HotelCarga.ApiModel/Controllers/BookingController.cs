@@ -86,8 +86,8 @@ public class BookingController : BaseApiController
             return Ok(entities.Select(BuildBookingResponse).ToList());
     }
 
-   [HttpPost("Create")]
-    public async Task<IActionResult> Create([FromBody] SaveBookingDto dto, bool useJson = false, bool addToQueueIfUnavailable = true)
+    [HttpPost("Create")]
+    public async Task<IActionResult> Create([FromBody] SaveBookingDto dto, bool useJson = false, bool addToQueueIfUnavailable = false)
     {
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
@@ -108,8 +108,16 @@ public class BookingController : BaseApiController
                 return NotFound(new { error = true, message = "La habitación seleccionada no existe." });
             }
 
-            // Check room availability status
-            bool isAvailable = IsRoomAvailable(room, dto.room_id, out errorMessage);
+            // Check room operational status and schedule overlap
+            bool isAvailable = IsRoomBookable(room, out errorMessage);
+            if (isAvailable)
+            {
+                isAvailable = !await HasScheduleConflictAsync(dto.room_id, dto.check_in, dto.check_out);
+                if (!isAvailable)
+                {
+                    errorMessage = "La habitación seleccionada ya tiene una reserva que se solapa con las fechas solicitadas.";
+                }
+            }
 
             // If room is not available and addToQueueIfUnavailable is true, add to waiting queue instead
             if (!isAvailable && addToQueueIfUnavailable)
@@ -144,10 +152,6 @@ public class BookingController : BaseApiController
             //Booking status update
             item.status_id = 2; 
             await DbContext.Set<booking>().AddAsync(item);
-            await DbContext.SaveChangesAsync();
-
-            //Room status update  
-            room.status_id = 2; // Occupied
             await DbContext.SaveChangesAsync();
 
             await transaction.CommitAsync();
@@ -240,7 +244,7 @@ public class BookingController : BaseApiController
         return true;
     }
 
-    private bool IsRoomAvailable(room? room, uint roomId, out string errorMessage)
+    private bool IsRoomBookable(room? room, out string errorMessage)
     {
         errorMessage = string.Empty;
 
@@ -251,14 +255,25 @@ public class BookingController : BaseApiController
             return false;
         }
 
-        // Check if the status is 'Available' (status_id = 1)
-        if (room.status_id != 1)
+        // Status 3 = Out of order. Other statuses can be booked if the requested schedule does not overlap.
+        if (room.status_id == 3)
         {
-            errorMessage = "La habitación no se encuentra disponible actualmente,";
+            errorMessage = "La habitación se encuentra fuera de servicio actualmente.";
             return false;
         }
 
         return true;
+    }
+
+    private async Task<bool> HasScheduleConflictAsync(uint roomId, DateTime checkIn, DateTime checkOut, uint? excludeBookingId = null)
+    {
+        return await DbContext!.Set<booking>()
+            .AnyAsync(b =>
+                b.room_id == roomId
+                && b.status_id != 3
+                && (!excludeBookingId.HasValue || b.id != excludeBookingId.Value)
+                && b.check_in < checkOut
+                && b.check_out > checkIn);
     }
 
 
@@ -276,36 +291,25 @@ public class BookingController : BaseApiController
                 return NotFound(new { error = true, message = "Reserva no encontrada." });
             }
 
-            uint? releasedRoomId = null;
-            var releasedCheckIn = existingBooking.check_in;
-            var releasedCheckOut = existingBooking.check_out;
-
-            // Checks if the room is being changed.
-            if (existingBooking.room_id != item.room_id)
-            { 
-                var newRoom = await DbContext.Set<room>().FindAsync(item.room_id);
-                if (newRoom == null) return NotFound(new { error = true, message = "La nueva habitación no existe." });
-                
-                if(IsRoomAvailable(newRoom, item.room_id, out string errorMessage))
-                {
-                    var oldRoom = await DbContext.Set<room>().FindAsync(existingBooking.room_id);
-                    if (oldRoom != null) 
-                    {
-                        oldRoom.status_id = 1; // Releases the previous room
-                        releasedRoomId = oldRoom.id;
-                    }
-                    
-                    newRoom.status_id = 2; // Occupies the new room
-                    existingBooking.room_id = item.room_id; 
-
-                    // Updates the reservation's nightly rate with the price of the new room
-                    existingBooking.nightly_rate = newRoom.nightly_rate; 
-                }
-                else
-                {
-                    return Conflict(new { error = true, message = errorMessage });
-                }
+            var targetRoom = await DbContext.Set<room>().FindAsync(item.room_id);
+            if (targetRoom == null)
+            {
+                return NotFound(new { error = true, message = "La habitación seleccionada no existe." });
             }
+
+            if (!IsRoomBookable(targetRoom, out string errorMessage))
+            {
+                return Conflict(new { error = true, message = errorMessage });
+            }
+
+            var hasConflict = await HasScheduleConflictAsync(item.room_id, item.check_in, item.check_out, existingBooking.id);
+            if (hasConflict)
+            {
+                return Conflict(new { error = true, message = "La habitación seleccionada ya tiene una reserva que se solapa con las fechas solicitadas." });
+            }
+
+            existingBooking.room_id = item.room_id;
+            existingBooking.nightly_rate = targetRoom.nightly_rate;
 
             // existingBooking.status_id = item.status_id; 
             
@@ -316,20 +320,6 @@ public class BookingController : BaseApiController
             // Rate update
             // Rate update - Uses the rate the reservation currently has and the updated dates
             existingBooking.total_price = calculate_total_price(existingBooking.nightly_rate, existingBooking.check_in, existingBooking.check_out);
-
-            // Generate alerts if room was released and there are waiting customers
-            if (_alertService != null && releasedRoomId.HasValue)
-            {
-                var notifications = await _alertService.GenerateAlertsForReleasedRoom(
-                    releasedRoomId.Value,
-                    releasedCheckIn,
-                    releasedCheckOut);
-
-                if (notifications.Count > 0)
-                {
-                    _logger?.LogInformation($"Generated {notifications.Count} alerts when booking {existingBooking.reserve_number} was rescheduled");
-                }
-            }
 
             await DbContext.SaveChangesAsync();
 
@@ -359,22 +349,13 @@ public class BookingController : BaseApiController
             var existingBooking = await DbContext.Set<booking>().FindAsync(item.id);
             if (existingBooking == null) return NotFound(new { error = true, message = "Reserva no encontrada." });
 
-            // Store the old room info for alert generation
-            var oldRoom = await DbContext.Set<room>().FindAsync(existingBooking.room_id);
-
             // Aplica Soft Delete (Cancelamos la reserva)
             existingBooking.status_id = 3;
-
-            // Libera la habitación
-            if (oldRoom != null)
-            {
-                oldRoom.status_id = 1; // 1 = AVAILABLE
-            }
 
             await DbContext.SaveChangesAsync();
 
             // Generate alerts for waiting queue customers in FIFO order
-            if (_alertService != null && oldRoom != null)
+            if (_alertService != null)
             {
                 var notifications = await _alertService.GenerateAlertsForReleasedRoom(
                     existingBooking.room_id,
