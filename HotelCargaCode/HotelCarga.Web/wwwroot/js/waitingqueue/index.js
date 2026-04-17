@@ -2,7 +2,6 @@
     const feedback = document.getElementById("queue-feedback");
     const useJsonCheckbox = document.getElementById("use-json-backend");
     const tableBody = document.getElementById("queue-table-body");
-    const rawResponse = document.getElementById("raw-response");
     const resultSource = document.getElementById("result-source");
     const deleteModalId = "#waitingQueueDeleteModal";
 
@@ -10,8 +9,9 @@
 
     wireQuickButtons();
     wireCrudForms();
-    wireQueryForms();
+    wireCompactFilter();
     wireDeleteModal();
+    executeGet("GetAllQueues", {});
 
     function wireQuickButtons() {
         document.querySelectorAll("[data-run-endpoint]").forEach((button) => {
@@ -24,30 +24,32 @@
         const clearButton = document.getElementById("clear-results-btn");
         clearButton?.addEventListener("click", () => {
             renderQueueRows([]);
-            renderRaw([]);
             resultSource.textContent = "No data";
             hideFeedback();
+        });
+
+        const resetFiltersButton = document.getElementById("reset-filters-btn");
+        resetFiltersButton?.addEventListener("click", () => {
+            const ids = [
+                "filter-queue-id",
+                "filter-customer-id",
+                "filter-category-id",
+                "filter-status-name",
+                "filter-check-in",
+                "filter-check-out"
+            ];
+
+            ids.forEach((id) => {
+                const node = document.getElementById(id);
+                if (!node) return;
+                node.value = "";
+            });
+
+            executeGet("GetAllQueues", {});
         });
     }
 
     function wireCrudForms() {
-        document.getElementById("create-form")?.addEventListener("submit", async (event) => {
-            event.preventDefault();
-
-            const payload = {
-                customer_id: toUInt(document.getElementById("create-customer-id")?.value),
-                room_category_id: toByte(document.getElementById("create-room-category-id")?.value),
-                status_id: toByte(document.getElementById("create-status-id")?.value),
-                requested_check_in: toIso(document.getElementById("create-requested-check-in")?.value),
-                check_out: toIsoOrNull(document.getElementById("create-check-out")?.value)
-            };
-
-            const data = await executeMutation("Create", "POST", payload);
-            if (data) {
-                await executeGet("GetAll", {});
-            }
-        });
-
         document.getElementById("update-form")?.addEventListener("submit", async (event) => {
             event.preventDefault();
 
@@ -114,50 +116,47 @@
         });
     }
 
-    function wireQueryForms() {
-        document.getElementById("get-by-id-form")?.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            await executeGet("GetById", { id: toUInt(document.getElementById("query-id")?.value) });
-        });
-
-        document.getElementById("get-categories-by-customer-form")?.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            await executeGet("GetCategoriesByCustomerId", { customerId: toUInt(document.getElementById("categories-customer-id")?.value) });
-        });
-
-        document.getElementById("related-by-customer-form")?.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            await executeGet("GetWithRelatedEntitiesByCustomerId", { customerId: toUInt(document.getElementById("related-customer-id")?.value) });
-        });
-
-        document.getElementById("categories-by-status-form")?.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            await executeGet("GetCategoriesByQueueStatusName", { statusName: document.getElementById("category-status-name")?.value?.trim() || "" });
-        });
-
-        document.getElementById("with-customer-by-status-form")?.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            await executeGet("GetWithCustomerByQueueStatusName", { statusName: document.getElementById("with-customer-status-name")?.value?.trim() || "" });
-        });
-
-        document.getElementById("fifo-by-category-form")?.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            await executeGet("GetFIFOQueueByRoomCategory", { roomCategoryId: toByte(document.getElementById("fifo-category-id")?.value) });
-        });
-
-        document.getElementById("fifo-by-category-date-form")?.addEventListener("submit", async (event) => {
+    function wireCompactFilter() {
+        document.getElementById("compact-filter-form")?.addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            await executeGet("GetFIFOQueueByRoomCategoryAndDateRange", {
-                roomCategoryId: toByte(document.getElementById("fifo-range-category-id")?.value),
-                checkInDate: toIso(document.getElementById("fifo-check-in")?.value),
-                checkOutDate: toIso(document.getElementById("fifo-check-out")?.value)
-            });
-        });
+            const queueId = toUIntOrNull(document.getElementById("filter-queue-id")?.value);
+            const customerId = toUIntOrNull(document.getElementById("filter-customer-id")?.value);
+            const categoryId = toByteOrNull(document.getElementById("filter-category-id")?.value);
+            const statusName = (document.getElementById("filter-status-name")?.value || "").trim();
+            const checkInDate = document.getElementById("filter-check-in")?.value || "";
+            const checkOutDate = document.getElementById("filter-check-out")?.value || "";
 
-        document.getElementById("count-pending-form")?.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            await executeGet("CountPendingByRoomCategory", { roomCategoryId: toByte(document.getElementById("count-pending-category-id")?.value) });
+            if (queueId) {
+                await executeGet("GetById", { id: queueId });
+                return;
+            }
+
+            if (statusName) {
+                await executeGet("GetWithCustomerByQueueStatusName", { statusName });
+                return;
+            }
+
+            if (customerId) {
+                await executeGet("GetWithRelatedEntitiesByCustomerId", { customerId });
+                return;
+            }
+
+            if (categoryId && checkInDate && checkOutDate) {
+                await executeGet("GetFIFOQueueByRoomCategoryAndDateRange", {
+                    roomCategoryId: categoryId,
+                    checkInDate: toIsoDate(checkInDate),
+                    checkOutDate: toIsoDate(checkOutDate)
+                });
+                return;
+            }
+
+            if (categoryId) {
+                await executeGet("GetFIFOQueueByRoomCategory", { roomCategoryId: categoryId });
+                return;
+            }
+
+            await executeGet("GetAllQueues", {});
         });
     }
 
@@ -234,7 +233,6 @@
 
     function renderResult(source, data) {
         resultSource.textContent = source;
-        renderRaw(data);
 
         if (Array.isArray(data)) {
             renderQueueRows(data);
@@ -249,10 +247,6 @@
         renderQueueRows([]);
     }
 
-    function renderRaw(data) {
-        rawResponse.textContent = JSON.stringify(data, null, 2);
-    }
-
     function renderQueueRows(items) {
         const queueItems = items.filter((item) => isQueueRecord(item));
 
@@ -265,11 +259,25 @@
             const statusText = extractStatusName(item);
             const statusClass = mapStatusClass(item, statusText);
 
+            const customerName = item.customer_name
+                || item.customerName
+                || item.customer?.full_name
+                || item.customer?.fullName
+                || [item.customer?.first_name, item.customer?.last_name].filter(Boolean).join(" ")
+                || item.customer_id;
+
+            const categoryName = item.room_category_name
+                || item.roomCategoryName
+                || item.room_category?.category_name
+                || item.room_category?.categoryName
+                || item.category_name
+                || item.room_category_id;
+
             return `
                 <tr>
                     <td>${escapeHtml(item.id)}</td>
-                    <td>${escapeHtml(item.customer?.full_name || item.customer_name || item.customer_id)}</td>
-                    <td>${escapeHtml(item.room_category?.category_name || item.category_name || item.room_category_id)}</td>
+                    <td>${escapeHtml(customerName)}</td>
+                    <td>${escapeHtml(categoryName)}</td>
                     <td><span class="user-status-pill ${statusClass}">${escapeHtml(statusText)}</span></td>
                     <td>${formatDate(item.requested_check_in)}</td>
                     <td>${formatDate(item.check_out)}</td>
@@ -353,8 +361,26 @@
         return Number.parseInt(String(value), 10);
     }
 
+    function toUIntOrNull(value) {
+        if (value === undefined || value === null || value === "") {
+            return null;
+        }
+
+        const parsed = Number.parseInt(String(value), 10);
+        return Number.isNaN(parsed) ? null : parsed;
+    }
+
     function toByte(value) {
         return Number.parseInt(String(value), 10);
+    }
+
+    function toByteOrNull(value) {
+        if (value === undefined || value === null || value === "") {
+            return null;
+        }
+
+        const parsed = Number.parseInt(String(value), 10);
+        return Number.isNaN(parsed) ? null : parsed;
     }
 
     function toIso(value) {
@@ -367,6 +393,10 @@
         }
 
         return toIso(value);
+    }
+
+    function toIsoDate(value) {
+        return new Date(`${value}T00:00:00`).toISOString();
     }
 
     function formatDate(value) {

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace HotelCarga.Web.Controllers;
 
+[Route("[controller]")]
 public class WaitingQueueController : Controller
 {
     private readonly HttpClient _httpClient;
@@ -17,7 +18,7 @@ public class WaitingQueueController : Controller
         _httpClient.BaseAddress = new Uri(settings.Value.BaseUrl);
     }
 
-    [HttpGet]
+    [HttpGet("")]
     public IActionResult Index()
     {
         return View();
@@ -35,25 +36,32 @@ public class WaitingQueueController : Controller
         return await ForwardGetAsync($"WaitingQueue/GetAll?useJson={ToApiBoolean(useJson)}");
     }
 
-    [HttpPost("Api/Create")]
-    public async Task<IActionResult> Create([FromBody] JsonElement payload, bool useJson = false)
-    {
-        var response = await _httpClient.PostAsJsonAsync($"WaitingQueue/Create?useJson={ToApiBoolean(useJson)}", payload);
-        return await BuildProxyResultAsync(response);
-    }
-
     [HttpPut("Api/Update")]
     public async Task<IActionResult> Update([FromBody] JsonElement payload, bool useJson = false)
     {
-        var response = await _httpClient.PutAsJsonAsync($"WaitingQueue/Update?useJson={ToApiBoolean(useJson)}", payload);
-        return await BuildProxyResultAsync(response);
+        try
+        {
+            var response = await _httpClient.PutAsJsonAsync($"WaitingQueue/Update?useJson={ToApiBoolean(useJson)}", payload);
+            return await BuildProxyResultAsync(response);
+        }
+        catch (HttpRequestException ex)
+        {
+            return BuildApiUnavailableResult("WaitingQueue/Update", ex);
+        }
     }
 
     [HttpDelete("Api/Delete")]
     public async Task<IActionResult> Delete(uint id, bool useJson = false)
     {
-        var response = await _httpClient.DeleteAsync($"WaitingQueue/Delete?id={id}&useJson={ToApiBoolean(useJson)}");
-        return await BuildProxyResultAsync(response);
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"WaitingQueue/Delete?id={id}&useJson={ToApiBoolean(useJson)}");
+            return await BuildProxyResultAsync(response);
+        }
+        catch (HttpRequestException ex)
+        {
+            return BuildApiUnavailableResult("WaitingQueue/Delete", ex);
+        }
     }
 
     [HttpGet("Api/GetCategoriesByCustomerId")]
@@ -116,8 +124,26 @@ public class WaitingQueueController : Controller
 
     private async Task<IActionResult> ForwardGetAsync(string relativeUrl)
     {
-        var response = await _httpClient.GetAsync(relativeUrl);
-        return await BuildProxyResultAsync(response);
+        try
+        {
+            var response = await _httpClient.GetAsync(relativeUrl);
+            return await BuildProxyResultAsync(response);
+        }
+        catch (HttpRequestException ex)
+        {
+            return BuildApiUnavailableResult(relativeUrl, ex);
+        }
+    }
+
+    private IActionResult BuildApiUnavailableResult(string endpoint, HttpRequestException ex)
+    {
+        return StatusCode(503, new
+        {
+            success = false,
+            message = "Waiting Queue API is unavailable. Start HotelCarga.ApiModel and verify ApiSettings:BaseUrl.",
+            endpoint,
+            detail = ex.Message
+        });
     }
 
     private static string ToApiBoolean(bool value)

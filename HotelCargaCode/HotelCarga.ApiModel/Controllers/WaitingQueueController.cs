@@ -21,18 +21,111 @@ public class WaitingQueueController : BaseApiController
     [HttpGet("GetById")]
     public async Task<IActionResult> GetById(uint id, bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.waiting_queues.FirstOrDefault(w => w.id == id));
+        if (UseJsonBackend(useJson))
+        {
+            var entity = JsonContext!.waiting_queues.FirstOrDefault(w => w.id == id);
+            if (entity is null) return NotFound();
+
+            var customer = JsonContext.customers.FirstOrDefault(c => c.id == entity.customer_id);
+            var category = JsonContext.room_categories.FirstOrDefault(c => c.id == entity.room_category_id);
+            var status = JsonContext.queue_statuses.FirstOrDefault(s => s.id == entity.status_id);
+
+            return Ok(new
+            {
+                entity.id,
+                entity.customer_id,
+                customer_name = customer is null ? "Unknown" : $"{customer.first_name} {customer.last_name}".Trim(),
+                entity.room_category_id,
+                room_category_name = category?.category_name ?? "Unknown",
+                entity.status_id,
+                status_name = status?.status_name ?? $"STATUS {entity.status_id}",
+                entity.requested_check_in,
+                entity.check_out,
+                entity.created_at,
+                entity.updated_at
+            });
+        }
+
         if (DbContext is null) return DbBackendMissing();
-        var entity = await DbContext.Set<waiting_queue>().FindAsync(id);
-        return entity is null ? NotFound() : Ok(entity);
+        var item = await DbContext.Set<waiting_queue>()
+            .Include(w => w.customer)
+            .Include(w => w.room_category)
+            .Include(w => w.status)
+            .Where(w => w.id == id)
+            .Select(w => new
+            {
+                w.id,
+                w.customer_id,
+                customer_name = ((w.customer.first_name ?? "") + " " + (w.customer.last_name ?? "")).Trim(),
+                w.room_category_id,
+                room_category_name = w.room_category.category_name,
+                w.status_id,
+                status_name = w.status.status_name,
+                w.requested_check_in,
+                w.check_out,
+                w.created_at,
+                w.updated_at
+            })
+            .FirstOrDefaultAsync();
+
+        return item is null ? NotFound() : Ok(item);
     }
 
     [HttpGet("GetAll")]
     public async Task<IActionResult> GetAll(bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.waiting_queues);
+        if (UseJsonBackend(useJson))
+        {
+            var items = JsonContext!.waiting_queues
+                .Select(w =>
+                {
+                    var customer = JsonContext.customers.FirstOrDefault(c => c.id == w.customer_id);
+                    var category = JsonContext.room_categories.FirstOrDefault(c => c.id == w.room_category_id);
+                    var status = JsonContext.queue_statuses.FirstOrDefault(s => s.id == w.status_id);
+
+                    return new
+                    {
+                        w.id,
+                        w.customer_id,
+                        customer_name = customer is null ? "Unknown" : $"{customer.first_name} {customer.last_name}".Trim(),
+                        w.room_category_id,
+                        room_category_name = category?.category_name ?? "Unknown",
+                        w.status_id,
+                        status_name = status?.status_name ?? $"STATUS {w.status_id}",
+                        w.requested_check_in,
+                        w.check_out,
+                        w.created_at,
+                        w.updated_at
+                    };
+                })
+                .ToList();
+
+            return Ok(items);
+        }
+
         if (DbContext is null) return DbBackendMissing();
-        return Ok(await DbContext.Set<waiting_queue>().ToListAsync());
+
+        var entries = await DbContext.Set<waiting_queue>()
+            .Include(w => w.customer)
+            .Include(w => w.room_category)
+            .Include(w => w.status)
+            .Select(w => new
+            {
+                w.id,
+                w.customer_id,
+                customer_name = ((w.customer.first_name ?? "") + " " + (w.customer.last_name ?? "")).Trim(),
+                w.room_category_id,
+                room_category_name = w.room_category.category_name,
+                w.status_id,
+                status_name = w.status.status_name,
+                w.requested_check_in,
+                w.check_out,
+                w.created_at,
+                w.updated_at
+            })
+            .ToListAsync();
+
+        return Ok(entries);
     }
 
     [HttpPost("Create")]
@@ -154,9 +247,7 @@ public class WaitingQueueController : BaseApiController
     [HttpGet("GetAllQueues")]
     public async Task<IActionResult> GetAllQueues(bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.waiting_queues);
-        if (DbContext is null) return DbBackendMissing();
-        return Ok(await DbContext.Set<waiting_queue>().ToListAsync());
+        return await GetAll(useJson);
     }
 
     [HttpGet("GetFIFOQueueByRoomCategoryAndDateRange")]
