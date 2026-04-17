@@ -97,7 +97,7 @@ function renderRoomShowcase(container, roomCategories, currencyFormatter) {
                             <span class="landing-chip">${escapeHtml(room.categoryName || "Standard")}</span>
                             <span class="landing-availability">${escapeHtml(room.availabilityLabel || "")}</span>
                         </div>
-                        <p>${escapeHtml(room.description || "")}</p>
+                        <p class="landing-room-card__desc">${escapeHtml(room.description || "")}</p>
                         <div class="landing-room-card__amenities">${amenities}</div>
                         <div class="landing-rate-block">
                             <span>Tarifa por noche</span>
