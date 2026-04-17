@@ -1,0 +1,107 @@
+[
+  {
+    "consecutivo": 1,
+    "id_parqueo": 1,
+    "id_automovil": 1,
+    "fecha_entrada": "2026-04-01T08:00:00",
+    "fecha_salida": "2026-04-01T10:30:00"
+  },
+  {
+    "consecutivo": 2,
+    "id_parqueo": 1,
+    "id_automovil": 2,
+    "fecha_entrada": "2026-04-01T09:15:00",
+    "fecha_salida": "2026-04-01T11:00:00"
+  },
+  {
+    "consecutivo": 3,
+    "id_parqueo": 2,
+    "id_automovil": 3,
+    "fecha_entrada": "2026-04-01T07:45:00",
+    "fecha_salida": "2026-04-01T12:15:00"
+  },
+  {
+    "consecutivo": 4,
+    "id_parqueo": 2,
+    "id_automovil": 4,
+    "fecha_entrada": "2026-04-02T13:00:00",
+    "fecha_salida": "2026-04-02T15:20:00"
+  },
+  {
+    "consecutivo": 5,
+    "id_parqueo": 1,
+    "id_automovil": 5,
+    "fecha_entrada": "2026-04-02T14:10:00",
+    "fecha_salida": "2026-04-02T18:00:00"
+  },
+  {
+    "consecutivo": 6,
+    "id_parqueo": 1,
+    "id_automovil": 1,
+    "fecha_entrada": "2026-04-03T08:30:00",
+    "fecha_salida": "2026-04-03T09:45:00"
+  },
+  {
+    "consecutivo": 7,
+    "id_parqueo": 2,
+    "id_automovil": 2,
+    "fecha_entrada": "2026-04-03T10:00:00",
+    "fecha_salida": "2026-04-03T13:10:00"
+  },
+  {
+    "consecutivo": 8,
+    "id_parqueo": 1,
+    "id_automovil": 3,
+    "fecha_entrada": "2026-04-04T11:20:00",
+    "fecha_salida": "2026-04-04T16:40:00"
+  },
+  {
+    "consecutivo": 9,
+    "id_parqueo": 2,
+    "id_automovil": 5,
+    "fecha_entrada": "2026-04-05T07:00:00",
+    "fecha_salida": "2026-04-05T09:30:00"
+  },
+  {
+    "consecutivo": 10,
+    "id_parqueo": 1,
+    "id_automovil": 4,
+    "fecha_entrada": "2026-04-06T17:00:00",
+    "fecha_salida": "2026-04-06T19:00:00"
+  },
+  {
+    "consecutivo": 11,
+    "id_parqueo": 2,
+    "id_automovil": 1,
+    "fecha_entrada": "2026-04-07T06:50:00",
+    "fecha_salida": "2026-04-07T08:00:00"
+  },
+  {
+    "consecutivo": 12,
+    "id_parqueo": 1,
+    "id_automovil": 2,
+    "fecha_entrada": "2026-04-08T12:00:00",
+    "fecha_salida": "2026-04-08T14:25:00"
+  },
+  {
+    "consecutivo": 13,
+    "id_parqueo": 2,
+    "id_automovil": 3,
+    "fecha_entrada": "2026-04-16T18:30:00",
+    "fecha_salida": null
+  },
+  {
+    "consecutivo": 14,
+    "id_parqueo": 1,
+    "id_automovil": 5,
+    "fecha_entrada": "2026-04-17T07:10:00",
+    "fecha_salida": null
+  },
+  {
+    "consecutivo": 15,
+    "id_parqueo": 2,
+    "id_automovil": 4,
+    "fecha_entrada": "2026-04-17T09:45:00",
+    "fecha_salida": null
+  }
+]

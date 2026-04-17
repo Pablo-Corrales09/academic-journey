@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "provincia": "San José",
+    "nombre": "Parqueo Central SJ",
+    "precio_hora": 1250.0
+  },
+  {
+    "id": 2,
+    "provincia": "Heredia",
+    "nombre": "Parqueo Heredia Norte",
+    "precio_hora": 1000.0
+  }
+]
