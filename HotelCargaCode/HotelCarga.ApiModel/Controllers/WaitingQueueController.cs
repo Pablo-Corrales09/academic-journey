@@ -33,6 +33,7 @@ public class WaitingQueueController : BaseApiController
             return Ok(new
             {
                 entity.id,
+                request_number = FormatRequestNumber(entity.id),
                 entity.customer_id,
                 customer_name = customer is null ? "Unknown" : $"{customer.first_name} {customer.last_name}".Trim(),
                 entity.room_category_id,
@@ -55,6 +56,7 @@ public class WaitingQueueController : BaseApiController
             .Select(w => new
             {
                 w.id,
+                request_number = FormatRequestNumber(w.id),
                 w.customer_id,
                 customer_name = ((w.customer.first_name ?? "") + " " + (w.customer.last_name ?? "")).Trim(),
                 w.room_category_id,
@@ -86,6 +88,7 @@ public class WaitingQueueController : BaseApiController
                     return new
                     {
                         w.id,
+                        request_number = FormatRequestNumber(w.id),
                         w.customer_id,
                         customer_name = customer is null ? "Unknown" : $"{customer.first_name} {customer.last_name}".Trim(),
                         w.room_category_id,
@@ -109,9 +112,11 @@ public class WaitingQueueController : BaseApiController
             .Include(w => w.customer)
             .Include(w => w.room_category)
             .Include(w => w.status)
+            .AsNoTracking()
             .Select(w => new
             {
                 w.id,
+                request_number = FormatRequestNumber(w.id),
                 w.customer_id,
                 customer_name = ((w.customer.first_name ?? "") + " " + (w.customer.last_name ?? "")).Trim(),
                 w.room_category_id,
@@ -133,10 +138,23 @@ public class WaitingQueueController : BaseApiController
     {
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
+        item.created_at ??= DateTime.UtcNow;
+        item.updated_at = DateTime.UtcNow;
 
         await DbContext.Set<waiting_queue>().AddAsync(item);
         await DbContext.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = item.id }, item);
+        return CreatedAtAction(nameof(GetById), new { id = item.id }, new
+        {
+            item.id,
+            request_number = FormatRequestNumber(item.id),
+            item.customer_id,
+            item.room_category_id,
+            item.status_id,
+            item.requested_check_in,
+            item.check_out,
+            item.created_at,
+            item.updated_at
+        });
     }
 
     [HttpPut("Update")]
@@ -144,10 +162,28 @@ public class WaitingQueueController : BaseApiController
     {
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
+        item.updated_at = DateTime.UtcNow;
 
         DbContext.Set<waiting_queue>().Update(item);
         await DbContext.SaveChangesAsync();
-        return Ok(item);
+        return Ok(new
+        {
+            item.id,
+            request_number = FormatRequestNumber(item.id),
+            item.customer_id,
+            item.room_category_id,
+            item.status_id,
+            item.requested_check_in,
+            item.check_out,
+            item.created_at,
+            item.updated_at
+        });
+    }
+
+    private static string FormatRequestNumber(uint id)
+    {
+        var token = unchecked(id * 2654435761u);
+        return $"RQ-{token:X8}";
     }
 
     [HttpDelete("Delete")]

@@ -98,6 +98,14 @@ public class BookingController : BaseApiController
 
         try
         {
+            // Verify customer exists
+            var customer = await DbContext.Set<customer>().FindAsync(dto.customer_id);
+            if (customer == null)
+            {
+                await transaction.RollbackAsync();
+                return NotFound(new { error = true, message = "El cliente seleccionado no existe." });
+            }
+
             // Retrieve the room to check availability and price
             var room = await DbContext.Set<room>().FindAsync(dto.room_id);
             
@@ -149,10 +157,19 @@ public class BookingController : BaseApiController
             // Calculate total price based on room's nightly rate.
             item.total_price = calculate_total_price(room.nightly_rate, item.check_in, item.check_out);
 
+            // Set timestamps
+            item.created_at = DateTime.UtcNow;
+            item.updated_at = DateTime.UtcNow;
+
             //Booking status update
             item.status_id = 2; 
             await DbContext.Set<booking>().AddAsync(item);
             await DbContext.SaveChangesAsync();
+
+            // Load navigation properties for response
+            item.status = await DbContext.Set<booking_status>().FindAsync(item.status_id);
+            item.customer = customer;
+            item.room = room;
 
             await transaction.CommitAsync();
 
@@ -286,7 +303,7 @@ public class BookingController : BaseApiController
         try
         {
             var existingBooking = await DbContext.Set<booking>().FindAsync(item.id);
-            if (existingBooking == null) 
+            if (existingBooking == null)
             {
                 return NotFound(new { error = true, message = "Reserva no encontrada." });
             }
@@ -308,28 +325,42 @@ public class BookingController : BaseApiController
                 return Conflict(new { error = true, message = "La habitación seleccionada ya tiene una reserva que se solapa con las fechas solicitadas." });
             }
 
+            var releasedRoomId = existingBooking.room_id;
+            var releasedCheckIn = existingBooking.check_in;
+            var releasedCheckOut = existingBooking.check_out;
+            bool wasActiveBooking = existingBooking.status_id != 3;
+            bool roomOrScheduleChanged = existingBooking.room_id != item.room_id
+                || existingBooking.check_in != item.check_in
+                || existingBooking.check_out != item.check_out;
+
             existingBooking.room_id = item.room_id;
             existingBooking.nightly_rate = targetRoom.nightly_rate;
 
-            // existingBooking.status_id = item.status_id; 
-            
+            // existingBooking.status_id = item.status_id;
+
             // Updates the dates
             existingBooking.check_in = item.check_in;
             existingBooking.check_out = item.check_out;
 
-            // Rate update
             // Rate update - Uses the rate the reservation currently has and the updated dates
             existingBooking.total_price = calculate_total_price(existingBooking.nightly_rate, existingBooking.check_in, existingBooking.check_out);
 
             await DbContext.SaveChangesAsync();
 
-            return Ok(new { 
+            WaitingQueueNotification? queueNotification = null;
+            if (wasActiveBooking && roomOrScheduleChanged && _alertService != null)
+            {
+                queueNotification = await _alertService.ProcessNextQueueForReleasedRoom(releasedRoomId, releasedCheckIn, releasedCheckOut);
+            }
+
+            return Ok(new
+            {
                 success = true,
                 message = "Reserva actualizada exitosamente. Tu número de reserva es: " + existingBooking.reserve_number,
-                data = BuildBookingResponse(existingBooking) 
+                queue_processed = queueNotification != null,
+                promoted_waiting_queue_id = queueNotification?.WaitingQueueId,
+                data = BuildBookingResponse(existingBooking)
             });
-
-
         }
         catch (Exception ex)
         {
@@ -349,23 +380,36 @@ public class BookingController : BaseApiController
             var existingBooking = await DbContext.Set<booking>().FindAsync(item.id);
             if (existingBooking == null) return NotFound(new { error = true, message = "Reserva no encontrada." });
 
+            bool wasActiveBooking = existingBooking.status_id != 3;
+            var releasedRoomId = existingBooking.room_id;
+            var releasedCheckIn = existingBooking.check_in;
+            var releasedCheckOut = existingBooking.check_out;
+
             // Aplica Soft Delete (Cancelamos la reserva)
             existingBooking.status_id = 3;
-
             await DbContext.SaveChangesAsync();
 
-            // Generate alerts for waiting queue customers in FIFO order
-            if (_alertService != null)
+            WaitingQueueNotification? queueNotification = null;
+            if (wasActiveBooking && _alertService != null)
             {
-                var notifications = await _alertService.GenerateAlertsForReleasedRoom(
-                    existingBooking.room_id,
-                    existingBooking.check_in,
-                    existingBooking.check_out);
+                queueNotification = await _alertService.ProcessNextQueueForReleasedRoom(
+                    releasedRoomId,
+                    releasedCheckIn,
+                    releasedCheckOut);
 
-                _logger?.LogInformation($"Generated {notifications.Count} alerts when booking {existingBooking.reserve_number} was cancelled");
+                if (queueNotification != null)
+                {
+                    _logger?.LogInformation($"Queue entry {queueNotification.WaitingQueueId} promoted after booking {existingBooking.reserve_number} cancellation");
+                }
             }
 
-            return Ok(new { success = true, message = "Reserva cancelada y habitación liberada exitosamente." });
+            return Ok(new
+            {
+                success = true,
+                message = "Reserva cancelada y habitación liberada exitosamente.",
+                queue_processed = queueNotification != null,
+                promoted_waiting_queue_id = queueNotification?.WaitingQueueId
+            });
         }
         catch (Exception ex)
         {
@@ -548,8 +592,28 @@ public class BookingController : BaseApiController
             if (room == null)
                 return NotFound(new { error = true, message = "La habitación seleccionada no existe." });
 
+            var customer = await DbContext.Set<customer>().FindAsync(dto.customer_id);
+            if (customer == null)
+                return NotFound(new { error = true, message = "El cliente seleccionado no existe." });
+
             // Get room category for queue management
             byte roomCategoryId = room.category_id;
+
+            await using var transaction = await DbContext.Database.BeginTransactionAsync();
+
+            var pendingBooking = new booking
+            {
+                reserve_number = await AssignReserveNumber(),
+                customer_id = dto.customer_id,
+                room_id = dto.room_id,
+                status_id = 1,
+                check_in = dto.check_in,
+                check_out = dto.check_out,
+                nightly_rate = room.nightly_rate,
+                total_price = calculate_total_price(room.nightly_rate, dto.check_in, dto.check_out),
+                created_at = DateTime.UtcNow,
+                updated_at = DateTime.UtcNow
+            };
 
             // Queue Status: 1 = Pending
             var queueEntry = new waiting_queue
@@ -563,16 +627,21 @@ public class BookingController : BaseApiController
                 updated_at = DateTime.UtcNow
             };
 
+            await DbContext.Set<booking>().AddAsync(pendingBooking);
             await DbContext.Set<waiting_queue>().AddAsync(queueEntry);
             await DbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
 
-            _logger?.LogInformation($"Customer {dto.customer_id} added to waiting queue for room category {roomCategoryId}");
+            _logger?.LogInformation($"Customer {dto.customer_id} added to waiting queue for category {roomCategoryId} with pending booking {pendingBooking.id}");
 
             return Conflict(new
             {
                 error = true,
                 message = "La habitación no está disponible para las fechas solicitadas, pero se ha agregado a la lista de espera.",
                 waitingQueueId = queueEntry.id,
+                requestNumber = FormatWaitingQueueRequestNumber(queueEntry.id),
+                bookingId = pendingBooking.id,
+                reserveNumber = pendingBooking.reserve_number,
                 status = "ADDED_TO_QUEUE",
                 roomCategoryId = roomCategoryId,
                 requestedCheckIn = dto.check_in,
@@ -601,5 +670,11 @@ public class BookingController : BaseApiController
 
         var alerts = await _alertService.GetPendingAlertsForOperator();
         return Ok(alerts);
+    }
+
+    private static string FormatWaitingQueueRequestNumber(uint waitingQueueId)
+    {
+        var token = unchecked(waitingQueueId * 2654435761u);
+        return $"RQ-{token:X8}";
     }
 }

@@ -112,6 +112,7 @@
                     {
                         "CANCELED" => "user-status-pill--canceled",
                         "CONFIRMED" => "user-status-pill--confirmed",
+                        "PENDING" => "user-status-pill--pending",
                         _ => string.Empty
                     };
 
@@ -126,7 +127,7 @@
                         <dl class="user-card__meta">
                             <div>
                                 <dt>Room</dt>
-                                <dd>@booking.RoomNumber</dd>
+                                <dd>@(booking.RoomNumber == 0 ? "-" : booking.RoomNumber)</dd>
                             </div>
                             <div>
                                 <dt>Check-In</dt>
@@ -142,9 +143,16 @@
                             </div>
                         </dl>
                         <div class="user-card__actions d-flex justify-content-center gap-2">
-                            <a asp-action="GetById" asp-route-id="@booking.Id" class="user-button">Open</a>
-                            <a asp-action="Update" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button-update">Update</a>
-                            <a asp-action="Delete" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button--danger">Cancel</a>
+                            @if (booking.IsQueueRequest)
+                            {
+                                <a asp-controller="WaitingQueue" asp-action="Index" class="user-button">Open Queue</a>
+                            }
+                            else
+                            {
+                                <a asp-action="GetById" asp-route-id="@booking.Id" class="user-button">Open</a>
+                                <a asp-action="Update" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button-update">Update</a>
+                                <a asp-action="Delete" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button--danger">Cancel</a>
+                            }
                         </div>
                     </article>
                 }

@@ -1,6 +1,8 @@
 using System.Globalization;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using HotelCarga.Models.WaitingQueue;
 using HotelCarga.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -10,6 +12,11 @@ namespace HotelCarga.Web.Controllers;
 [Route("[controller]")]
 public class WaitingQueueController : Controller
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
     private readonly HttpClient _httpClient;
 
     public WaitingQueueController(IHttpClientFactory clientFactory, IOptions<ApiSettings> settings)
@@ -19,9 +26,46 @@ public class WaitingQueueController : Controller
     }
 
     [HttpGet("")]
-    public IActionResult Index()
+    public async Task<IActionResult> Index([FromQuery] WaitingQueueFiltersViewModel filters, bool useJson = false)
     {
-        return View();
+        filters.StatusName = NormalizeStatus(filters.StatusName);
+        if (string.IsNullOrWhiteSpace(filters.StatusName))
+        {
+            filters.StatusName = "PENDING";
+        }
+
+        if (filters.FromDate.HasValue && filters.ToDate.HasValue && filters.FromDate.Value.Date > filters.ToDate.Value.Date)
+        {
+            ModelState.AddModelError(string.Empty, "From date cannot be later than To date.");
+        }
+
+        var model = new WaitingQueueIndexViewModel
+        {
+            Filters = filters,
+            Items = []
+        };
+
+        try
+        {
+            var entries = await FetchQueueAsync(useJson);
+            var filteredItems = ApplyFilters(entries, filters)
+                .Select(MapToListItem)
+                .OrderBy(item => item.RequestedCheckIn)
+                .ThenBy(item => item.CreatedAt ?? DateTime.MaxValue)
+                .ToList();
+
+            model = new WaitingQueueIndexViewModel
+            {
+                Filters = filters,
+                Items = filteredItems
+            };
+        }
+        catch (HttpRequestException)
+        {
+            TempData["ErrorMessage"] = "Waiting Queue API is unavailable. Start HotelCarga.ApiModel and verify ApiSettings:BaseUrl.";
+        }
+
+        return View(model);
     }
 
     [HttpGet("Api/GetById")]
@@ -122,6 +166,67 @@ public class WaitingQueueController : Controller
         return await ForwardGetAsync($"WaitingQueue/CountPendingByRoomCategory?roomCategoryId={roomCategoryId}&useJson={ToApiBoolean(useJson)}");
     }
 
+    private async Task<List<WaitingQueueApiDto>> FetchQueueAsync(bool useJson)
+    {
+        var response = await _httpClient.GetAsync($"WaitingQueue/GetAll?useJson={ToApiBoolean(useJson)}");
+        if (!response.IsSuccessStatusCode)
+        {
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return [];
+            }
+
+            var rawBody = await response.Content.ReadAsStringAsync();
+            throw new HttpRequestException($"GET WaitingQueue/GetAll failed ({(int)response.StatusCode}): {rawBody}");
+        }
+
+        return await response.Content.ReadFromJsonAsync<List<WaitingQueueApiDto>>(JsonOptions) ?? [];
+    }
+
+    private static IEnumerable<WaitingQueueApiDto> ApplyFilters(IEnumerable<WaitingQueueApiDto> items, WaitingQueueFiltersViewModel filters)
+    {
+        var query = items;
+
+        var status = NormalizeStatus(filters.StatusName);
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(item => NormalizeStatus(item.status_name) == status);
+        }
+
+        if (filters.FromDate.HasValue)
+        {
+            var fromDate = filters.FromDate.Value.Date;
+            query = query.Where(item => item.requested_check_in.Date >= fromDate);
+        }
+
+        if (filters.ToDate.HasValue)
+        {
+            var toDate = filters.ToDate.Value.Date;
+            query = query.Where(item => item.requested_check_in.Date <= toDate);
+        }
+
+        return query;
+    }
+
+    private static WaitingQueueListItemViewModel MapToListItem(WaitingQueueApiDto item)
+    {
+        return new WaitingQueueListItemViewModel
+        {
+            Id = item.id,
+            RequestNumber = string.IsNullOrWhiteSpace(item.request_number) ? FormatRequestNumber(item.id) : item.request_number.Trim(),
+            CustomerId = item.customer_id,
+            CustomerName = string.IsNullOrWhiteSpace(item.customer_name) ? "Unknown" : item.customer_name,
+            RoomCategoryId = item.room_category_id,
+            RoomCategoryName = string.IsNullOrWhiteSpace(item.room_category_name) ? "Unknown" : item.room_category_name,
+            StatusId = item.status_id,
+            StatusName = NormalizeStatus(item.status_name),
+            RequestedCheckIn = item.requested_check_in,
+            CheckOut = item.check_out,
+            CreatedAt = item.created_at,
+            UpdatedAt = item.updated_at
+        };
+    }
+
     private async Task<IActionResult> ForwardGetAsync(string relativeUrl)
     {
         try
@@ -146,9 +251,20 @@ public class WaitingQueueController : Controller
         });
     }
 
+    private static string NormalizeStatus(string? statusName)
+    {
+        return (statusName ?? string.Empty).Trim().ToUpperInvariant();
+    }
+
     private static string ToApiBoolean(bool value)
     {
         return value ? "true" : "false";
+    }
+
+    private static string FormatRequestNumber(uint id)
+    {
+        var token = unchecked(id * 2654435761u);
+        return $"RQ-{token:X8}";
     }
 
     private static async Task<ContentResult> BuildProxyResultAsync(HttpResponseMessage response)

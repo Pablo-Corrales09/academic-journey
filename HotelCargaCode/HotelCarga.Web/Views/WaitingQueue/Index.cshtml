@@ -1,3 +1,5 @@
+@model HotelCarga.Models.WaitingQueue.WaitingQueueIndexViewModel
+
 @{
     ViewData["Title"] = "Waiting Queue";
 }
@@ -10,138 +12,46 @@
     <section class="user-hero" data-animate>
         <div class="user-hero__content">
             <h1>Waiting Queue Management</h1>
-            <p>Consulta, procesa y elimina registros de cola en tiempo real.</p>
-            <div class="d-flex flex-wrap gap-3 mt-3">
-                <button type="button" class="user-button" data-run-endpoint="GetAll">Cargar cola</button>
-                <button type="button" class="user-button user-button--ghost" data-run-endpoint="GetAllQueues">GetAllQueues</button>
-                <button type="button" class="user-button user-button--ghost" data-run-endpoint="GetNotifiedQueueFIFO">GetNotifiedQueueFIFO</button>
-                <a asp-controller="Booking" asp-action="List" class="user-button user-button--ghost">Ver reservas</a>
-            </div>
+            <p>Pending confirmation requests, FIFO visibility, and date-range filtering in one view.</p>
         </div>
     </section>
 
+    @if (TempData["ErrorMessage"] is string errorMessage)
+    {
+        <div class="alert alert-danger" role="alert" data-animate>@errorMessage</div>
+    }
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-warning" role="alert" data-animate>
+            @foreach (var modelError in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@modelError.ErrorMessage</div>
+            }
+        </div>
+    }
+
     <section class="card mb-3" data-animate>
         <div class="card-body p-4">
-            <form id="compact-filter-form" class="row gx-2 gy-2 align-items-end">
-                <div class="col-auto">
-                    <label for="filter-queue-id" class="form-label form-label-sm mb-1">Queue ID</label>
-                    <input id="filter-queue-id" type="number" min="1" class="form-control form-control-sm" placeholder="ID" />
+            <form asp-action="Index" method="get" class="row gx-2 gy-2 align-items-end">
+                <div class="col-md-3 col-sm-6">
+                    <label asp-for="Filters.FromDate" class="form-label form-label-sm mb-1"></label>
+                    <input asp-for="Filters.FromDate" type="date" class="form-control form-control-sm" />
                 </div>
-                <div class="col-auto">
-                    <label for="filter-customer-id" class="form-label form-label-sm mb-1">Customer</label>
-                    <input id="filter-customer-id" type="number" min="1" class="form-control form-control-sm" placeholder="Customer ID" />
+                <div class="col-md-3 col-sm-6">
+                    <label asp-for="Filters.ToDate" class="form-label form-label-sm mb-1"></label>
+                    <input asp-for="Filters.ToDate" type="date" class="form-control form-control-sm" />
                 </div>
-                <div class="col-auto">
-                    <label for="filter-category-id" class="form-label form-label-sm mb-1">Category</label>
-                    <input id="filter-category-id" type="number" min="1" max="255" class="form-control form-control-sm" placeholder="Category ID" />
-                </div>
-                <div class="col-auto">
-                    <label for="filter-status-name" class="form-label form-label-sm mb-1">Status</label>
-                    <select id="filter-status-name" class="form-select form-select-sm">
-                        <option value="">All</option>
+                <div class="col-md-3 col-sm-6">
+                    <label asp-for="Filters.StatusName" class="form-label form-label-sm mb-1"></label>
+                    <select asp-for="Filters.StatusName" class="form-select form-select-sm">
                         <option value="PENDING">PENDING</option>
-                        <option value="NOTIFIED">NOTIFIED</option>
-                        <option value="REMOVED">REMOVED</option>
+                        <option value="CONFIRMED">CONFIRMED</option>
                     </select>
                 </div>
-                <div class="col-auto">
-                    <label for="filter-check-in" class="form-label form-label-sm mb-1">From</label>
-                    <input id="filter-check-in" type="date" class="form-control form-control-sm" />
-                </div>
-                <div class="col-auto">
-                    <label for="filter-check-out" class="form-label form-label-sm mb-1">To</label>
-                    <input id="filter-check-out" type="date" class="form-control form-control-sm" />
-                </div>
-                <div class="col-auto">
-                    <div class="form-check mt-4">
-                        <input class="form-check-input" type="checkbox" id="use-json-backend" />
-                        <label class="form-check-label small" for="use-json-backend">JSON</label>
-                    </div>
-                </div>
-                <div class="col-auto d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-sm btn-primary">Apply</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="reset-filters-btn">Reset</button>
-                    <button type="button" class="btn btn-sm btn-outline-info" data-run-endpoint="GetNotifiedQueueFIFO">Notified</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clear-results-btn">Clear</button>
-                </div>
-            </form>
-            <div id="queue-feedback" class="alert d-none mb-0" role="alert"></div>
-        </div>
-    </section>
-
-    <section class="card mb-3" data-animate>
-        <div class="card-body p-4">
-            <div class="mb-3">
-                <h2 class="mb-1">Queue Actions</h2>
-                <p class="mb-0 text-muted">Operaciones permitidas para administración de la cola (sin creación manual).</p>
-            </div>
-
-            <div class="row g-3">
-                <div class="col-12 col-xl-6">
-                    <form id="update-form" class="border rounded p-3 h-100">
-                        <h3 class="h5 mb-3">Update</h3>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="update-id" class="form-label">Queue Id</label>
-                                <input id="update-id" class="form-control" type="number" min="1" required />
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="update-customer-id" class="form-label">Customer Id</label>
-                                <input id="update-customer-id" class="form-control" type="number" min="1" required />
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="update-room-category-id" class="form-label">Room Category Id</label>
-                                <input id="update-room-category-id" class="form-control" type="number" min="1" max="255" required />
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="update-status-id" class="form-label">Status Id</label>
-                                <input id="update-status-id" class="form-control" type="number" min="1" max="255" required />
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="update-requested-check-in" class="form-label">Requested Check In</label>
-                                <input id="update-requested-check-in" class="form-control" type="datetime-local" required />
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="update-check-out" class="form-label">Check Out (optional)</label>
-                                <input id="update-check-out" class="form-control" type="datetime-local" />
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-end gap-3 mt-2">
-                            <button type="submit" class="user-button">Actualizar</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="col-12">
-                    <form id="delete-form" class="border rounded p-3">
-                        <div class="d-flex flex-column flex-md-row align-items-md-end gap-3">
-                            <div class="flex-grow-1">
-                                <label for="delete-id" class="form-label">Queue Id to Delete</label>
-                                <input id="delete-id" class="form-control" type="number" min="1" required />
-                            </div>
-                            <div class="d-flex justify-content-end gap-3">
-                                <button type="button" id="delete-open-modal-btn" class="user-button user-button--ghost user-button--danger">Eliminar</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="card mb-3" data-animate>
-        <div class="card-body p-4">
-            <form id="process-next-form" class="row gx-2 gy-2 align-items-end">
-                <div class="col-auto">
-                    <label for="process-category-id" class="form-label form-label-sm mb-1">Process Category</label>
-                    <input id="process-category-id" class="form-control form-control-sm" type="number" min="1" max="255" required />
-                </div>
-                <div class="col-auto">
-                    <label for="process-target-status" class="form-label form-label-sm mb-1">Target Status</label>
-                    <input id="process-target-status" class="form-control form-control-sm" type="number" min="1" max="255" value="2" required />
-                </div>
-                <div class="col-auto mt-4">
-                    <button type="submit" class="btn btn-sm btn-outline-primary">Process FIFO</button>
+                <div class="col-md-3 col-sm-6 d-flex gap-2">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary w-100">Reset</a>
                 </div>
             </form>
         </div>
@@ -151,31 +61,54 @@
         <div class="card-body p-4">
             <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-3">
                 <div>
-                    <h2 class="mb-1">Queue Results</h2>
-                    <p class="mb-0 text-muted">Visualiza la cola y los resultados de cada endpoint.</p>
+                    <h2 class="mb-1">Reservas en cola</h2>
                 </div>
-                <div class="d-flex align-items-center gap-3">
-                    <span id="result-source" class="user-chip">No data</span>
-                </div>
+                <span class="badge badge-info">@Model.Items.Count item(s)</span>
             </div>
 
-            <div class="table-responsive mb-3">
-                <table class="table table-sm table-hover align-middle mb-0" id="queue-table">
+            <div class="table-responsive mb-3" style="height: auto;">
+                <table class="table table-sm table-hover align-middle mb-0">
                     <thead class="thead-light">
                         <tr>
-                            <th>Id</th>
+                            <th>Request #</th>
                             <th>Customer</th>
                             <th>Category</th>
                             <th>Status</th>
                             <th>Requested Check In</th>
                             <th>Check Out</th>
-                            <th>Created At</th>
+                            <th>Created</th>
                         </tr>
                     </thead>
-                    <tbody id="queue-table-body">
-                        <tr>
-                            <td colspan="7" class="text-center text-muted py-4">Sin registros para mostrar.</td>
-                        </tr>
+                    <tbody>
+                        @if (Model.Items.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">Sin reservas pendientes.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.Items)
+                            {
+                                var normalizedStatus = (item.StatusName ?? string.Empty).Trim().ToUpperInvariant();
+                                var statusBadgeClass = normalizedStatus switch
+                                {
+                                    "CONFIRMED" => "badge badge-success",
+                                    "PENDING" => "badge badge-warning text-dark",
+                                    _ => "badge badge-secondary"
+                                };
+
+                                <tr>
+                                    <td>@item.RequestNumber</td>
+                                    <td>@item.CustomerName</td>
+                                    <td>@item.RoomCategoryName</td>
+                                    <td><span class="@statusBadgeClass">@normalizedStatus</span></td>
+                                    <td>@item.RequestedCheckIn.ToString("yyyy-MM-dd")</td>
+                                    <td>@(item.CheckOut?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                    <td>@(item.CreatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "-")</td>
+                                </tr>
+                            }
+                        }
                     </tbody>
                 </table>
             </div>
@@ -183,26 +116,3 @@
     </section>
 </div>
 
-@section Scripts {
-    <script src="~/js/waitingqueue/index.js" asp-append-version="true"></script>
-}
-
-<div class="modal fade" id="waitingQueueDeleteModal" tabindex="-1" role="dialog" aria-labelledby="waitingQueueDeleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="waitingQueueDeleteModalLabel">Confirmar eliminación</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="waitingQueueDeleteModalMessage">
-                ¿Desea eliminar este elemento de la cola?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Eliminar</button>
-            </div>
-        </div>
-    </div>
-</div>

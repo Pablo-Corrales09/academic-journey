@@ -1,7 +1,11 @@
 using HotelCarga.Models.Bookings;
+using HotelCarga.Models.WaitingQueue;
 using HotelCarga.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace HotelCarga.Web.Controllers;
 
@@ -9,16 +13,28 @@ public class BookingController : Controller
 {
     private const string ApiUnavailableMessage = "Booking service is unavailable. Start HotelCarga.ApiModel and try again.";
     private const string NoAvailabilityPrompt = "Habitación no disponible en el horario seleccionado ¿gusta añadirlo a la cola de solicitudes?";
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     private readonly IBookingApiService _service;
     private readonly ICustomerApiService _customerService;
     private readonly IRoomApiService _roomService;
+    private readonly HttpClient _httpClient;
 
-    public BookingController(IBookingApiService service, ICustomerApiService customerService, IRoomApiService roomService)
+    public BookingController(
+        IBookingApiService service,
+        ICustomerApiService customerService,
+        IRoomApiService roomService,
+        IHttpClientFactory clientFactory,
+        IOptions<ApiSettings> settings)
     {
         _service = service;
         _customerService = customerService;
         _roomService = roomService;
+        _httpClient = clientFactory.CreateClient();
+        _httpClient.BaseAddress = new Uri(settings.Value.BaseUrl);
     }
 
     public async Task<IActionResult> Index(string? search = null)
@@ -61,6 +77,7 @@ public class BookingController : Controller
     public async Task<IActionResult> List(BookingFiltersViewModel filters)
     {
         List<BookingSummaryDto> allBookings;
+        List<WaitingQueueApiDto> queueEntries;
         List<CustomerSummaryDto> customers;
         List<RoomDto> rooms;
         List<BookingStatusDto> statuses;
@@ -68,12 +85,14 @@ public class BookingController : Controller
         try
         {
             var bookingsTask = _service.GetAllAsync();
+            var queueTask = FetchPendingQueueEntriesAsync();
             var customersTask = _customerService.GetAllAsync();
             var roomsTask = _roomService.GetAllAsync();
             var statusesTask = _service.GetStatusesAsync();
-            await Task.WhenAll(bookingsTask, customersTask, roomsTask, statusesTask);
+            await Task.WhenAll(bookingsTask, queueTask, customersTask, roomsTask, statusesTask);
 
             allBookings = bookingsTask.Result;
+            queueEntries = queueTask.Result;
             customers = customersTask.Result;
             rooms = roomsTask.Result;
             statuses = statusesTask.Result;
@@ -105,51 +124,59 @@ public class BookingController : Controller
                 ? []
                 : allBookings.Where(booking => booking.customer_id == linkedCustomer.id).ToList();
 
+            queueEntries = linkedCustomer is null
+                ? []
+                : queueEntries.Where(entry => entry.customer_id == linkedCustomer.id).ToList();
+
             filters.CustomerId = linkedCustomer?.id;
         }
         else if (!User.IsInRole("ADMIN"))
         {
             allBookings = [];
+            queueEntries = [];
         }
 
-        var filtered = allBookings.AsEnumerable();
+        var allEntries = allBookings.Select(MapSummary).ToList();
+        allEntries.AddRange(MapQueueEntries(queueEntries, allBookings, rooms));
+
+        var filtered = allEntries.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(filters.SearchTerm))
         {
             filtered = filtered.Where(booking =>
-                (booking.reserve_number ?? string.Empty).Contains(filters.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
-                (booking.customer_name ?? string.Empty).Contains(filters.SearchTerm, StringComparison.OrdinalIgnoreCase));
+                (booking.ReserveNumber ?? string.Empty).Contains(filters.SearchTerm, StringComparison.OrdinalIgnoreCase) ||
+                (booking.CustomerName ?? string.Empty).Contains(filters.SearchTerm, StringComparison.OrdinalIgnoreCase));
         }
 
         if (!string.IsNullOrWhiteSpace(filters.ReserveNumber))
         {
             filtered = filtered.Where(booking =>
-                (booking.reserve_number ?? string.Empty).Contains(filters.ReserveNumber, StringComparison.OrdinalIgnoreCase));
+                (booking.ReserveNumber ?? string.Empty).Contains(filters.ReserveNumber, StringComparison.OrdinalIgnoreCase));
         }
 
         if (filters.CustomerId.HasValue)
         {
-            filtered = filtered.Where(booking => booking.customer_id == filters.CustomerId.Value);
+            filtered = filtered.Where(booking => booking.CustomerId == filters.CustomerId.Value);
         }
 
         if (filters.RoomId.HasValue)
         {
-            filtered = filtered.Where(booking => booking.room_id == filters.RoomId.Value);
+            filtered = filtered.Where(booking => booking.RoomId == filters.RoomId.Value);
         }
 
         if (filters.StatusId.HasValue)
         {
-            filtered = filtered.Where(booking => booking.status_id == filters.StatusId.Value);
+            filtered = filtered.Where(booking => booking.StatusId == filters.StatusId.Value);
         }
 
         if (filters.CheckInDate.HasValue)
         {
-            filtered = filtered.Where(booking => booking.check_in.Date == filters.CheckInDate.Value.Date);
+            filtered = filtered.Where(booking => booking.CheckIn.Date == filters.CheckInDate.Value.Date);
         }
 
         var ordered = filtered
-            .OrderByDescending(booking => booking.check_in)
-            .ThenByDescending(booking => booking.id);
+            .OrderByDescending(booking => booking.CheckIn)
+            .ThenByDescending(booking => booking.Id);
 
         var totalMatching = ordered.Count();
         var pageSize = filters.PageSize <= 0 ? 12 : Math.Min(filters.PageSize, 100);
@@ -162,7 +189,6 @@ public class BookingController : Controller
         var list = ordered
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(MapSummary)
             .ToList();
 
         return View("List", new BookingIndexViewModel
@@ -175,10 +201,10 @@ public class BookingController : Controller
             ActiveFilterSummary = BuildFilterSummary(filters, customers, rooms, statuses),
             Stats = new BookingIndexStatsViewModel
             {
-                TotalBookings = allBookings.Count,
+                TotalBookings = allEntries.Count,
                 MatchingBookings = totalMatching,
-                ActiveBookings = allBookings.Count(booking => booking.status_id != 3),
-                TotalRevenue = allBookings.Sum(booking => booking.total_price)
+                ActiveBookings = allEntries.Count(booking => booking.StatusId != 3),
+                TotalRevenue = allEntries.Sum(booking => booking.TotalPrice)
             },
             Pagination = new BookingPaginationViewModel
             {
@@ -887,6 +913,7 @@ public class BookingController : Controller
         return new BookingListItemViewModel
         {
             Id = booking.id,
+            IsQueueRequest = false,
             ReserveNumber = booking.reserve_number ?? "Pending",
             StatusId = booking.status_id,
             StatusName = booking.status_name,
@@ -899,6 +926,56 @@ public class BookingController : Controller
             NightlyRate = booking.nightly_rate,
             TotalPrice = booking.total_price
         };
+    }
+
+    private static IEnumerable<BookingListItemViewModel> MapQueueEntries(
+        IEnumerable<WaitingQueueApiDto> queueEntries,
+        IEnumerable<BookingSummaryDto> bookings,
+        IEnumerable<RoomDto> rooms)
+    {
+        var roomCategoriesById = rooms.ToDictionary(room => room.id, room => room.category_id);
+
+        return queueEntries
+            .Where(entry => !bookings.Any(booking =>
+                booking.status_id == 1
+                && booking.customer_id == entry.customer_id
+                && booking.check_in.Date == entry.requested_check_in.Date
+                && roomCategoriesById.TryGetValue(booking.room_id, out var bookingCategoryId)
+                && bookingCategoryId == entry.room_category_id))
+            .Select(entry => new BookingListItemViewModel
+        {
+            Id = entry.id,
+            WaitingQueueId = entry.id,
+            IsQueueRequest = true,
+            ReserveNumber = string.IsNullOrWhiteSpace(entry.request_number) ? FormatQueueRequestNumber(entry.id) : entry.request_number.Trim(),
+            StatusId = 1,
+            StatusName = "PENDING",
+            CustomerId = entry.customer_id,
+            CustomerName = string.IsNullOrWhiteSpace(entry.customer_name) ? "Unknown" : entry.customer_name,
+            RoomId = 0,
+            RoomNumber = 0,
+            CheckIn = entry.requested_check_in,
+            CheckOut = entry.check_out ?? entry.requested_check_in,
+            NightlyRate = 0,
+            TotalPrice = 0
+        });
+    }
+
+    private async Task<List<WaitingQueueApiDto>> FetchPendingQueueEntriesAsync()
+    {
+        var response = await _httpClient.GetAsync("WaitingQueue/GetAll");
+        response.EnsureSuccessStatusCode();
+
+        var allEntries = await response.Content.ReadFromJsonAsync<List<WaitingQueueApiDto>>(JsonOptions) ?? [];
+        return allEntries
+            .Where(entry => string.Equals(entry.status_name?.Trim(), "PENDING", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private static string FormatQueueRequestNumber(uint id)
+    {
+        var token = unchecked(id * 2654435761u);
+        return $"RQ-{token:X8}";
     }
 
     private static string BuildFilterSummary(

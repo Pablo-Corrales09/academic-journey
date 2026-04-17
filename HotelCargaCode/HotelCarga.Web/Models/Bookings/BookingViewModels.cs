@@ -33,6 +33,8 @@ public class BookingFiltersViewModel
 public class BookingListItemViewModel
 {
     public uint Id { get; init; }
+    public uint? WaitingQueueId { get; init; }
+    public bool IsQueueRequest { get; init; }
     public string ReserveNumber { get; init; } = string.Empty;
     public byte StatusId { get; init; }
     public string StatusName { get; init; } = "Unknown";
