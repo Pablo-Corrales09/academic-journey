@@ -1,0 +1,66 @@
+@model HotelCarga.Models.Users.LoginViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Login";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HotelCarga</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+<body class="auth-page auth-page--login">
+    <main class="auth-stage" role="main">
+        <section class="auth-card auth-card--entrance">
+            <h1 class="auth-card__title" style="text-align: center;">Bienvenido de vuelta</h1>
+            <p class="auth-card__subtitle" style="text-align: center;">Inicia sesión para continuar gestionando reservas.</p>
+
+            @if (TempData["SuccessMessage"] is string successMessage)
+            {
+                <div class="alert alert-success" role="alert">@successMessage</div>
+            }
+
+            <form asp-action="Login" method="post" class="auth-form" novalidate>
+                @Html.AntiForgeryToken()
+                <input asp-for="ReturnUrl" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-group">
+                    <label asp-for="Email">Correo</label>
+                    <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password">Contraseña</label>
+                    <div class="auth-password-wrap">
+                        <input asp-for="Password" class="form-control" autocomplete="current-password" id="login-password" />
+                        <button type="button" class="btn btn-sm auth-password-toggle" data-toggle-password="login-password">ver contraseña</button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group form-check mb-4">
+                    <input asp-for="RememberMe" class="form-check-input" />
+                    <label asp-for="RememberMe" class="form-check-label">Recuerdame</label>
+                </div>
+
+                <div class="auth-actions">
+                    <button type="submit" class="btn btn-primary btn-block">Iniciar sesión</button>
+                    <a asp-action="Register" class="btn btn-outline-light btn-block">Registrarse</a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-link auth-home-link btn-block">Volver al inicio</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+</body>
+</html>

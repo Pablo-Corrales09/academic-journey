@@ -41,6 +41,19 @@ public record SaveUserDto(string username, string email, string password_hash, b
 
 public record UserMutationResponse(uint id, string? message, string? username, string? email, byte? role_id, byte? status_id);
 
+public class ApiRequestException : HttpRequestException
+{
+    public HttpStatusCode HttpStatus { get; }
+    public string? ResponseBody { get; }
+
+    public ApiRequestException(HttpStatusCode statusCode, string message, string? responseBody = null)
+        : base(message, null, statusCode)
+    {
+        HttpStatus = statusCode;
+        ResponseBody = responseBody;
+    }
+}
+
 public interface IUserApiService
 {
     Task<List<UserSummaryDto>> GetAllAsync();
@@ -85,7 +98,7 @@ public class UserApiService : IUserApiService
     public async Task<uint> CreateAsync(SaveUserDto dto)
     {
         var response = await _httpClient.PostAsJsonAsync("User/Create", dto);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, "POST User/Create");
 
         var payload = await response.Content.ReadFromJsonAsync<UserMutationResponse>(JsonOptions)
             ?? throw new InvalidOperationException("User create response was empty.");
@@ -106,13 +119,13 @@ public class UserApiService : IUserApiService
         };
 
         var response = await _httpClient.PutAsJsonAsync("User/Update", request);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, "PUT User/Update");
     }
 
     public async Task DeleteAsync(uint id)
     {
         var response = await _httpClient.DeleteAsync($"User/Delete?id={id}");
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, $"DELETE User/Delete?id={id}");
     }
 
     public async Task<string?> GetUsernameByIdAsync(uint id)
@@ -169,16 +182,36 @@ public class UserApiService : IUserApiService
             return default;
         }
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, $"GET {url}");
         return await response.Content.ReadFromJsonAsync<T>(JsonOptions);
     }
 
     private async Task<T> GetRequiredAsync<T>(string url)
     {
         var response = await _httpClient.GetAsync(url);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, $"GET {url}");
 
         return await response.Content.ReadFromJsonAsync<T>(JsonOptions)
             ?? throw new InvalidOperationException($"A required response for '{url}' was empty.");
+    }
+
+    private static async Task EnsureSuccessWithDetailsAsync(HttpResponseMessage response, string operation)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var body = response.Content is null ? null : await response.Content.ReadAsStringAsync();
+        var trimmedBody = string.IsNullOrWhiteSpace(body)
+            ? null
+            : body.Length > 500
+                ? body[..500]
+                : body;
+
+        throw new ApiRequestException(
+            response.StatusCode,
+            $"{operation} failed with {(int)response.StatusCode} ({response.ReasonPhrase}).",
+            trimmedBody);
     }
 }

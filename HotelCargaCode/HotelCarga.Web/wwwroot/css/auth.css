@@ -1,0 +1,181 @@
+:root {
+    --auth-bg: #081326;
+    --auth-overlay-a: rgba(6, 24, 58, 0.86);
+    --auth-overlay-b: rgba(9, 84, 121, 0.58);
+    --auth-card: rgba(255, 255, 255, 0.13);
+    --auth-card-border: rgba(255, 255, 255, 0.3);
+    --auth-text: #f8fbff;
+    --auth-muted: #d3deeb;
+    --auth-primary: #f28d35;
+    --auth-primary-hover: #db7422;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.auth-page {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--auth-text);
+    font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+    background-image:
+        linear-gradient(132deg, var(--auth-overlay-a), var(--auth-overlay-b)),
+        url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1800&q=80");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    animation: authBackdropFade 1.2s ease-out;
+}
+
+.auth-page--register {
+    background-image:
+        linear-gradient(132deg, rgba(8, 33, 66, 0.87), rgba(10, 116, 135, 0.55)),
+        url("https://images.unsplash.com/photo-1455587734955-081b22074882?auto=format&fit=crop&w=1800&q=80");
+}
+
+.auth-stage {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--auth-card);
+    border: 1px solid var(--auth-card-border);
+    border-radius: 1rem;
+    padding: 1.75rem;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 24px 60px rgba(2, 8, 26, 0.4);
+}
+
+.auth-card--wide {
+    max-width: 920px;
+}
+
+.auth-card--entrance {
+    animation: authCardRise 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.auth-card__brand {
+    text-transform: uppercase;
+    letter-spacing: 0.16rem;
+    font-size: 0.75rem;
+    color: var(--auth-muted);
+}
+
+.auth-card__title {
+    margin: 0.4rem 0 0.3rem;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.auth-card__subtitle {
+    color: var(--auth-muted);
+    margin-bottom: 1rem;
+}
+
+.auth-form label {
+    color: var(--auth-text);
+    font-weight: 600;
+}
+
+.auth-form .form-control {
+    border-radius: 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.93);
+    color: #1a2233;
+}
+
+.auth-password-wrap {
+    position: relative;
+}
+
+.auth-password-wrap .form-control {
+    padding-right: 7rem;
+}
+
+.auth-password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.35rem;
+    transform: translateY(-50%);
+    border-radius: 999px;
+    border: none;
+    background: #264f91;
+    color: #fff;
+}
+
+.auth-password-toggle:hover,
+.auth-password-toggle:focus {
+    background: #1d3f76;
+    color: #fff;
+}
+
+.auth-actions .btn-primary {
+    border: none;
+    background: var(--auth-primary);
+}
+
+.auth-actions .btn-primary:hover,
+.auth-actions .btn-primary:focus {
+    background: var(--auth-primary-hover);
+}
+
+.auth-actions .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.7);
+}
+
+.auth-home-link {
+    color: var(--auth-muted);
+    text-decoration: none;
+}
+
+.auth-home-link:hover,
+.auth-home-link:focus {
+    color: #fff;
+    text-decoration: none;
+}
+
+.auth-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .auth-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-card {
+        padding: 1.3rem;
+    }
+}
+
+@keyframes authBackdropFade {
+    0% {
+        opacity: 0.2;
+        transform: scale(1.03);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes authCardRise {
+    0% {
+        opacity: 0;
+        transform: translateY(42px) scale(0.97);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

@@ -1,8 +1,12 @@
 using HotelCarga.Models.Users;
 using HotelCarga.Web.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Security.Claims;
 
 namespace HotelCarga.Web.Controllers;
 
@@ -11,10 +15,194 @@ public class UserController : Controller
     private const string ApiUnavailableMessage = "User service is unavailable. Start HotelCarga.ApiModel and try again.";
 
     private readonly IUserApiService _service;
+    private readonly ICustomerApiService _customerService;
 
-    public UserController(IUserApiService service)
+    public UserController(IUserApiService service, ICustomerApiService customerService)
     {
         _service = service;
+        _customerService = customerService;
+    }
+
+    [AllowAnonymous]
+    public IActionResult Login(string? returnUrl = null)
+    {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToLocal(returnUrl);
+        }
+
+        return View(new LoginViewModel
+        {
+            ReturnUrl = returnUrl
+        });
+    }
+
+    [AllowAnonymous]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Login(LoginViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            var user = await _service.GetUserWithRoleByEmailAsync(model.Email.Trim());
+            if (user is null || !string.Equals(user.password_hash, model.Password, StringComparison.Ordinal))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid email or password.");
+                return View(model);
+            }
+
+            if (!string.Equals(user.status?.status_name, "Active", StringComparison.OrdinalIgnoreCase))
+            {
+                ModelState.AddModelError(string.Empty, "This account is not active.");
+                return View(model);
+            }
+
+            await SignInUserAsync(user, model.RememberMe);
+            return RedirectToLocal(model.ReturnUrl);
+        }
+        catch (ApiRequestException ex)
+        {
+            ModelState.AddModelError(string.Empty, BuildApiErrorMessage(ex));
+            return View(model);
+        }
+        catch (HttpRequestException)
+        {
+            ModelState.AddModelError(string.Empty, ApiUnavailableMessage);
+            return View(model);
+        }
+    }
+
+    [AllowAnonymous]
+    public IActionResult Register(string? returnUrl = null)
+    {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToLocal(returnUrl);
+        }
+
+        return View(new RegisterCustomerUserViewModel
+        {
+            ReturnUrl = returnUrl
+        });
+    }
+
+    [AllowAnonymous]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Register(RegisterCustomerUserViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        try
+        {
+            if (await _service.EmailExistsAsync(model.Email))
+            {
+                ModelState.AddModelError(nameof(model.Email), "This email is already registered.");
+                return View(model);
+            }
+
+            var documentTask = _customerService.GetByDocumentNumberAsync(model.DocumentNumber.Trim());
+            var phoneTask = _customerService.GetByPhoneAsync(model.Phone.Trim());
+            await Task.WhenAll(documentTask, phoneTask);
+
+            if (documentTask.Result is not null)
+            {
+                ModelState.AddModelError(nameof(model.DocumentNumber), "This document number is already associated to an existing customer.");
+            }
+
+            if (phoneTask.Result is not null)
+            {
+                ModelState.AddModelError(nameof(model.Phone), "This phone number is already associated to an existing customer.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var rolesTask = _service.GetRolesAsync();
+            var statusesTask = _service.GetStatusesAsync();
+            await Task.WhenAll(rolesTask, statusesTask);
+
+            var roles = rolesTask.Result;
+            var statuses = statusesTask.Result;
+
+            var customerRole = roles.FirstOrDefault(role =>
+                string.Equals(role.role_name, "Customer", StringComparison.OrdinalIgnoreCase))
+                ?? roles.FirstOrDefault();
+
+            var activeStatus = statuses.FirstOrDefault(status =>
+                string.Equals(status.status_name, "Active", StringComparison.OrdinalIgnoreCase))
+                ?? statuses.FirstOrDefault();
+
+            if (customerRole is null || activeStatus is null)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to resolve registration defaults. Validate role and status catalogs.");
+                return View(model);
+            }
+
+            var normalizedEmail = model.Email.Trim();
+            var userId = await _service.CreateAsync(new SaveUserDto(
+                normalizedEmail,
+                normalizedEmail,
+                model.Password,
+                customerRole.id,
+                activeStatus.id));
+
+            try
+            {
+                await _customerService.CreateAsync(new SaveCustomerDto(
+                    userId,
+                    model.DocumentNumber.Trim(),
+                    model.FirstName.Trim(),
+                    model.LastName.Trim(),
+                    model.Phone.Trim(),
+                    model.Address.Trim(),
+                    model.City.Trim(),
+                    model.Country.Trim()));
+            }
+            catch
+            {
+                await TryDeleteUserAsync(userId);
+                throw;
+            }
+
+            var createdUser = await _service.GetEditableByIdAsync(userId);
+            if (createdUser is not null)
+            {
+                await SignInUserAsync(createdUser, rememberMe: true);
+            }
+
+            TempData["SuccessMessage"] = "Your account was created successfully.";
+            return RedirectToLocal(model.ReturnUrl);
+        }
+        catch (ApiRequestException ex)
+        {
+            ModelState.AddModelError(string.Empty, BuildApiErrorMessage(ex));
+            return View(model);
+        }
+        catch (HttpRequestException)
+        {
+            ModelState.AddModelError(string.Empty, ApiUnavailableMessage);
+            return View(model);
+        }
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction(nameof(Login));
     }
 
     public async Task<IActionResult> Index(UserFiltersViewModel filters)
@@ -414,6 +602,62 @@ public class UserController : Controller
         {
             return RedirectToIndexWithApiError();
         }
+    }
+
+    private async Task SignInUserAsync(UserEntityDto user, bool rememberMe)
+    {
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, user.id.ToString()),
+            new(ClaimTypes.Name, user.username),
+            new(ClaimTypes.Email, user.email),
+            new(ClaimTypes.Role, user.role?.role_name ?? "Customer"),
+            new("role_id", user.role_id.ToString()),
+            new("status_id", user.status_id.ToString())
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+        var authProperties = new AuthenticationProperties
+        {
+            IsPersistent = rememberMe,
+            AllowRefresh = true,
+            ExpiresUtc = rememberMe
+                ? DateTimeOffset.UtcNow.AddDays(14)
+                : DateTimeOffset.UtcNow.AddHours(8)
+        };
+
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties);
+    }
+
+    private IActionResult RedirectToLocal(string? returnUrl)
+    {
+        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
+
+        return RedirectToAction("Index", "Booking");
+    }
+
+    private async Task TryDeleteUserAsync(uint userId)
+    {
+        try
+        {
+            await _service.DeleteAsync(userId);
+        }
+        catch (HttpRequestException)
+        {
+            // Best-effort rollback if customer creation fails after user creation.
+        }
+    }
+
+    private static string BuildApiErrorMessage(ApiRequestException ex)
+    {
+        var summary = $"User service error {(int)ex.HttpStatus} ({ex.HttpStatus}).";
+        return string.IsNullOrWhiteSpace(ex.ResponseBody)
+            ? summary
+            : $"{summary} Details: {ex.ResponseBody}";
     }
 
     private async Task ValidateUniqueFieldsAsync(UserFormViewModel model, uint? currentId = null)

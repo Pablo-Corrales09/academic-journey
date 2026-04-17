@@ -1,0 +1,100 @@
+@model HotelCarga.Models.Users.RegisterCustomerUserViewModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Register";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - HotelCarga</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+<body class="auth-page auth-page--register">
+    <main class="auth-stage" role="main">
+        <section class="auth-card auth-card--wide auth-card--entrance">
+            <div class="auth-card__brand">HotelCarga</div>
+            <h1 class="auth-card__title">Create Customer Account</h1>
+            <p class="auth-card__subtitle">Single-step registration for both user access and customer profile.</p>
+
+            <form asp-action="Register" method="post" class="auth-form" novalidate>
+                @Html.AntiForgeryToken()
+                <input asp-for="ReturnUrl" type="hidden" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="auth-grid">
+                    <div class="form-group">
+                        <label asp-for="Email"></label>
+                        <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DocumentNumber"></label>
+                        <input asp-for="DocumentNumber" class="form-control" />
+                        <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Password"></label>
+                        <div class="auth-password-wrap">
+                            <input asp-for="Password" class="form-control" autocomplete="new-password" id="register-password" />
+                            <button type="button" class="btn btn-sm auth-password-toggle" data-toggle-password="register-password">See Password</button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword"></label>
+                        <div class="auth-password-wrap">
+                            <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" id="register-confirm-password" />
+                            <button type="button" class="btn btn-sm auth-password-toggle" data-toggle-password="register-confirm-password">See Password</button>
+                        </div>
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="FirstName"></label>
+                        <input asp-for="FirstName" class="form-control" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LastName"></label>
+                        <input asp-for="LastName" class="form-control" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Phone"></label>
+                        <input asp-for="Phone" class="form-control" />
+                        <span asp-validation-for="Phone" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Address"></label>
+                        <input asp-for="Address" class="form-control" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="City"></label>
+                        <input asp-for="City" class="form-control" />
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Country"></label>
+                        <input asp-for="Country" class="form-control" />
+                        <span asp-validation-for="Country" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="auth-actions mt-3">
+                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                    <a asp-action="Login" class="btn btn-outline-light btn-block">Back to Login</a>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.10/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+</body>
+</html>

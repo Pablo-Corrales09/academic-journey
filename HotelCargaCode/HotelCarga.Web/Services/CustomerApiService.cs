@@ -116,7 +116,7 @@ public class CustomerApiService : ICustomerApiService
     public async Task<uint> CreateAsync(SaveCustomerDto dto)
     {
         var response = await _httpClient.PostAsJsonAsync("Customer/Create", dto);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, "POST Customer/Create");
 
         var created = await response.Content.ReadFromJsonAsync<CustomerEntityDto>(JsonOptions)
             ?? throw new InvalidOperationException("Customer create response was empty.");
@@ -139,14 +139,14 @@ public class CustomerApiService : ICustomerApiService
         };
 
         var response = await _httpClient.PutAsJsonAsync("Customer/Update", request);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, "PUT Customer/Update");
         _ = await response.Content.ReadFromJsonAsync<CustomerUpdateEnvelope>(JsonOptions);
     }
 
     public async Task DeleteAsync(uint id)
     {
         var response = await _httpClient.DeleteAsync($"Customer/Delete?id={id}");
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, $"DELETE Customer/Delete?id={id}");
     }
 
     public async Task<List<uint>> GetBookingIdsByCustomerIdAsync(uint customerId)
@@ -172,16 +172,36 @@ public class CustomerApiService : ICustomerApiService
             return default;
         }
 
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, $"GET {url}");
         return await response.Content.ReadFromJsonAsync<T>(JsonOptions);
     }
 
     private async Task<T> GetRequiredAsync<T>(string url)
     {
         var response = await _httpClient.GetAsync(url);
-        response.EnsureSuccessStatusCode();
+        await EnsureSuccessWithDetailsAsync(response, $"GET {url}");
 
         return await response.Content.ReadFromJsonAsync<T>(JsonOptions)
             ?? throw new InvalidOperationException($"A required response for '{url}' was empty.");
+    }
+
+    private static async Task EnsureSuccessWithDetailsAsync(HttpResponseMessage response, string operation)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        var body = response.Content is null ? null : await response.Content.ReadAsStringAsync();
+        var trimmedBody = string.IsNullOrWhiteSpace(body)
+            ? null
+            : body.Length > 500
+                ? body[..500]
+                : body;
+
+        throw new ApiRequestException(
+            response.StatusCode,
+            $"{operation} failed with {(int)response.StatusCode} ({response.ReasonPhrase}).",
+            trimmedBody);
     }
 }

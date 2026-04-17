@@ -134,7 +134,7 @@ public class BookingController : Controller
             .ThenByDescending(booking => booking.id);
 
         var totalMatching = ordered.Count();
-        var pageSize = filters.PageSize <= 0 ? 6 : Math.Min(filters.PageSize, 100);
+        var pageSize = filters.PageSize <= 0 ? 12 : Math.Min(filters.PageSize, 100);
         var totalPages = Math.Max(1, (int)Math.Ceiling(totalMatching / (double)pageSize));
         var page = filters.Page <= 0 ? 1 : Math.Min(filters.Page, totalPages);
 

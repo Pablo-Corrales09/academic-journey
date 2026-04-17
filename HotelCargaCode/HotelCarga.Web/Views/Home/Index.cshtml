@@ -1,8 +1,136 @@
+@model HotelCarga.Web.Models.Home.HomeIndexViewModel
+
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "HotelCarga";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to HotelCarga</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section Styles {
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/home-landing.css" asp-append-version="true" />
+}
+
+<div class="landing-shell">
+    <section class="landing-hero" data-reveal>
+        <div class="landing-hero__media" role="img" aria-label="Hotel lobby and premium suite ambiance"></div>
+        <div class="landing-hero__overlay"></div>
+        <div class="landing-hero__content">
+            <span class="landing-kicker">ESTÁNDAR DE HOSPITALIDAD PREMIUM</span>
+            <h1>Conectamos su descanso con una atención de cinco estrellas</h1>
+            <p>
+                Su próxima gran experiencia comienza aquí. 
+                La combinación perfecta de confort y exclusividad, a solo un clic de de distancia.
+            </p>
+            <div class="landing-hero__actions">
+                <a href="#room-showcase" class="landing-btn landing-btn--ghost">Ver habitaciones</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="room-showcase" class="landing-section" data-reveal>
+        <div class="landing-section__header">
+            <span class="landing-kicker">Habitaciones</span>
+            <h2>Espacios diseñados para su privacidad y descanso</h2>
+        </div>
+
+        @if (!Model.IsApiAvailable)
+        {
+            <div class="landing-empty-state">
+                <h3>Las categorías de habitaciones no están disponibles temporalmente.</h3>
+                <p>Inicie el servicio y actualice esta página para cargar los precios en tiempo real.</p>
+            </div>
+        }
+        else if (Model.RoomCategories.Count == 0)
+        {
+            <div class="landing-empty-state">
+                <h3>No hay habitaciones disponibles.</h3>
+                <p>Por favor, vuelva a consultar más tarde.</p>
+            </div>
+        }
+        else
+        {
+            <div class="landing-room-grid">
+                @foreach (var room in Model.RoomCategories)
+                {
+                    <article class="landing-room-card" data-reveal>
+                        <div class="landing-room-card__image" style="background-image: url('@room.ImageUrl');"></div>
+                        <div class="landing-room-card__body">
+                            <div class="landing-room-card__head">
+                                <span class="landing-chip">@room.CategoryName</span>
+                                <span class="landing-availability">@room.AvailableRooms room(s)</span>
+                            </div>
+                            <p>@room.Description</p>
+                            <div class="landing-rate-block">
+                                <span>Tarifa por noche</span>
+                                <strong>
+                                    @if (room.NightlyRateFrom == room.NightlyRateTo)
+                                    {
+                                        @room.NightlyRateFrom.ToString("C")
+                                    }
+                                    else
+                                    {
+                                        @($"{room.NightlyRateFrom:C} - {room.NightlyRateTo:C}")
+                                    }
+                                </strong>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="landing-section" data-reveal>
+        <div class="landing-section__header">
+            <span class="landing-kicker">COMODIDADES Y SERVICIOS</span>
+            <h2>Todo lo que necesita para una estancia perfecta</h2>
+        </div>
+
+        <div class="landing-service-grid">
+            <article class="landing-service-card" data-reveal>
+                <div class="landing-service-icon">Wi-Fi</div>
+                <h3>Wi-Fi de alta velocidad</h3>
+                <p>Conexión estable y rápida en cada rincón, ideal para videollamadas, trabajo o tus series favoritas.</p>
+            </article>
+            <article class="landing-service-card" data-reveal>
+                <div class="landing-service-icon">Pool</div>
+                <h3>Piscina estilo resort</h3>
+                <p>Espacios acuáticos y zonas de descanso para los huéspedes que buscan relajarse con comodidad.</p>
+            </article>
+            <article class="landing-service-card" data-reveal>
+                <div class="landing-service-icon">Dining</div>
+                <h3>Restaurante gourmet</h3>
+                <p>Cocina local e internacional servida con menús curados y presentación refinada.</p>
+            </article>
+            <article class="landing-service-card" data-reveal>
+                <div class="landing-service-icon">Gym</div>
+                <h3>Gimnasio moderno</h3>
+                <p>Espacio de entrenamiento completamente equipado con horarios extendidos para viajeros enfocados en el bienestar.</p>
+            </article>
+            <article class="landing-service-card" data-reveal>
+                <div class="landing-service-icon">Concierge</div>
+                <h3>Room service 24/7</h3>
+                <p>Soporte continuo para transporte, itinerarios y solicitudes personalizadas de los huéspedes.</p>
+            </article>
+            <article class="landing-service-card" data-reveal>
+                <div class="landing-service-icon">Transfer</div>
+                <h3>Traslados al aeropuerto</h3>
+                <p>Servicio de recogida y traslado coordinado para llegadas y salidas sin contratiempos.</p>
+            </article>
+        </div>
+    </section>
 </div>
+
+<a class="landing-whatsapp-fab"
+   href="https://wa.me/50688888888?text=Hello%20HotelCarga%2C%20I%20need%20booking%20assistance."
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Chat on WhatsApp">
+    WhatsApp
+</a>
+
+@section Scripts {
+    <script src="~/js/home/index.js" asp-append-version="true"></script>
+}

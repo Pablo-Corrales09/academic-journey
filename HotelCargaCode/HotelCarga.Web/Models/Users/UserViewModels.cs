@@ -124,3 +124,78 @@ public class UserLookupResultViewModel
     public UserLookupUserViewModel? UserResult { get; init; }
     public string? NotFoundMessage { get; init; }
 }
+
+public class LoginViewModel
+{
+    [Required]
+    [EmailAddress]
+    [Display(Name = "Email")]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [DataType(DataType.Password)]
+    [Display(Name = "Password")]
+    public string Password { get; set; } = string.Empty;
+
+    [Display(Name = "Remember me")]
+    public bool RememberMe { get; set; }
+
+    public string? ReturnUrl { get; set; }
+}
+
+public class RegisterCustomerUserViewModel
+{
+    [Required]
+    [EmailAddress]
+    [Display(Name = "Email")]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [DataType(DataType.Password)]
+    [StringLength(255, MinimumLength = 6)]
+    [Display(Name = "Password")]
+    public string Password { get; set; } = string.Empty;
+
+    [Required]
+    [DataType(DataType.Password)]
+    [Compare(nameof(Password), ErrorMessage = "Password and confirmation must match.")]
+    [Display(Name = "Confirm password")]
+    public string ConfirmPassword { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Document number")]
+    [StringLength(40)]
+    public string DocumentNumber { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "First name")]
+    [StringLength(80)]
+    public string FirstName { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Last name")]
+    [StringLength(80)]
+    public string LastName { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Phone")]
+    [StringLength(30)]
+    public string Phone { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Address")]
+    [StringLength(180)]
+    public string Address { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "City")]
+    [StringLength(80)]
+    public string City { get; set; } = string.Empty;
+
+    [Required]
+    [Display(Name = "Country")]
+    [StringLength(80)]
+    public string Country { get; set; } = string.Empty;
+
+    public string? ReturnUrl { get; set; }
+}

@@ -3,6 +3,8 @@ using HotelCarga.HotelCarga.DbModel.Entities;
 using HotelCarga.RepositoryModel.Interfaces;
 using HotelCarga.RepositoryModel.Implementations;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,22 @@ builder.Services.AddScoped<HotelCarga.Web.Services.IUserApiService, HotelCarga.W
 builder.Services.AddScoped<HotelCarga.Web.Services.ICustomerApiService, HotelCarga.Web.Services.CustomerApiService>();
 builder.Services.AddScoped<HotelCarga.Web.Services.IBookingApiService, HotelCarga.Web.Services.BookingApiService>();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/User/Login";
+        options.AccessDeniedPath = "/User/Login";
+        options.SlidingExpiration = true;
+        options.ExpireTimeSpan = TimeSpan.FromDays(14);
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -34,6 +52,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

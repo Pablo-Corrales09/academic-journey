@@ -115,14 +115,18 @@ public class UserController : BaseApiController
             var userItem = JsonContext!.users.FirstOrDefault(u => u.username == username);
             if (userItem is null) return NotFound();
             userItem.role = JsonContext.roles.FirstOrDefault(r => r.id == userItem.role_id)!;
-            return Ok(userItem);
+            userItem.status = JsonContext.user_statuses.FirstOrDefault(s => s.id == userItem.status_id)!;
+            userItem.customer = JsonContext.customers.FirstOrDefault(c => c.user_id == userItem.id)!;
+            return Ok(BuildUserAuthResponse(userItem));
         }
 
         if (DbContext is null) return DbBackendMissing();
         var userWithRole = await DbContext.Set<user>()
             .Include(u => u.role)
+            .Include(u => u.status)
+            .Include(u => u.customer)
             .FirstOrDefaultAsync(u => u.username == username);
-        return userWithRole is null ? NotFound() : Ok(userWithRole);
+        return userWithRole is null ? NotFound() : Ok(BuildUserAuthResponse(userWithRole));
     }
 
     [HttpGet("GetUserWithRoleByEmail")]
@@ -133,14 +137,18 @@ public class UserController : BaseApiController
             var userItem = JsonContext!.users.FirstOrDefault(u => u.email == email);
             if (userItem is null) return NotFound();
             userItem.role = JsonContext.roles.FirstOrDefault(r => r.id == userItem.role_id)!;
-            return Ok(userItem);
+            userItem.status = JsonContext.user_statuses.FirstOrDefault(s => s.id == userItem.status_id)!;
+            userItem.customer = JsonContext.customers.FirstOrDefault(c => c.user_id == userItem.id)!;
+            return Ok(BuildUserAuthResponse(userItem));
         }
 
         if (DbContext is null) return DbBackendMissing();
         var userWithRole = await DbContext.Set<user>()
             .Include(u => u.role)
+            .Include(u => u.status)
+            .Include(u => u.customer)
             .FirstOrDefaultAsync(u => u.email == email);
-        return userWithRole is null ? NotFound() : Ok(userWithRole);
+        return userWithRole is null ? NotFound() : Ok(BuildUserAuthResponse(userWithRole));
     }
 
     [HttpGet("UsernameExists")]
@@ -171,6 +179,55 @@ public class UserController : BaseApiController
             role = userItem.role?.role_name ,
             status = userItem.status?.status_name,
             customer = userItem.customer?.id
+        };
+    }
+
+    private static object BuildUserAuthResponse(user userItem)
+    {
+        return new
+        {
+            userItem.id,
+            userItem.username,
+            userItem.email,
+            userItem.password_hash,
+            userItem.role_id,
+            userItem.status_id,
+            userItem.created_at,
+            userItem.updated_at,
+            role = userItem.role is null
+                ? null
+                : new
+                {
+                    userItem.role.id,
+                    userItem.role.role_name,
+                    userItem.role.description,
+                    userItem.role.created_at
+                },
+            status = userItem.status is null
+                ? null
+                : new
+                {
+                    userItem.status.id,
+                    userItem.status.status_name,
+                    userItem.status.description,
+                    userItem.status.created_at
+                },
+            customer = userItem.customer is null
+                ? null
+                : new
+                {
+                    userItem.customer.id,
+                    user_id = userItem.customer.user_id,
+                    document_number = userItem.customer.document_number,
+                    first_name = userItem.customer.first_name,
+                    last_name = userItem.customer.last_name,
+                    phone = userItem.customer.phone,
+                    address = userItem.customer.address,
+                    city = userItem.customer.city,
+                    country = userItem.customer.country,
+                    created_at = userItem.customer.created_at,
+                    updated_at = userItem.customer.updated_at
+                }
         };
     }
 
