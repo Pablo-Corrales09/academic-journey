@@ -98,7 +98,7 @@ namespace HotelCarga.Web.Controllers
 
             if (!string.IsNullOrWhiteSpace(rawDescription))
             {
-                return $"{ToSentenceCase(rawDescription.Trim())} Disfrute una estadia equilibrada con {amenityPreview}.";
+                return $"{ToSentenceCase(rawDescription.Trim())}.  \nDisfrute una estadia equilibrada con {amenityPreview}.";
             }
 
             return $"Habitaciones disenadas para descansar con estilo, integrar productividad y disfrutar una experiencia consistente con {amenityPreview}.";

@@ -52,7 +52,8 @@ public class BookingRepository : IBookingRepository
     {
         IEnumerable<string> results = _context.bookings
             .Where(b => b.check_in < endDate && b.check_out > startDate)
-            .Select(b => b.reserve_number)
+            .Where(b => b.reserve_number != null)
+            .Select(b => b.reserve_number!)
             .ToList();
 
         return Task.FromResult(results);
@@ -62,7 +63,8 @@ public class BookingRepository : IBookingRepository
     {
         IEnumerable<string> results = _context.bookings
             .Where(b => b.check_in.Date == checkInDate.Date)
-            .Select(b => b.reserve_number)
+            .Where(b => b.reserve_number != null)
+            .Select(b => b.reserve_number!)
             .ToList();
 
         return Task.FromResult(results);
@@ -78,7 +80,8 @@ public class BookingRepository : IBookingRepository
     {
         IEnumerable<string> results = _context.bookings
             .Where(b => b.status_id == statusId)
-            .Select(b => b.reserve_number)
+            .Where(b => b.reserve_number != null)
+            .Select(b => b.reserve_number!)
             .ToList();
 
         return Task.FromResult(results);
@@ -88,7 +91,8 @@ public class BookingRepository : IBookingRepository
     {
         IEnumerable<string> results = _context.bookings
             .Where(b => b.customer_id == customerId)
-            .Select(b => b.reserve_number)
+            .Where(b => b.reserve_number != null)
+            .Select(b => b.reserve_number!)
             .ToList();
 
         return Task.FromResult(results);

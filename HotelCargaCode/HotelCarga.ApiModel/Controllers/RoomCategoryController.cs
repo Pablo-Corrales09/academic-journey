@@ -81,17 +81,17 @@ public class RoomCategoryController : BaseApiController
     [HttpGet("GetByDescriptionPartial")]
     public async Task<IActionResult> GetByDescriptionPartial(string description, bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.room_categories.Where(c => c.description.Contains(description)));
+        if (UseJsonBackend(useJson)) return Ok(JsonContext!.room_categories.Where(c => c.description != null && c.description.Contains(description)));
         if (DbContext is null) return DbBackendMissing();
-        return Ok(await DbContext.Set<room_category>().Where(c => c.description.Contains(description)).ToListAsync());
+        return Ok(await DbContext.Set<room_category>().Where(c => c.description != null && c.description.Contains(description)).ToListAsync());
     }
 
     [HttpGet("GetByAmenitiesPartial")]
     public async Task<IActionResult> GetByAmenitiesPartial(string amenities, bool useJson = false)
     {
-        if (UseJsonBackend(useJson)) return Ok(JsonContext!.room_categories.Where(c => c.amenities.Contains(amenities)));
+        if (UseJsonBackend(useJson)) return Ok(JsonContext!.room_categories.Where(c => c.amenities != null && c.amenities.Contains(amenities)));
         if (DbContext is null) return DbBackendMissing();
-        return Ok(await DbContext.Set<room_category>().Where(c => c.amenities.Contains(amenities)).ToListAsync());
+        return Ok(await DbContext.Set<room_category>().Where(c => c.amenities != null && c.amenities.Contains(amenities)).ToListAsync());
     }
 
     [HttpGet("GetRoomNumbersByCategoryName")]

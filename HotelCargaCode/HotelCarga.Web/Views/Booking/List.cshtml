@@ -31,7 +31,7 @@
                 </article>
             </div>
         </div>
-        <div class="user-hero__actions" style="display: flex; justify-content: flex-end;">
+        <div class="user-hero__actions">
         <a asp-action="Index" class="user-button user-button--ghost">
         Volver
     </a>
@@ -105,16 +105,23 @@
         }
         else
         {
-            <div class="user-card-grid">
+            <div class="user-card-grid" style="justify-content: start;">
                 @foreach (var booking in Model.Bookings)
                 {
+                    var bookingStatusClass = booking.StatusName?.Trim().ToUpperInvariant() switch
+                    {
+                        "CANCELED" => "user-status-pill--canceled",
+                        "CONFIRMED" => "user-status-pill--confirmed",
+                        _ => string.Empty
+                    };
+
                     <article class="user-card" data-animate>
                         <div class="user-card__header">
                             <div>
                                 <span class="user-chip">@booking.ReserveNumber</span>
                                 <h3>@booking.CustomerName</h3>
                             </div>
-                            <span class="user-status-pill">@booking.StatusName</span>
+                            <span class="user-status-pill @bookingStatusClass">@booking.StatusName</span>
                         </div>
                         <dl class="user-card__meta">
                             <div>
@@ -134,7 +141,7 @@
                                 <dd>@booking.TotalPrice.ToString("C")</dd>
                             </div>
                         </dl>
-                        <div class="user-card__actions">
+                        <div class="user-card__actions d-flex justify-content-center gap-2">
                             <a asp-action="GetById" asp-route-id="@booking.Id" class="user-button">Open</a>
                             <a asp-action="Update" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button-update">Update</a>
                             <a asp-action="Delete" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button--danger">Cancel</a>

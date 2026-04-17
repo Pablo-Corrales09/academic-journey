@@ -12,19 +12,19 @@ public partial class customer
 
     public uint user_id { get; set; }
 
-    public string document_number { get; set; }
+    public string document_number { get; set; } = string.Empty;
 
-    public string first_name { get; set; }
+    public string first_name { get; set; } = string.Empty;
 
-    public string last_name { get; set; }
+    public string last_name { get; set; } = string.Empty;
 
-    public string phone { get; set; }
+    public string phone { get; set; } = string.Empty;
 
-    public string address { get; set; }
+    public string address { get; set; } = string.Empty;
 
-    public string city { get; set; }
+    public string city { get; set; } = string.Empty;
 
-    public string country { get; set; }
+    public string country { get; set; } = string.Empty;
 
     public DateTime? created_at { get; set; }
 

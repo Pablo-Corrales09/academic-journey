@@ -24,9 +24,9 @@ public partial class waiting_queue
 
     public DateTime? updated_at { get; set; }
 
-    public virtual customer customer { get; set; }
+    public virtual customer customer { get; set; } = null!;
 
-    public virtual room_category room_category { get; set; }
+    public virtual room_category room_category { get; set; } = null!;
 
-    public virtual queue_status status { get; set; }
+    public virtual queue_status status { get; set; } = null!;
 }

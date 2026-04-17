@@ -10,11 +10,11 @@ public partial class user
 {
     public uint id { get; set; }
 
-    public string username { get; set; }
+    public string username { get; set; } = string.Empty;
 
-    public string email { get; set; }
+    public string email { get; set; } = string.Empty;
 
-    public string password_hash { get; set; }
+    public string password_hash { get; set; } = string.Empty;
 
     public byte role_id { get; set; }
 

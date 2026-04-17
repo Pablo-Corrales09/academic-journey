@@ -2,12 +2,10 @@
 
 @{
     ViewData["Title"] = "HotelCarga";
+    ViewData["LandingNav"] = true;
 }
 
 @section Styles {
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/home-landing.css" asp-append-version="true" />
 }
@@ -85,41 +83,33 @@
                 <p>Conexión estable y rápida en cada rincón, ideal para videollamadas, trabajo o tus series favoritas.</p>
             </article>
             <article class="landing-service-card" data-reveal>
-                <div class="landing-service-icon">Pool</div>
+                <div class="landing-service-icon">Piscina</div>
                 <h3>Piscina estilo resort</h3>
                 <p>Espacios acuáticos y zonas de descanso para los huéspedes que buscan relajarse con comodidad.</p>
             </article>
             <article class="landing-service-card" data-reveal>
-                <div class="landing-service-icon">Dining</div>
+                <div class="landing-service-icon">Alimentación</div>
                 <h3>Restaurante gourmet</h3>
                 <p>Cocina local e internacional servida con menús curados y presentación refinada.</p>
             </article>
             <article class="landing-service-card" data-reveal>
-                <div class="landing-service-icon">Gym</div>
+                <div class="landing-service-icon">Gimnasio</div>
                 <h3>Gimnasio moderno</h3>
                 <p>Espacio de entrenamiento completamente equipado con horarios extendidos para viajeros enfocados en el bienestar.</p>
             </article>
             <article class="landing-service-card" data-reveal>
-                <div class="landing-service-icon">Concierge</div>
+                <div class="landing-service-icon">Atención</div>
                 <h3>Room service 24/7</h3>
                 <p>Soporte continuo para transporte, itinerarios y solicitudes personalizadas de los huéspedes.</p>
             </article>
             <article class="landing-service-card" data-reveal>
-                <div class="landing-service-icon">Transfer</div>
+                <div class="landing-service-icon">Traslado</div>
                 <h3>Traslados al aeropuerto</h3>
                 <p>Servicio de recogida y traslado coordinado para llegadas y salidas sin contratiempos.</p>
             </article>
         </div>
     </section>
 </div>
-
-<a class="landing-whatsapp-fab"
-   href="https://wa.me/50688888888?text=Hello%20HotelCarga%2C%20I%20need%20booking%20assistance."
-   target="_blank"
-   rel="noopener noreferrer"
-   aria-label="Chat on WhatsApp">
-    WhatsApp
-</a>
 
 @section Scripts {
     <script src="~/js/home/index.js" asp-append-version="true"></script>

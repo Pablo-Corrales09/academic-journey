@@ -10,9 +10,9 @@ public partial class role
 {
     public byte id { get; set; }
 
-    public string role_name { get; set; }
+    public string role_name { get; set; } = string.Empty;
 
-    public string description { get; set; }
+    public string description { get; set; } = string.Empty;
 
     public DateTime? created_at { get; set; }
 

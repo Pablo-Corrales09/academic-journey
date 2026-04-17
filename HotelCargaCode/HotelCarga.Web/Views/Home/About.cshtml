@@ -2,15 +2,35 @@
     ViewData["Title"] = "About";
 }
 
-<div class="text-center">
-    <h1 class="display-4">About HotelCarga</h1>
-    <p>HotelCarga is an ASP.NET Core MVC project developed in C# using .NET 10.0. This project demonstrates a basic web application structure with a HomeController that handles the Index and About pages. The application features a responsive layout using Bootstrap for navigation and styling.</p>
-    <p>The project includes:</p>
-    <ul class="list-unstyled">
-        <li>ASP.NET Core MVC framework</li>
-        <li>C# programming language</li>
-        <li>.NET 10.0 runtime</li>
-        <li>Bootstrap for responsive design</li>
-        <li>Static file serving</li>
-    </ul>
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell" data-page="about" data-animate>
+    <section class="user-hero user-hero--compact" data-animate>
+        <div class="user-hero__content">
+            <span class="user-eyebrow">HotelCarga Platform</span>
+            <h1>About HotelCarga</h1>
+            <p>Enterprise-style hotel operations built in ASP.NET Core MVC for clean booking, room, customer, and user workflows.</p>
+        </div>
+    </section>
+
+    <section class="user-surface" data-animate>
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Project Overview</span>
+                <h2>Core stack and architecture</h2>
+            </div>
+        </div>
+
+        <p>HotelCarga is an ASP.NET Core MVC project developed in C# using .NET 10.0. This project demonstrates a robust web application structure with reusable UI patterns and API-driven modules.</p>
+        <p>The project includes:</p>
+        <ul class="list-unstyled mb-0">
+            <li>ASP.NET Core MVC framework</li>
+            <li>C# programming language</li>
+            <li>.NET 10.0 runtime</li>
+            <li>Bootstrap for responsive base components</li>
+            <li>Static asset serving for CSS and JavaScript</li>
+        </ul>
+    </section>
 </div>

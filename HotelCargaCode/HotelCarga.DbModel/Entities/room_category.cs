@@ -10,7 +10,7 @@ public partial class room_category
 {
     public byte id { get; set; }
 
-    public string category_name { get; set; }
+    public string category_name { get; set; } = string.Empty;
 
     public string? description { get; set; }
 

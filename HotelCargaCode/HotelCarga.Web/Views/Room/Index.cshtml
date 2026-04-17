@@ -119,13 +119,21 @@
             <div class="room-card-grid">
                 @foreach (var room in Model.Rooms)
                 {
+                    var roomStatusClass = room.StatusName?.Trim().ToUpperInvariant() switch
+                    {
+                        "OCCUPIED" => "room-status-pill--occupied",
+                        "AVAILABLE" => "room-status-pill--available",
+                        "OUT OF ORDER" => "room-status-pill--out-of-order",
+                        _ => string.Empty
+                    };
+
                     <article class="room-card" data-animate>
                         <div class="room-card__header">
                             <div>
                                 <span class="room-chip">Room @room.RoomNumber</span>
                                 <h3>@room.CategoryName</h3>
                             </div>
-                            <span class="room-status-pill">@room.StatusName</span>
+                            <span class="room-status-pill @roomStatusClass">@room.StatusName</span>
                         </div>
                         <dl class="room-card__meta">
                             <div>

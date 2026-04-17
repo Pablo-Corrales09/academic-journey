@@ -94,6 +94,24 @@ public class BookingController : Controller
             });
         }
 
+        if (User.IsInRole("CUSTOMER"))
+        {
+            var currentUsername = User.Identity?.Name;
+            var linkedCustomer = customers.FirstOrDefault(customer =>
+                !string.IsNullOrWhiteSpace(customer.username) &&
+                string.Equals(customer.username, currentUsername, StringComparison.OrdinalIgnoreCase));
+
+            allBookings = linkedCustomer is null
+                ? []
+                : allBookings.Where(booking => booking.customer_id == linkedCustomer.id).ToList();
+
+            filters.CustomerId = linkedCustomer?.id;
+        }
+        else if (!User.IsInRole("ADMIN"))
+        {
+            allBookings = [];
+        }
+
         var filtered = allBookings.AsEnumerable();
 
         if (!string.IsNullOrWhiteSpace(filters.SearchTerm))
@@ -225,16 +243,27 @@ public class BookingController : Controller
                 TempData["SuccessMessage"] = "Cliente agregado. Ahora puedes continuar con la reserva.";
             }
 
+            uint effectiveCustomerId = customerId ?? 0;
+            if (User.IsInRole("CUSTOMER"))
+            {
+                var currentUsername = User.Identity?.Name;
+                var allCustomers = await _customerService.GetAllAsync();
+                var linked = allCustomers.FirstOrDefault(c =>
+                    !string.IsNullOrWhiteSpace(c.username) &&
+                    string.Equals(c.username, currentUsername, StringComparison.OrdinalIgnoreCase));
+                effectiveCustomerId = linked?.id ?? 0;
+            }
+
             return View(await BuildFormModelAsync(new BookingFormViewModel
             {
-                CustomerId = customerId ?? 0,
+                CustomerId = effectiveCustomerId,
                 CheckIn = DateTime.Today,
                 CheckOut = DateTime.Today.AddDays(1),
                 LockCustomerSelection = false,
-                PageTitle = "Create Booking",
-                IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.",
-                SubmitLabel = "Create Booking",
-                HeroEyebrow = "Reservation Intake",
+                PageTitle = "Registro de reservas",
+                IntroText = "Gestione sus reservas facilmente desde una sola ventana",
+                SubmitLabel = "Crear reserva",
+                HeroEyebrow = "Registro de reservas",
                 AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking")
             }));
         }
@@ -259,16 +288,44 @@ public class BookingController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(BookingFormViewModel model, bool addToQueueIfUnavailable = false)
     {
+        bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
         try
         {
+            // CUSTOMER role: auto-assign the logged-in user's customer record
+            if (User.IsInRole("CUSTOMER"))
+            {
+                var currentUsername = User.Identity?.Name;
+                var allCustomers = await _customerService.GetAllAsync();
+                var linkedCustomer = allCustomers.FirstOrDefault(c =>
+                    !string.IsNullOrWhiteSpace(c.username) &&
+                    string.Equals(c.username, currentUsername, StringComparison.OrdinalIgnoreCase));
+
+                if (linkedCustomer is null)
+                {
+                    const string noProfileError = "No hay un perfil de cliente vinculado a su cuenta.";
+                    if (isAjax) return Json(new { success = false, message = noProfileError });
+                    ModelState.AddModelError(string.Empty, noProfileError);
+                    model.PageTitle = "Gestión de reservas";
+                    model.IntroText = "AIngrese los detalles de la estadía y deje que el sistema se encargue del resto.";
+                    model.SubmitLabel = "Crear reserva";
+                    model.HeroEyebrow = "Registro de reservas";
+                    model.LockCustomerSelection = false;
+                    model.AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking");
+                    return View(await BuildFormModelAsync(model));
+                }
+
+                model.CustomerId = linkedCustomer.id;
+                ModelState.Remove(nameof(BookingFormViewModel.CustomerId));
+            }
+
             ValidateDates(model);
 
             if (!ModelState.IsValid)
             {
-                // Debug: Add model state errors to TempData for visibility
                 var errorSummary = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                if (isAjax) return Json(new { success = false, message = errorSummary });
                 TempData["ValidationErrors"] = errorSummary;
-                
                 model.PageTitle = "Create Booking";
                 model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
                 model.SubmitLabel = "Create Booking";
@@ -281,6 +338,8 @@ public class BookingController : Controller
             var id = await _service.CreateAsync(
                 new SaveBookingDto(model.CustomerId, model.RoomId, model.CheckIn, model.CheckOut),
                 addToQueueIfUnavailable);
+
+            if (isAjax) return Json(new { success = true, redirectUrl = Url.Action(nameof(List)) });
             TempData["SuccessMessage"] = "Booking created successfully.";
             return RedirectToAction(nameof(Details), new { id });
         }
@@ -288,9 +347,15 @@ public class BookingController : Controller
         {
             if (IsQueueAddedMessage(ex.Message))
             {
+                if (isAjax) return Json(new { success = true, queued = true, message = ex.Message, redirectUrl = Url.Action(nameof(List)) });
                 TempData["SuccessMessage"] = ex.Message;
                 return RedirectToAction(nameof(Create), new { customerId = model.CustomerId });
             }
+
+            if (isAjax && IsScheduleConflictMessage(ex.Message))
+                return Json(new { success = false, unavailable = true, message = ex.Message });
+
+            if (isAjax) return Json(new { success = false, message = ex.Message });
 
             ModelState.AddModelError(string.Empty, ex.Message);
             if (IsScheduleConflictMessage(ex.Message))
@@ -308,6 +373,7 @@ public class BookingController : Controller
         }
         catch (HttpRequestException ex)
         {
+            if (isAjax) return Json(new { success = false, message = $"API Error: {ex.Message}" });
             ModelState.AddModelError(string.Empty, $"API Error: {ex.Message}");
             model.PageTitle = "Create Booking";
             model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
@@ -319,6 +385,7 @@ public class BookingController : Controller
         }
         catch (Exception ex)
         {
+            if (isAjax) return Json(new { success = false, message = $"Booking creation failed: {ex.Message}" });
             ModelState.AddModelError(string.Empty, $"Booking creation failed: {ex.Message}");
             model.PageTitle = "Create Booking";
             model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";

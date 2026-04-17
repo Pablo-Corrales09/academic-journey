@@ -18,5 +18,5 @@ public partial class room_availability
 
     public DateTime? creation_at { get; set; }
 
-    public virtual room room { get; set; }
+    public virtual room room { get; set; } = null!;
 }

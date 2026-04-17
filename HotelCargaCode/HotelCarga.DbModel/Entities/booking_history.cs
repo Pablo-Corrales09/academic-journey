@@ -22,7 +22,7 @@ public partial class booking_history
 
     public byte status_id { get; set; }
 
-    public string action_type { get; set; }
+    public string action_type { get; set; } = string.Empty;
 
     public decimal? nightly_rate { get; set; }
 
@@ -30,11 +30,11 @@ public partial class booking_history
 
     public DateTime? created_at { get; set; }
 
-    public virtual booking booking { get; set; }
+    public virtual booking booking { get; set; } = null!;
 
-    public virtual customer customer { get; set; }
+    public virtual customer customer { get; set; } = null!;
 
-    public virtual room room { get; set; }
+    public virtual room room { get; set; } = null!;
 
-    public virtual booking_status status { get; set; }
+    public virtual booking_status status { get; set; } = null!;
 }

@@ -159,9 +159,9 @@ public class WaitingQueueNotification
 {
     public uint WaitingQueueId { get; set; }
     public uint CustomerId { get; set; }
-    public string CustomerName { get; set; }
+    public string CustomerName { get; set; } = string.Empty;
     public byte RoomCategoryId { get; set; }
-    public string RoomCategoryName { get; set; }
+    public string RoomCategoryName { get; set; } = string.Empty;
     public DateTime RequestedCheckIn { get; set; }
     public DateTime RequestedCheckOut { get; set; }
     public int Position { get; set; } // Position in FIFO queue

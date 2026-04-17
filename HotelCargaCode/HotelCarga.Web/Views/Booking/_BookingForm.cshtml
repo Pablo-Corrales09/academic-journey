@@ -1,10 +1,10 @@
+@using HotelCarga.HotelCarga.DbModel.Entities
 @model HotelCarga.Models.Bookings.BookingFormViewModel
 
 <section class="user-surface" data-animate>
     <div class="user-surface__header">
         <div>
-            <span class="user-section-tag">Reservation Form</span>
-            <h2>@Model.PageTitle</h2>
+            <h2 style="margin-left: 20px;">Información de la reserva</h2>
         </div>
         <p>@Model.IntroText</p>
     </div>
@@ -21,95 +21,103 @@
         </div>
     }
 
-    <form asp-action="@ViewContext.RouteData.Values["action"]" asp-route-id="@Model.Id" method="post" class="user-form-grid">
+    <form id="booking-form" asp-action="@ViewContext.RouteData.Values["action"]" asp-route-id="@Model.Id" method="post" class="p-4">
         <input type="hidden" asp-for="Id" />
         @Html.AntiForgeryToken()
-        <div asp-validation-summary="All" class="user-validation"></div>
+        <div asp-validation-summary="All" class="user-validation mb-3"></div>
 
         @if (!string.IsNullOrWhiteSpace(Model.CurrentReserveNumber))
         {
-            <div class="user-detail-card booking-inline-card">
-                <span>Reserve Number</span>
+            <div class="user-detail-card booking-inline-card mb-3">
+                <span>Número de reserva</span>
                 <strong>@Model.CurrentReserveNumber</strong>
-                <p>Status: @Model.CurrentStatusName</p>
+                <p>Estado: @Model.CurrentStatusName</p>
             </div>
         }
 
-        <div class="user-field user-field--wide">
-            <h3>Select the Room</h3>
-            <p class="user-helper">Choose room type and booking schedule. Room options include nightly rate.</p>
-        </div>
+        <div class="row">
+            <div class="col-12 mb-2">
+                <h3 class="mb-1">Seleccione una habitación</h3>
+                <p class="user-helper mb-0">Seleccione el tipo de habitación y el horario de la reserva.</p>
+            </div>
 
-        <div class="user-field">
-            <label asp-for="RoomId"></label>
-            <select asp-for="RoomId" asp-items="Model.RoomOptions" class="user-input"></select>
-            <span asp-validation-for="RoomId" class="text-danger"></span>
-        </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="RoomId">Habitación</label>
+                <select asp-for="RoomId" asp-items="Model.RoomOptions" class="user-input"></select>
+                <span asp-validation-for="RoomId" class="text-danger"></span>
+            </div>
 
-        <div class="user-field">
-            <label asp-for="CheckIn"></label>
-            <input asp-for="CheckIn" class="user-input" />
-            <span asp-validation-for="CheckIn" class="text-danger"></span>
-        </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="CheckIn"></label>
+                <input asp-for="CheckIn" class="user-input" />
+                <span asp-validation-for="CheckIn" class="text-danger"></span>
+            </div>
 
-        <div class="user-field">
-            <label asp-for="CheckOut"></label>
-            <input asp-for="CheckOut" class="user-input" />
-            <span asp-validation-for="CheckOut" class="text-danger"></span>
-        </div>
+            <div class="col-md-3 mb-3">
+                <label asp-for="CheckOut"></label>
+                <input asp-for="CheckOut" class="user-input" />
+                <span asp-validation-for="CheckOut" class="text-danger"></span>
+            </div>
+            @{if(User.IsInRole("ADMIN")){          
+            <div class="col-12 mt-2 mb-2">
+                <h3 class="mb-1">Información del Cliente</h3>
+            </div>
+            }}
 
-        <div class="user-field user-field--wide">
-            <h3>Client Information</h3>
-            <p class="user-helper">Select an existing customer or add one on the fly and come back to assign it to this booking.</p>
-        </div>
-
-        <div class="user-field">
-            <label asp-for="CustomerId"></label>
-            @if (Model.LockCustomerSelection)
+            @if (User.IsInRole("CUSTOMER"))
             {
-                <select asp-for="CustomerId" asp-items="Model.CustomerOptions" class="user-input" disabled></select>
                 <input asp-for="CustomerId" type="hidden" />
-                <small class="user-helper">Customer assignment is read-only here because the Booking API update flow only changes room and stay dates.</small>
             }
             else
             {
-                <select asp-for="CustomerId" asp-items="Model.CustomerOptions" class="user-input"></select>
+                <div class="col-md-7 mb-3">
+                    <label asp-for="CustomerId">Cliente</label>
+                    @if (Model.LockCustomerSelection)
+                    {
+                        <select asp-for="CustomerId" asp-items="Model.CustomerOptions" class="user-input" disabled></select>
+                        <input asp-for="CustomerId" type="hidden" />
+                        
+                    }
+                    else
+                    {
+                        <select asp-for="CustomerId" asp-items="Model.CustomerOptions" class="user-input"></select>
+                    }
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                </div>
             }
-            <span asp-validation-for="CustomerId" class="text-danger"></span>
-        </div>
 
-        @if (!Model.LockCustomerSelection)
-        {
-            <div class="user-field">
-                <label>Add Customer</label>
-                <a asp-action="StartAddCustomerFlow" class="user-button user-button--ghost">
-                    Add Customer
-                </a>
-                <small class="user-helper">Flow: create User first, then create Customer linked to that User, then return to booking.</small>
-            </div>
-        }
+            @if (!Model.LockCustomerSelection && !User.IsInRole("CUSTOMER"))
+            {
+                <div class="col-md-5 mb-3 d-flex flex-column justify-content-end">
+                    <a asp-action="StartAddCustomerFlow" class="user-button user-button--ghost text-center mb-2">
+                        Añadir cliente
+                    </a>                  
+              </div>
+            }
+            <small class="user-helper" style="margin-left: 20px ;">Seleccione "añadir cliente" para agregar un cliente nuevo a la reserva.</small>
+        </div>
 
         @if (Model.CurrentNightlyRate > 0)
         {
-            <div class="user-detail-grid user-detail-grid--two booking-form-metrics">
-                <article class="user-detail-card">
-                    <span>Nightly Rate</span>
-                    <strong>@Model.CurrentNightlyRate.ToString("C")</strong>
-                </article>
-                <article class="user-detail-card">
-                    <span>Current Total</span>
-                    <strong>@Model.CurrentTotalPrice.ToString("C")</strong>
-                </article>
+            <div class="row booking-form-metrics mb-3">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <article class="user-detail-card h-100">
+                        <span>Nightly Rate</span>
+                        <strong>@Model.CurrentNightlyRate.ToString("C")</strong>
+                    </article>
+                </div>
+                <div class="col-md-6">
+                    <article class="user-detail-card h-100">
+                        <span>Current Total</span>
+                        <strong>@Model.CurrentTotalPrice.ToString("C")</strong>
+                    </article>
+                </div>
             </div>
         }
 
-        <div class="user-form-actions">
-            <button type="submit" class="user-button">@Model.SubmitLabel</button>
-            @if (Model.ShowNoAvailabilityPrompt)
-            {
-                <button type="submit" name="addToQueueIfUnavailable" value="true" class="user-button user-button--ghost">Add To Queue</button>
-            }
-            <a asp-action="Index" class="user-button user-button--ghost">Cancel</a>
+        <div class="user-form-actions d-flex justify-content-between w-100 mt-4">
+            <button type="submit" id="booking-submit-btn" class="user-button">@Model.SubmitLabel</button>
+            <a asp-action="Index" class="user-button user-button--ghost">Cancelar</a>
         </div>
     </form>
 </section>

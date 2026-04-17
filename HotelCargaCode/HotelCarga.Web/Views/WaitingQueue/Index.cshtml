@@ -1,0 +1,340 @@
+@{
+    ViewData["Title"] = "Waiting Queue";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+}
+
+<div class="user-shell booking-shell" data-page="waiting-queue-index">
+    <section class="user-hero" data-animate>
+        <div class="user-hero__content">
+            <h1>Waiting Queue Management</h1>
+            <p>Consulta, crea, actualiza, procesa y elimina registros de cola en tiempo real.</p>
+            <div class="d-flex flex-wrap gap-3 mt-3">
+                <button type="button" class="user-button" data-run-endpoint="GetAll">Cargar cola</button>
+                <button type="button" class="user-button user-button--ghost" data-run-endpoint="GetAllQueues">GetAllQueues</button>
+                <button type="button" class="user-button user-button--ghost" data-run-endpoint="GetNotifiedQueueFIFO">GetNotifiedQueueFIFO</button>
+                <a asp-controller="Booking" asp-action="List" class="user-button user-button--ghost">Ver reservas</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="card mb-3" data-animate>
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-3">
+                <div>
+                    <h2 class="mb-1">General Options</h2>
+                    <p class="mb-0 text-muted">Configura cómo consultar el backend de cola.</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="checkbox" id="use-json-backend" />
+                        <label class="form-check-label" for="use-json-backend">Use JSON backend</label>
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary" id="clear-results-btn">Limpiar resultados</button>
+                </div>
+            </div>
+            <div id="queue-feedback" class="alert d-none mb-0" role="alert"></div>
+        </div>
+    </section>
+
+    <section class="card mb-3" data-animate>
+        <div class="card-body p-4">
+            <div class="mb-3">
+                <h2 class="mb-1">Create / Update / Delete</h2>
+                <p class="mb-0 text-muted">Operaciones CRUD completas para WaitingQueue.</p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-xl-6">
+                    <form id="create-form" class="border rounded p-3 h-100">
+                        <h3 class="h5 mb-3">Create</h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="create-customer-id" class="form-label">Customer Id</label>
+                                <input id="create-customer-id" class="form-control" type="number" min="1" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="create-room-category-id" class="form-label">Room Category Id</label>
+                                <input id="create-room-category-id" class="form-control" type="number" min="1" max="255" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="create-status-id" class="form-label">Status Id</label>
+                                <input id="create-status-id" class="form-control" type="number" min="1" max="255" value="1" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="create-requested-check-in" class="form-label">Requested Check In</label>
+                                <input id="create-requested-check-in" class="form-control" type="datetime-local" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="create-check-out" class="form-label">Check Out (optional)</label>
+                                <input id="create-check-out" class="form-control" type="datetime-local" />
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-3 mt-2">
+                            <button type="submit" class="user-button">Crear en cola</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <form id="update-form" class="border rounded p-3 h-100">
+                        <h3 class="h5 mb-3">Update</h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="update-id" class="form-label">Queue Id</label>
+                                <input id="update-id" class="form-control" type="number" min="1" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="update-customer-id" class="form-label">Customer Id</label>
+                                <input id="update-customer-id" class="form-control" type="number" min="1" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="update-room-category-id" class="form-label">Room Category Id</label>
+                                <input id="update-room-category-id" class="form-control" type="number" min="1" max="255" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="update-status-id" class="form-label">Status Id</label>
+                                <input id="update-status-id" class="form-control" type="number" min="1" max="255" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="update-requested-check-in" class="form-label">Requested Check In</label>
+                                <input id="update-requested-check-in" class="form-control" type="datetime-local" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="update-check-out" class="form-label">Check Out (optional)</label>
+                                <input id="update-check-out" class="form-control" type="datetime-local" />
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-3 mt-2">
+                            <button type="submit" class="user-button">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12">
+                    <form id="delete-form" class="border rounded p-3">
+                        <div class="d-flex flex-column flex-md-row align-items-md-end gap-3">
+                            <div class="flex-grow-1">
+                                <label for="delete-id" class="form-label">Queue Id to Delete</label>
+                                <input id="delete-id" class="form-control" type="number" min="1" required />
+                            </div>
+                            <div class="d-flex justify-content-end gap-3">
+                                <button type="button" id="delete-open-modal-btn" class="user-button user-button--ghost user-button--danger">Eliminar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card mb-3" data-animate>
+        <div class="card-body p-4">
+            <div class="mb-3">
+                <h2 class="mb-1">Query Endpoints</h2>
+                <p class="mb-0 text-muted">Acceso directo para todos los endpoints de consulta del controlador.</p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-xl-6">
+                    <form id="get-by-id-form" class="border rounded p-3 h-100">
+                        <h3 class="h6 mb-3">GetById</h3>
+                        <div class="mb-3">
+                            <label for="query-id" class="form-label">Queue Id</label>
+                            <input id="query-id" class="form-control" type="number" min="1" required />
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="submit" class="btn btn-outline-primary">Consultar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <form id="get-categories-by-customer-form" class="border rounded p-3 h-100">
+                        <h3 class="h6 mb-3">GetCategoriesByCustomerId</h3>
+                        <div class="mb-3">
+                            <label for="categories-customer-id" class="form-label">Customer Id</label>
+                            <input id="categories-customer-id" class="form-control" type="number" min="1" required />
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="submit" class="btn btn-outline-primary">Consultar categorías</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <form id="related-by-customer-form" class="border rounded p-3 h-100">
+                        <h3 class="h6 mb-3">GetWithRelatedEntitiesByCustomerId</h3>
+                        <div class="mb-3">
+                            <label for="related-customer-id" class="form-label">Customer Id</label>
+                            <input id="related-customer-id" class="form-control" type="number" min="1" required />
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="submit" class="btn btn-outline-primary">Consultar relacionados</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <form id="categories-by-status-form" class="border rounded p-3 h-100">
+                        <h3 class="h6 mb-3">GetCategoriesByQueueStatusName</h3>
+                        <div class="mb-3">
+                            <label for="category-status-name" class="form-label">Status Name</label>
+                            <input id="category-status-name" class="form-control" type="text" placeholder="PENDING" required />
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="submit" class="btn btn-outline-primary">Consultar categorías</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <form id="with-customer-by-status-form" class="border rounded p-3 h-100">
+                        <h3 class="h6 mb-3">GetWithCustomerByQueueStatusName</h3>
+                        <div class="mb-3">
+                            <label for="with-customer-status-name" class="form-label">Status Name</label>
+                            <input id="with-customer-status-name" class="form-control" type="text" placeholder="NOTIFIED" required />
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="submit" class="btn btn-outline-primary">Consultar cola por estado</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <form id="fifo-by-category-form" class="border rounded p-3 h-100">
+                        <h3 class="h6 mb-3">GetFIFOQueueByRoomCategory</h3>
+                        <div class="mb-3">
+                            <label for="fifo-category-id" class="form-label">Room Category Id</label>
+                            <input id="fifo-category-id" class="form-control" type="number" min="1" max="255" required />
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="submit" class="btn btn-outline-primary">Consultar FIFO</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <form id="fifo-by-category-date-form" class="border rounded p-3 h-100">
+                        <h3 class="h6 mb-3">GetFIFOQueueByRoomCategoryAndDateRange</h3>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="fifo-range-category-id" class="form-label">Category Id</label>
+                                <input id="fifo-range-category-id" class="form-control" type="number" min="1" max="255" required />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="fifo-check-in" class="form-label">Check In</label>
+                                <input id="fifo-check-in" class="form-control" type="datetime-local" required />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="fifo-check-out" class="form-label">Check Out</label>
+                                <input id="fifo-check-out" class="form-control" type="datetime-local" required />
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="submit" class="btn btn-outline-primary">Consultar FIFO por rango</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <form id="count-pending-form" class="border rounded p-3 h-100">
+                        <h3 class="h6 mb-3">CountPendingByRoomCategory</h3>
+                        <div class="mb-3">
+                            <label for="count-pending-category-id" class="form-label">Room Category Id</label>
+                            <input id="count-pending-category-id" class="form-control" type="number" min="1" max="255" required />
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="submit" class="btn btn-outline-primary">Contar pendientes</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                    <form id="process-next-form" class="border rounded p-3 h-100">
+                        <h3 class="h6 mb-3">Process Next Queue Item (FIFO)</h3>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="process-category-id" class="form-label">Room Category Id</label>
+                                <input id="process-category-id" class="form-control" type="number" min="1" max="255" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="process-target-status" class="form-label">Target Status Id</label>
+                                <input id="process-target-status" class="form-control" type="number" min="1" max="255" value="2" required />
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="submit" class="btn btn-outline-primary">Procesar siguiente</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card mb-3" data-animate>
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-3">
+                <div>
+                    <h2 class="mb-1">Queue Results</h2>
+                    <p class="mb-0 text-muted">Visualiza la cola y los resultados de cada endpoint.</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span id="result-source" class="user-chip">No data</span>
+                </div>
+            </div>
+
+            <div class="table-responsive mb-3">
+                <table class="table table-sm table-hover align-middle mb-0" id="queue-table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Id</th>
+                            <th>Customer</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Requested Check In</th>
+                            <th>Check Out</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queue-table-body">
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">Sin registros para mostrar.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div>
+                <h3 class="h6 mb-2">Raw JSON</h3>
+                <pre id="raw-response" class="border rounded p-3 mb-0" style="max-height: 320px; overflow:auto; background: #f8fafc;">[]</pre>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/waitingqueue/index.js" asp-append-version="true"></script>
+}
+
+<div class="modal fade" id="waitingQueueDeleteModal" tabindex="-1" role="dialog" aria-labelledby="waitingQueueDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="waitingQueueDeleteModalLabel">Confirmar eliminación</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="waitingQueueDeleteModalMessage">
+                ¿Desea eliminar este elemento de la cola?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
