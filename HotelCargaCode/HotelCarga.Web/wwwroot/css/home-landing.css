@@ -204,10 +204,18 @@
     border-radius: var(--radius-main, 12px);
     overflow: hidden;
     background: #fff;
+    border: 1px solid rgba(148, 163, 184, 0.18);
     box-shadow: var(--shadow-lg, 0 8px 24px rgba(15, 23, 42, 0.1));
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.landing-room-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(15, 118, 110, 0.28);
+    box-shadow: 0 22px 42px rgba(15, 23, 42, 0.14);
 }
 
 .landing-room-card__image {
@@ -221,6 +229,12 @@
     display: flex;
     flex-direction: column;
     gap: 0.7rem;
+}
+
+.landing-room-card__amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
 }
 
 .landing-room-card__head {
@@ -247,6 +261,18 @@
     color: #475569;
     font-weight: 600;
     font-size: 0.86rem;
+    text-align: right;
+}
+
+.landing-amenity {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.32rem 0.65rem;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 0.76rem;
+    font-weight: 700;
 }
 
 .landing-rate-block {
@@ -277,6 +303,80 @@
 
 .landing-empty-state h3 {
     color: #0f172a;
+}
+
+.landing-loading-state {
+    display: grid;
+    justify-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    color: #475569;
+}
+
+.landing-loading-state__spinner {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    border: 3px solid rgba(15, 118, 110, 0.18);
+    border-top-color: var(--color-primary, #0f766e);
+    animation: landingSpin 0.8s linear infinite;
+}
+
+.landing-room-grid--skeleton .landing-room-card {
+    pointer-events: none;
+}
+
+.landing-room-card--skeleton {
+    border-color: rgba(226, 232, 240, 0.9);
+    box-shadow: none;
+}
+
+.landing-skeleton-block,
+.landing-skeleton-line,
+.landing-skeleton-chip {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+    background-size: 200% 100%;
+    animation: landingShimmer 1.4s infinite;
+}
+
+.landing-skeleton-line {
+    display: block;
+    width: 100%;
+    height: 0.9rem;
+    border-radius: 999px;
+}
+
+.landing-skeleton-line--sm {
+    width: 8.5rem;
+}
+
+.landing-skeleton-line--lg {
+    width: 76%;
+}
+
+.landing-skeleton-chip {
+    display: inline-flex;
+    width: 6.5rem;
+    height: 1.75rem;
+    border-radius: 999px;
+}
+
+@keyframes landingShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@keyframes landingSpin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .landing-service-grid {

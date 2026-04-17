@@ -33,53 +33,43 @@
         <div class="landing-section__header">
             <span class="landing-kicker">Habitaciones</span>
             <h2>Espacios diseñados para su privacidad y descanso</h2>
+            <p>Disponibilidad, tarifas y amenidades cargadas dinámicamente desde la API para una experiencia comercial más precisa.</p>
         </div>
 
-        @if (!Model.IsApiAvailable)
-        {
-            <div class="landing-empty-state">
-                <h3>Las categorías de habitaciones no están disponibles temporalmente.</h3>
-                <p>Inicie el servicio y actualice esta página para cargar los precios en tiempo real.</p>
+        <div id="room-showcase-content"
+             class="landing-room-showcase"
+             data-room-showcase-url="@Url.Action("RoomShowcase", "Home")"
+             aria-live="polite">
+            <div class="landing-loading-state" data-room-loading>
+                <div class="landing-loading-state__spinner" aria-hidden="true"></div>
+                <p>Cargando habitaciones destacadas...</p>
             </div>
-        }
-        else if (Model.RoomCategories.Count == 0)
-        {
-            <div class="landing-empty-state">
-                <h3>No hay habitaciones disponibles.</h3>
-                <p>Por favor, vuelva a consultar más tarde.</p>
-            </div>
-        }
-        else
-        {
-            <div class="landing-room-grid">
-                @foreach (var room in Model.RoomCategories)
+            <div class="landing-room-grid landing-room-grid--skeleton" data-room-skeleton>
+                @for (var i = 0; i < 3; i++)
                 {
-                    <article class="landing-room-card" data-reveal>
-                        <div class="landing-room-card__image" style="background-image: url('@room.ImageUrl');"></div>
+                    <article class="landing-room-card landing-room-card--skeleton" aria-hidden="true">
+                        <div class="landing-room-card__image landing-skeleton-block"></div>
                         <div class="landing-room-card__body">
                             <div class="landing-room-card__head">
-                                <span class="landing-chip">@room.CategoryName</span>
-                                <span class="landing-availability">@room.AvailableRooms room(s)</span>
+                                <span class="landing-chip landing-skeleton-chip"></span>
+                                <span class="landing-availability landing-skeleton-line landing-skeleton-line--sm"></span>
                             </div>
-                            <p>@room.Description</p>
+                            <div class="landing-skeleton-line"></div>
+                            <div class="landing-skeleton-line landing-skeleton-line--lg"></div>
+                            <div class="landing-room-card__amenities">
+                                <span class="landing-amenity landing-skeleton-chip"></span>
+                                <span class="landing-amenity landing-skeleton-chip"></span>
+                                <span class="landing-amenity landing-skeleton-chip"></span>
+                            </div>
                             <div class="landing-rate-block">
-                                <span>Tarifa por noche</span>
-                                <strong>
-                                    @if (room.NightlyRateFrom == room.NightlyRateTo)
-                                    {
-                                        @room.NightlyRateFrom.ToString("C")
-                                    }
-                                    else
-                                    {
-                                        @($"{room.NightlyRateFrom:C} - {room.NightlyRateTo:C}")
-                                    }
-                                </strong>
+                                <span class="landing-skeleton-line landing-skeleton-line--sm"></span>
+                                <strong class="landing-skeleton-line landing-skeleton-line--sm"></strong>
                             </div>
                         </div>
                     </article>
                 }
             </div>
-        }
+        </div>
     </section>
 
     <section class="landing-section" data-reveal>

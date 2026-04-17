@@ -14,4 +14,6 @@ public class HomeRoomCategoryCardViewModel
     public decimal NightlyRateFrom { get; init; }
     public decimal NightlyRateTo { get; init; }
     public int AvailableRooms { get; init; }
+    public string AvailabilityLabel { get; init; } = string.Empty;
+    public List<string> Amenities { get; init; } = [];
 }
