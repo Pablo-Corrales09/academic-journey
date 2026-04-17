@@ -10,35 +10,32 @@
 
 <div class="user-shell booking-shell" data-page="booking-list">
     <section class="user-hero" data-animate>
-        <div class="user-hero__content">
-            <span class="user-eyebrow">Booking Ledger</span>
-            <h1>Check all bookings</h1>
-            <p>Review reservations with filters and search by reserve number or customer name.</p>
-            <div class="user-hero__actions">
-                <a asp-action="Create" class="user-button">Create Booking</a>
-                <a asp-action="Index" class="user-button user-button--ghost">Back to Booking Home</a>
-            </div>
+        <div class="user-hero__content">           
+            <h1>Gestión de reservas</h1>
+            <p>Administra y encuentra reservas mediante filtros o búsqueda.</p>
+            
         </div>
         <div class="user-hero__panel">
             <div class="user-stat-grid">
                 <article class="user-stat-card">
-                    <span>Total bookings</span>
+                    <span>Cantidad de reservas</span>
                     <strong>@Model.Stats.TotalBookings</strong>
                 </article>
                 <article class="user-stat-card">
-                    <span>Matching bookings</span>
-                    <strong>@Model.Stats.MatchingBookings</strong>
-                </article>
-                <article class="user-stat-card">
-                    <span>Active bookings</span>
+                    <span>Reservas activas</span>
                     <strong>@Model.Stats.ActiveBookings</strong>
                 </article>
                 <article class="user-stat-card">
-                    <span>Total revenue</span>
+                    <span>Ingresos totales</span>
                     <strong>@Model.Stats.TotalRevenue.ToString("C")</strong>
                 </article>
             </div>
         </div>
+        <div class="user-hero__actions" style="display: flex; justify-content: flex-end;">
+        <a asp-action="Index" class="user-button user-button--ghost">
+        Volver
+    </a>
+</div>
     </section>
 
     @if (TempData["SuccessMessage"] is string successMessage)
@@ -54,46 +51,29 @@
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Search & Filter</span>
-                <h2>Locate reservations fast</h2>
+                <h2>Búsqueda rápida de reservas</h2>
             </div>
-            <p>@Model.ActiveFilterSummary</p>
         </div>
 
         <form asp-action="List" method="get" class="user-filter-grid">
             <input type="hidden" name="Page" value="1" />
             <div class="user-field user-field--wide">
-                <label asp-for="Filters.SearchTerm"></label>
-                <input asp-for="Filters.SearchTerm" class="user-input" placeholder="Reserve number or customer name" />
+                <label asp-for="Filters.SearchTerm">Busqueda rápida</label>
+                <input asp-for="Filters.SearchTerm" class="user-input" placeholder="Número de reserva o nombre del cliente" />
             </div>
-            <div class="user-field">
-                <label asp-for="Filters.ReserveNumber"></label>
-                <input asp-for="Filters.ReserveNumber" class="user-input" />
-            </div>
-            <div class="user-field">
-                <label asp-for="Filters.CustomerId"></label>
-                <select asp-for="Filters.CustomerId" asp-items="Model.CustomerOptions" class="user-input">
-                    <option value="">All customers</option>
-                </select>
-            </div>
-            <div class="user-field">
-                <label asp-for="Filters.RoomId"></label>
-                <select asp-for="Filters.RoomId" asp-items="Model.RoomOptions" class="user-input">
-                    <option value="">All rooms</option>
-                </select>
-            </div>
+
             <div class="user-field">
                 <label asp-for="Filters.StatusId"></label>
                 <select asp-for="Filters.StatusId" asp-items="Model.StatusOptions" class="user-input">
-                    <option value="">All statuses</option>
+                    <option value="">Seleccione un estado</option>
                 </select>
             </div>
             <div class="user-field">
-                <label asp-for="Filters.CheckInDate"></label>
+                <label asp-for="Filters.CheckInDate">Check-in</label>
                 <input asp-for="Filters.CheckInDate" class="user-input" />
             </div>
             <div class="user-field">
-                <label asp-for="Filters.PageSize">Page Size</label>
+                <label asp-for="Filters.PageSize">Cantidad de registros</label>
                 <select asp-for="Filters.PageSize" class="user-input">
                     <option value="6">6</option>
                     <option value="12">12</option>
@@ -102,8 +82,8 @@
                 </select>
             </div>
             <div class="user-form-actions user-form-actions--inline">
-                <button type="submit" class="user-button">Apply Filters</button>
-                <a asp-action="List" class="user-button user-button--ghost">Clear</a>
+                <button type="submit" class="user-button">Aplicar filtros</button>
+                <a asp-action="List" class="user-button user-button--ghost">Limpiar</a>
             </div>
         </form>
     </section>
@@ -111,17 +91,16 @@
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Results</span>
-                <h2>Registered bookings</h2>
+                <h2>Reervas registradas</h2>
             </div>
-            <p>@Model.Bookings.Count booking records ready for review.</p>
+            <p>Mostrando @Model.Bookings.Count reservas</p>
         </div>
 
         @if (Model.Bookings.Count == 0)
         {
             <div class="user-empty-state">
-                <h3>No bookings matched this filter.</h3>
-                <p>Widen the search or create a new reservation.</p>
+                <h3>Sin reservas disponibles.</h3>
+                <p>Ajusta los filtros o crea una reserva.</p>
             </div>
         }
         else
@@ -157,7 +136,7 @@
                         </dl>
                         <div class="user-card__actions">
                             <a asp-action="GetById" asp-route-id="@booking.Id" class="user-button">Open</a>
-                            <a asp-action="Update" asp-route-id="@booking.Id" class="user-button user-button--ghost">Update</a>
+                            <a asp-action="Update" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button-update">Update</a>
                             <a asp-action="Delete" asp-route-id="@booking.Id" class="user-button user-button--ghost user-button--danger">Cancel</a>
                         </div>
                     </article>

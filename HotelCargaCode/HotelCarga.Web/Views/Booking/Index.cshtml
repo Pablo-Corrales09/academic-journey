@@ -11,12 +11,11 @@
 <div class="user-shell booking-shell" data-page="booking-index-home">
     <section class="user-hero" data-animate>
         <div class="user-hero__content">
-            <span class="user-eyebrow">Reservation Desk</span>
-            <h1>Book by room type and schedule</h1>
-            <p>Browse available room types with nightly rates, then create a booking or check the full booking list.</p>
-            <div class="user-hero__actions">
-                <a asp-action="Create" class="user-button">Create Booking</a>
-                <a asp-action="List" class="user-button user-button--ghost">Check All Bookings</a>
+            <h1 style="margin: 10px 0;">Encuentra tu habitación perfecta</h1>
+            <p>Explora los tipos de habitaciones disponibles con tarifas por noche, luego crea una reserva o consulta la lista completa de reservas.</p>
+            <div class="user-hero__actions" style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <a asp-action="Create" class="user-button">Crear reserva</a>
+                <a asp-action="List" class="user-button user-button--ghost">Ver todas las reservas</a>
             </div>
         </div>
     </section>
@@ -34,44 +33,43 @@
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Quick Search</span>
-                <h2>Find a booking</h2>
+                <h2>Buscar una reserva</h2>
             </div>
-            <p>Search by reserve number or customer name.</p>
+            <p>Buscar por número de reserva o nombre del cliente.</p>
         </div>
 
         <form asp-action="List" method="get" class="user-filter-grid">
+        <div class="search-group">
             <div class="user-field user-field--wide">
-                <label for="search-term">Search</label>
-                <input id="search-term" name="SearchTerm" value="@Model.SearchTerm" class="user-input" placeholder="Reserve number or customer name" />
+                <input id="search-term" name="SearchTerm" value="@Model.SearchTerm" class="user-input" placeholder="Número de reserva o nombre del cliente" />
             </div>
-            <div class="user-form-actions user-form-actions--inline">
-                <button type="submit" class="user-button">Search</button>
+            
+            <div class="user-form-actions--inline">
+                <button type="submit" class="user-button">Buscar</button>
             </div>
+        </div>
         </form>
     </section>
 
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Room Types</span>
-                <h2>Available categories and rates</h2>
+                <h2>Categorías y precios disponibles</h2>
             </div>
-            <p>Room type overview only. Individual room status is intentionally hidden here.</p>
         </div>
 
         @if (!Model.IsApiAvailable)
         {
             <div class="user-empty-state">
-                <h3>Room types unavailable right now.</h3>
-                <p>Start HotelCarga.ApiModel and refresh this page.</p>
+                <h3>Categorías no disponibles por el momento.</h3>
+                <p>Inicia el servicio y actualiza esta página.</p>
             </div>
         }
         else if (Model.RoomTypes.Count == 0)
         {
             <div class="user-empty-state">
-                <h3>No room types available.</h3>
-                <p>There are no available categories for booking at this moment.</p>
+                <h3>No hay categorías disponibles.</h3>
+                <p>No hay categorías disponibles para reservar en este momento.</p>
             </div>
         }
         else
@@ -83,13 +81,13 @@
                         <div class="user-card__header">
                             <div>
                                 <span class="user-chip">@roomType.CategoryName</span>
-                                <h3>@roomType.AvailableRooms room(s) available</h3>
+                                <h3>@roomType.AvailableRooms habitación(es) disponibles</h3>
                             </div>
                         </div>
                         <p>@roomType.Description</p>
                         <dl class="user-card__meta">
                             <div>
-                                <dt>Nightly Rate</dt>
+                                <dt>Tarifa por noche</dt>
                                 <dd>
                                     @if (roomType.NightlyRateFrom == roomType.NightlyRateTo)
                                     {
