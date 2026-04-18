@@ -5,76 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - ParqueoCarga</title>
     <script type="importmap"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ParqueoCarga.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
-
-    <style>
-        :root {
-            --pc-primary: #0f5c4d;
-            --pc-secondary: #f0a202;
-            --pc-bg: #f6faf8;
-            --pc-text: #1f2937;
-        }
-
-        body {
-            background: linear-gradient(180deg, var(--pc-bg) 0%, #edf4f1 100%);
-            color: var(--pc-text);
-        }
-
-        .navbar-parqueo {
-            background-color: var(--pc-primary);
-        }
-
-        .navbar-parqueo .navbar-brand,
-        .navbar-parqueo .nav-link {
-            color: #fff !important;
-        }
-
-        .navbar-parqueo .nav-link:hover {
-            color: #ffe8b5 !important;
-        }
-
-        .btn-accent {
-            background-color: var(--pc-secondary);
-            border-color: var(--pc-secondary);
-            color: #212529;
-            font-weight: 600;
-        }
-
-        .btn-accent:hover {
-            background-color: #d88f02;
-            border-color: #d88f02;
-            color: #212529;
-        }
-
-        main {
-            min-height: calc(100vh - 140px);
-        }
-
-        footer {
-            border-top: 1px solid #e5e7eb;
-            background: #fff;
-        }
-    </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-parqueo shadow-sm">
-            <div class="container">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Automoviles" asp-action="Index">ParqueoCarga</a>
+<body class="pc-theme">
+    <div class="site-background"></div>
+    <header class="site-header js-sticky-header">
+        <div class="shell">
+            <nav class="navbar navbar-expand-lg premium-nav">
+                <a class="navbar-brand brand-lockup" asp-area="" asp-controller="Automoviles" asp-action="Index">
+                    <span class="brand-mark">PC</span>
+                    <span class="brand-copy">
+                        <strong>ParqueoCarga</strong>
+                        <small>Operación premium en tiempo real</small>
+                    </span>
+                </a>
 
-                <button class="navbar-toggler bg-light border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-                        aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler premium-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar" aria-expanded="false" aria-label="Abrir navegación">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Automoviles" asp-action="Index">Inicio</a>
-                        </li>
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0 nav-pills-premium">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Automoviles" asp-action="Index">Automóviles</a>
                         </li>
@@ -86,24 +44,31 @@
                         </li>
                     </ul>
 
-                    <a class="btn btn-accent" asp-area="" asp-controller="Parqueos" asp-action="Index">
-                        Gestionar módulos
-                    </a>
+                    <div class="nav-actions">
+                        <a class="btn btn-nav-ghost" asp-area="" asp-controller="Parqueos" asp-action="Index">Explorar módulos</a>
+                        <a class="btn btn-nav-primary" asp-area="" asp-controller="Automoviles" asp-action="Index">Abrir tablero</a>
+                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
     </header>
 
-    <main class="py-4">
-        <div class="container">
+    <main class="site-main">
+        <div class="shell shell-main">
             @RenderBody()
         </div>
     </main>
 
-    <footer class="py-3">
-        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
-            <span class="text-muted">&copy; @DateTime.Now.Year ParqueoCarga</span>
-            <span class="text-muted small">ASP.NET Core MVC - .NET 10</span>
+    <footer class="site-footer">
+        <div class="shell footer-shell">
+            <div>
+                <strong>ParqueoCarga</strong>
+                <p class="mb-0">Interfaz MVC con una estética editorial, minimalista y operativa.</p>
+            </div>
+            <div class="footer-meta">
+                <span>&copy; @DateTime.Now.Year ParqueoCarga</span>
+                <span>ASP.NET Core MVC · .NET 10</span>
+            </div>
         </div>
     </footer>
 

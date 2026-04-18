@@ -1,65 +1,83 @@
 @model HotelCarga.Models.Rooms.RoomFormViewModel
 
 <div class="room-shell room-form-shell" data-animate>
-    <section class="room-hero compact">
+    <section class="room-hero compact pt-4 pb-5" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center;">
         <div class="room-hero__content">
-            <span class="room-eyebrow">@Model.HeroEyebrow</span>
-            <h1>@Model.PageTitle</h1>
-            <p>@Model.IntroText</p>
+            <span class="room-eyebrow">Operaciones de Inventario</span>
+            <h1 class="mb-2">Crear una habitación nueva</h1>
+            <p class="mb-0 text-white-50">Defina los parámetros básicos de la unidad para integrarla al sistema de reservas.</p>
         </div>
         <div class="room-hero__panel">
-            <div class="room-glance-card">
-                <span class="room-glance-card__label">Suggested flow</span>
-                <strong>Front desk ready</strong>
-                <p>Assign status, category, and pricing so the room can appear consistently across reservation workflows.</p>
+            <div class="room-glance-card bg-white-10 shadow-sm" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(5px); border-radius: 8px; padding: 15px;">
+                <span class="small text-uppercase text-warning font-weight-bold">Flujo Sugerido</span>
+                <p class="small text-white mb-0 mt-1">Asigne estado, categoría y precio para que la habitación aparezca correctamente en el catálogo.</p>
             </div>
         </div>
     </section>
 
-    <section class="room-surface" data-animate>
+    <section class="room-surface mt-n4 mb-5 shadow-lg p-3 p-md-4" data-animate style="position: relative; z-index: 10; border-radius: 12px; background: #fff;">
         <form asp-action="@ViewContext.RouteData.Values["action"]" method="post" class="room-form">
             @if (Model.Id > 0)
             {
                 <input asp-for="Id" type="hidden" />
             }
 
-            <div asp-validation-summary="ModelOnly" class="room-validation"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
-            <div class="room-form-grid">
-                <div class="room-field">
-                    <label asp-for="RoomNumber"></label>
-                    <input asp-for="RoomNumber" class="room-input" />
-                    <span asp-validation-for="RoomNumber" class="text-danger"></span>
+            <div class="row mx-0">
+                <div class="col-md-6 px-2 mb-3">
+                    <div class="room-field">
+                        <label class="small font-weight-bold mb-1" asp-for="RoomNumber">Número de Habitación</label>
+                        <input asp-for="RoomNumber" class="form-control form-control-sm" placeholder="Ej: 101" />
+                        <span asp-validation-for="RoomNumber" class="text-danger small"></span>
+                    </div>
                 </div>
 
-                <div class="room-field">
-                    <label asp-for="FloorNumber"></label>
-                    <input asp-for="FloorNumber" class="room-input" />
-                    <span asp-validation-for="FloorNumber" class="text-danger"></span>
+                <div class="col-md-6 px-2 mb-3">
+                    <div class="room-field">
+                        <label class="small font-weight-bold mb-1" asp-for="FloorNumber">Número de Piso</label>
+                        <input asp-for="FloorNumber" class="form-control form-control-sm" placeholder="Ej: 1" />
+                        <span asp-validation-for="FloorNumber" class="text-danger small"></span>
+                    </div>
                 </div>
 
-                <div class="room-field">
-                    <label asp-for="StatusId"></label>
-                    <select asp-for="StatusId" asp-items="Model.StatusOptions" class="room-input"></select>
-                    <span asp-validation-for="StatusId" class="text-danger"></span>
+                <div class="col-md-6 px-2 mb-3">
+                    <div class="room-field">
+                        <label class="small font-weight-bold mb-1" asp-for="StatusId">Estado Operativo</label>
+                        <select asp-for="StatusId" asp-items="Model.StatusOptions" class="form-control form-control-sm"></select>
+                        <span asp-validation-for="StatusId" class="text-danger small"></span>
+                    </div>
                 </div>
 
-                <div class="room-field">
-                    <label asp-for="CategoryId"></label>
-                    <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="room-input"></select>
-                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                <div class="col-md-6 px-2 mb-3">
+                    <div class="room-field">
+                        <label class="small font-weight-bold mb-1" asp-for="CategoryId">Categoría</label>
+                        <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-control form-control-sm"></select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
                 </div>
 
-                <div class="room-field room-field--wide">
-                    <label asp-for="NightlyRate"></label>
-                    <input asp-for="NightlyRate" class="room-input" />
-                    <span asp-validation-for="NightlyRate" class="text-danger"></span>
+                <div class="col-12 px-2 mb-4">
+                    <div class="room-field">
+                        <label class="small font-weight-bold mb-1" asp-for="NightlyRate">Tarifa por Noche</label>
+                        <div class="input-group input-group-sm">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">₡</span>
+                            </div>
+                            <input asp-for="NightlyRate" class="form-control" />
+                        </div>
+                        <span asp-validation-for="NightlyRate" class="text-danger small"></span>
+                    </div>
                 </div>
             </div>
 
-            <div class="room-form-actions">
-                <a asp-action="Index" class="room-button room-button--ghost">Back to Rooms</a>
-                <button type="submit" class="room-button">@Model.SubmitLabel</button>
+            <div class="room-form-actions d-flex justify-content-between align-items-center border-top pt-3">
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary px-4">
+                    <i class="fas fa-undo-alt mr-2"></i>Volver al Listado
+                </a>
+                <button type="submit" class="btn btn-sm btn-success shadow-sm px-5 font-weight-bold" style="background-color: #28a745; border-color: #218838;">
+                    @Model.SubmitLabel
+                </button>
             </div>
         </form>
     </section>

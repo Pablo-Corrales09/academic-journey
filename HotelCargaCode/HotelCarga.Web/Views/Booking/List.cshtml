@@ -25,10 +25,13 @@
                     <span>Reservas activas</span>
                     <strong>@Model.Stats.ActiveBookings</strong>
                 </article>
-                <article class="user-stat-card">
-                    <span>Ingresos totales</span>
-                    <strong>@Model.Stats.TotalRevenue.ToString("C")</strong>
-                </article>
+            @if(User.IsInRole("ADMIN"))
+                {
+                    <article class="user-stat-card">
+                        <span>Ingresos totales</span>
+                        <strong>@Model.Stats.TotalRevenue.ToString("C")</strong>
+                    </article>
+                }
             </div>
         </div>
         <div class="user-hero__actions">

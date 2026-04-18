@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "About";
+    ViewData["Title"] = "Nosotros";
 }
 
 @section Styles {
@@ -7,30 +7,67 @@
 }
 
 <div class="user-shell" data-page="about" data-animate>
-    <section class="user-hero user-hero--compact" data-animate>
+    <section class="user-hero user-hero--compact" data-animate style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1920&q=80'); background-size: cover; background-position: center;">
         <div class="user-hero__content">
-            <span class="user-eyebrow">HotelCarga Platform</span>
-            <h1>About HotelCarga</h1>
-            <p>Enterprise-style hotel operations built in ASP.NET Core MVC for clean booking, room, customer, and user workflows.</p>
+            <h1>Más que un destino, un hogar</h1>
+            <p>Con más de dos décadas redefiniendo el arte de la hospitalidad, combinamos el lujo moderno con la calidez de un servicio personalizado.</p>
         </div>
     </section>
 
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Project Overview</span>
-                <h2>Core stack and architecture</h2>
+                <span class="user-section-tag">Nuestra Historia</span>
+                <h2>Un legado construido con pasión</h2>
             </div>
         </div>
 
-        <p>HotelCarga is an ASP.NET Core MVC project developed in C# using .NET 10.0. This project demonstrates a robust web application structure with reusable UI patterns and API-driven modules.</p>
-        <p>The project includes:</p>
-        <ul class="list-unstyled mb-0">
-            <li>ASP.NET Core MVC framework</li>
-            <li>C# programming language</li>
-            <li>.NET 10.0 runtime</li>
-            <li>Bootstrap for responsive base components</li>
-            <li>Static asset serving for CSS and JavaScript</li>
+        <div class="row align-items-center mb-5">
+            <div class="col-md-7">
+                <p class="lead">Desde nuestra fundación en el corazón de la ciudad, HotelCarga ha evolucionado de ser un refugio boutique a una cadena líder en el sector.</p>
+                <p>Nuestra trayectoria no se mide en años, sino en las sonrisas de los miles de huéspedes que han cruzado nuestras puertas. Nos dedicamos a crear entornos donde la eficiencia operativa se encuentra con el confort absoluto, garantizando que cada estancia sea impecable.</p>
+            </div>
+            <div class="col-md-5">
+                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80" alt="Fachada del hotel" class="img-fluid rounded shadow-sm" />
+            </div>
+        </div>
+
+        <div class="user-surface__header">
+            <div>
+                <span class="user-section-tag">Nuestros Pilares</span>
+                <h2>Por qué confiar en nosotros</h2>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="p-3 border-left border-primary" style="border-left-width: 4px !important;">
+                    <h4>Excelencia Operativa</h4>
+                    <p>Utilizamos tecnología de punta para que tu reserva y estancia sean fluidas, sin esperas innecesarias.</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="p-3 border-left border-primary" style="border-left-width: 4px !important;">
+                    <h4>Compromiso con el Huésped</h4>
+                    <p>Cada habitación es inspeccionada bajo los más altos estándares de calidad antes de tu llegada.</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="mt-4">Nuestra propuesta de valor incluye:</p>
+        <ul class="list-unstyled mb-0 custom-check-list">
+            <li><i class="fas fa-check text-success mr-2"></i> Atención al cliente disponible las 24 horas</li>
+            <li><i class="fas fa-check text-success mr-2"></i> Procesos de reserva rápidos y seguros</li>
+            <li><i class="fas fa-check text-success mr-2"></i> Infraestructura de vanguardia y diseño exclusivo</li>
+            <li><i class="fas fa-check text-success mr-2"></i> Personal altamente capacitado en hospitalidad internacional</li>
         </ul>
+    </section>
+
+    <section class="user-surface mt-4" data-animate>
+        <div class="text-center py-4">
+            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80" alt="Piscina de lujo" class="img-fluid rounded shadow mb-4" />
+            <h3 class="h2">Tu descanso es nuestra prioridad</h3>
+            <p>Únete a nuestra exclusiva red de clientes y experimenta la diferencia de una gestión pensada para ti.</p>
+        </div>
     </section>
 </div>

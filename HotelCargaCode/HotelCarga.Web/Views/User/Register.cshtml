@@ -1,10 +1,10 @@
 @model HotelCarga.Models.Users.RegisterCustomerUserViewModel
 @{
     Layout = null;
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Registro";
 }
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,8 +16,8 @@
     <main class="auth-stage" role="main">
         <section class="auth-card auth-card--wide auth-card--entrance">
             <div class="auth-card__brand">HotelCarga</div>
-            <h1 class="auth-card__title">Create Customer Account</h1>
-            <p class="auth-card__subtitle">Single-step registration for both user access and customer profile.</p>
+            <h1 class="auth-card__title">Crear Cuenta de Cliente</h1>
+            <p class="auth-card__subtitle">Registro en un solo paso para su acceso de usuario y perfil de cliente.</p>
 
             <form asp-action="Register" method="post" class="auth-form" novalidate>
                 @Html.AntiForgeryToken()
@@ -27,66 +27,66 @@
 
                 <div class="auth-grid">
                     <div class="form-group">
-                        <label asp-for="Email"></label>
-                        <input asp-for="Email" class="form-control" placeholder="you@example.com" autocomplete="email" />
+                        <label asp-for="Email">Correo Electrónico</label>
+                        <input asp-for="Email" class="form-control" placeholder="usuario@ejemplo.com" autocomplete="email" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="DocumentNumber"></label>
-                        <input asp-for="DocumentNumber" class="form-control" />
+                        <label asp-for="DocumentNumber">Número de Identificación</label>
+                        <input asp-for="DocumentNumber" class="form-control" placeholder="Ej: 12345678" />
                         <span asp-validation-for="DocumentNumber" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Password"></label>
+                        <label asp-for="Password">Contraseña</label>
                         <div class="auth-password-wrap">
                             <input asp-for="Password" class="form-control" autocomplete="new-password" id="register-password" />
-                            <button type="button" class="btn btn-sm auth-password-toggle" data-toggle-password="register-password">See Password</button>
+                            <button type="button" class="btn btn-sm auth-password-toggle" data-toggle-password="register-password">Ver Contraseña</button>
                         </div>
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ConfirmPassword"></label>
+                        <label asp-for="ConfirmPassword">Confirmar Contraseña</label>
                         <div class="auth-password-wrap">
                             <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" id="register-confirm-password" />
-                            <button type="button" class="btn btn-sm auth-password-toggle" data-toggle-password="register-confirm-password">See Password</button>
+                            <button type="button" class="btn btn-sm auth-password-toggle" data-toggle-password="register-confirm-password">Ver Contraseña</button>
                         </div>
                         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="FirstName"></label>
+                        <label asp-for="FirstName">Nombre</label>
                         <input asp-for="FirstName" class="form-control" />
                         <span asp-validation-for="FirstName" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="LastName"></label>
+                        <label asp-for="LastName">Apellido</label>
                         <input asp-for="LastName" class="form-control" />
                         <span asp-validation-for="LastName" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Phone"></label>
+                        <label asp-for="Phone">Teléfono</label>
                         <input asp-for="Phone" class="form-control" />
                         <span asp-validation-for="Phone" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Address"></label>
+                        <label asp-for="Address">Dirección</label>
                         <input asp-for="Address" class="form-control" />
                         <span asp-validation-for="Address" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="City"></label>
+                        <label asp-for="City">Ciudad</label>
                         <input asp-for="City" class="form-control" />
                         <span asp-validation-for="City" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="Country"></label>
+                        <label asp-for="Country">País</label>
                         <input asp-for="Country" class="form-control" />
                         <span asp-validation-for="Country" class="text-danger"></span>
                     </div>
                 </div>
 
                 <div class="auth-actions mt-3">
-                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-                    <a asp-action="Login" class="btn btn-outline-light btn-block">Back to Login</a>
+                    <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
+                    <a asp-action="Login" class="btn btn-outline-light btn-block">Volver al Inicio de Sesión</a>
                 </div>
             </form>
         </section>

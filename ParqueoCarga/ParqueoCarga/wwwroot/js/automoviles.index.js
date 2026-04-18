@@ -124,6 +124,28 @@
       .join('') || 'PC';
   };
 
+  const getVehicleImage = (automovil) => {
+    const descriptor = `${automovil.tipo ?? ''} ${automovil.fabricante ?? ''}`.toLowerCase();
+
+    if (descriptor.includes('moto') || descriptor.includes('motocic') || descriptor.includes('motorcycle')) {
+      return 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=900&q=80';
+    }
+
+    if (descriptor.includes('pickup') || descriptor.includes('pick up') || descriptor.includes('camioneta')) {
+      return 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=80';
+    }
+
+    if (descriptor.includes('4x4') || descriptor.includes('suv') || descriptor.includes('todoterreno') || descriptor.includes('offroad')) {
+      return 'https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=900&q=80';
+    }
+
+    if (descriptor.includes('electrico') || descriptor.includes('eléctrico') || descriptor.includes('electric') || descriptor.includes('ev') || descriptor.includes('tesla')) {
+      return 'https://images.unsplash.com/photo-1549924231-f129b911e442?auto=format&fit=crop&w=900&q=80';
+    }
+
+    return 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80';
+  };
+
   const escapeHtml = (value) => String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
@@ -132,28 +154,58 @@
     .replaceAll("'", '&#39;');
 
   const renderCards = (items) => {
-    automovilesGrid.innerHTML = items.map((automovil, index) => `
-      <div class="col-12 col-md-6 col-xxl-4">
-        <article class="automovil-card" style="animation-delay:${index * 65}ms">
-          <div class="vehicle-banner">
+    automovilesGrid.innerHTML = items.map((automovil, index) => {
+      const vehicleImage = getVehicleImage(automovil);
+      const vehicleAlt = `Fotografía editorial de ${escapeHtml(automovil.fabricante)} ${escapeHtml(automovil.tipo)}`;
+
+      return `
+      <article class="automovil-card" data-reveal style="transition-delay:${index * 45}ms">
+        <img class="vehicle-photo" src="${vehicleImage}" alt="${vehicleAlt}" />
+        <div class="vehicle-surface">
+          <div class="vehicle-topline">
             <span class="vehicle-monogram">${escapeHtml(getMonogram(automovil))}</span>
             <span class="vehicle-year">${escapeHtml(automovil.anio)}</span>
           </div>
-          <div>
-            <h3 class="vehicle-title">${escapeHtml(automovil.fabricante)}</h3>
-            <p class="vehicle-subtitle mb-0">${escapeHtml(automovil.tipo)}</p>
+
+          <div class="vehicle-bottom">
+            <div class="vehicle-copy">
+              <h3 class="vehicle-title">${escapeHtml(automovil.fabricante)}</h3>
+              <p class="vehicle-subtitle">${escapeHtml(automovil.tipo)}</p>
+            </div>
+
+            <div class="detail-stack">
+              <span class="meta-chip"><span class="meta-caption">Color</span>${escapeHtml(automovil.color)}</span>
+              <span class="detail-pill"><span class="meta-caption">ID</span>#${escapeHtml(automovil.id)}</span>
+            </div>
+
+            <div class="card-footer-actions">
+              <button type="button" class="card-action-btn card-action-edit" data-action="edit" data-id="${escapeHtml(automovil.id)}">Editar</button>
+              <button type="button" class="card-action-btn" data-action="view" data-id="${escapeHtml(automovil.id)}">Ver detalle</button>
+              <button type="button" class="card-action-btn card-action-delete" data-action="delete" data-id="${escapeHtml(automovil.id)}">Eliminar</button>
+            </div>
           </div>
-          <div class="meta-list mt-4">
-            <span class="meta-chip"><span class="meta-caption">Color</span>${escapeHtml(automovil.color)}</span>
-            <span class="meta-chip"><span class="meta-caption">ID</span>#${escapeHtml(automovil.id)}</span>
-          </div>
-          <div class="card-footer-actions mt-4">
-            <button type="button" class="card-action-btn card-action-edit" data-action="edit" data-id="${escapeHtml(automovil.id)}">Editar</button>
-            <button type="button" class="card-action-btn" data-action="view" data-id="${escapeHtml(automovil.id)}">Ver detalle</button>
-            <button type="button" class="card-action-btn card-action-delete" data-action="delete" data-id="${escapeHtml(automovil.id)}">Eliminar</button>
-          </div>
-        </article>
-      </div>`).join('');
+        </div>
+      </article>`;
+    }).join('');
+
+    if ('IntersectionObserver' in window) {
+      const revealItems = automovilesGrid.querySelectorAll('[data-reveal]:not(.is-revealed)');
+      const observer = new IntersectionObserver((entries, currentObserver) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+            currentObserver.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.15,
+        rootMargin: '0px 0px -30px 0px'
+      });
+
+      revealItems.forEach((item) => observer.observe(item));
+    } else {
+      automovilesGrid.querySelectorAll('[data-reveal]').forEach((item) => item.classList.add('is-revealed'));
+    }
 
     emptyState.classList.toggle('d-none', items.length > 0);
   };

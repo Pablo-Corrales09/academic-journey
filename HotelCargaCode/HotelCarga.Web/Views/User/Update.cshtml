@@ -9,15 +9,43 @@
 }
 
 <div class="user-shell" data-page="form">
-    <section class="user-hero user-hero--compact" data-animate>
+    <section class="user-hero user-hero--compact" data-animate style="background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1431540015161-0bf868a2d407?auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center;">
         <div class="user-hero__content">
-            <span class="user-eyebrow">@Model.HeroEyebrow</span>
-            <h1>@Model.PageTitle</h1>
-            <p>@Model.IntroText</p>
+            <h1>Modificación de usuario</h1>
+            <p>Complete la información detallada a continuación para registrar o actualizar el perfil en el sistema central del hotel.</p>
         </div>
     </section>
 
-    <partial name="_UserForm" model="Model" />
+    <section class="user-surface mt-n4 shadow-lg" data-animate style="position: relative; z-index: 10; border-radius: 12px;">
+        <div class="row">
+            <div class="col-lg-7 px-4">
+                <div class="user-surface__header mb-4">
+                    <div>
+                        <h2 class="h4">Información del Perfil</h2>
+                    </div>
+                </div>
+
+                <div class="user-form-container">
+                    <partial name="_UserForm" model="Model" />
+                </div>
+            </div>
+
+            <div class="col-lg-5 d-none d-lg-block border-left pl-4">
+                <div class="sticky-top" style="top: 20px;">
+                    <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=600&q=80" 
+                         alt="Gestión de equipo" 
+                         class="img-fluid rounded shadow-sm mb-4" />
+                    
+                    <div class="p-3 bg-light rounded border">
+                        <h5 class="h6 font-weight-bold text-primary"><i class="fas fa-info-circle mr-2"></i>Consejo Administrativo</h5>
+                        <p class="small text-muted mb-0">
+                            Asegúrese de verificar el correo electrónico institucional. Los roles de <strong>ADMIN</strong> tendrán acceso total a la configuración financiera del hotel.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
 @section Scripts {

@@ -1,7 +1,7 @@
 @model HotelCarga.Models.Rooms.RoomDetailsViewModel
 
 @{
-    ViewData["Title"] = $"Room {Model.Room.RoomNumber}";
+    ViewData["Title"] = $"Habitación {Model.Room.RoomNumber}";
 }
 
 @section Styles {
@@ -9,32 +9,27 @@
 }
 
 <div class="room-shell" data-page="details">
-    <section class="room-hero compact" data-animate>
+    <section class="room-hero compact py-4" data-animate style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1578683010236-d716f9a3f28d?auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center;">
         <div class="room-hero__content">
-            <span class="room-eyebrow">Room Profile</span>
-            <h1>Room @Model.Room.RoomNumber</h1>
-            <p>@Model.Room.CategoryName suite profile with current status <strong>@Model.Room.StatusName</strong> and nightly rate <strong>@Model.Room.NightlyRate.ToString("C")</strong>.</p>
-            <div class="room-hero__actions">
-                <a asp-action="Edit" asp-route-id="@Model.Room.Id" class="room-button">Edit Room</a>
-                <a asp-action="Index" class="room-button room-button--ghost">Back to Rooms</a>
+            <h1>Habitación @Model.Room.RoomNumber</h1>
+            <p>Perfil de categoría <strong>@Model.Room.CategoryName</strong>. Estado actual: <strong>@Model.Room.StatusName</strong> con una tarifa diaria de <strong>@Model.Room.NightlyRate.ToString("C")</strong>.</p>
+            <div class="room-hero__actions d-flex justify-content-between align-items-center mt-3" style="max-width: 450px;">
+                <a asp-action="Edit" asp-route-id="@Model.Room.Id" class="room-button shadow-sm" style="background-color: #28a745; border-color: #28a745; color: white;">
+                    <i class="fas fa-edit mr-2"></i>Editar Unidad
+                </a>
+                <a asp-action="Index" class="room-button room-button--ghost" style="color: #ffc107; border-color: #ffc107;">
+                    <i class="fas fa-arrow-left mr-2"></i>Volver al Listado
+                </a>
             </div>
         </div>
         <div class="room-hero__panel">
-            <div class="room-stat-grid">
+            <div class="room-stat-grid text-center">
                 <article class="room-stat-card">
-                    <span>Bookings</span>
+                    <span>Reservas</span>
                     <strong>@Model.Bookings.Count</strong>
                 </article>
                 <article class="room-stat-card">
-                    <span>History events</span>
-                    <strong>@Model.BookingHistories.Count</strong>
-                </article>
-                <article class="room-stat-card">
-                    <span>Availability blocks</span>
-                    <strong>@Model.Availabilities.Count</strong>
-                </article>
-                <article class="room-stat-card">
-                    <span>Floor</span>
+                    <span>Piso / Nivel</span>
                     <strong>@(Model.Room.FloorNumber?.ToString() ?? "N/A")</strong>
                 </article>
             </div>
@@ -43,85 +38,118 @@
 
     @if (TempData["SuccessMessage"] is string successMessage)
     {
-        <div class="room-alert room-alert--success" data-animate>@successMessage</div>
+        <div class="room-alert room-alert--success mx-3 mt-3" data-animate>@successMessage</div>
     }
 
-    <section class="room-surface" data-animate>
-        <div class="room-surface__header">
-            <div>
-                <span class="room-section-tag">Overview</span>
-                <h2>Service snapshot</h2>
+    <section class="room-surface mt-n4 mb-4 shadow-lg p-3" data-animate style="position: relative; z-index: 10; border-radius: 12px;">
+        <div class="row no-gutters">
+            <div class="col-lg-4 pr-lg-3 mb-3 mb-lg-0">
+                @{
+                    var category = Model.Room.CategoryName?.ToLower() ?? "";
+                    var imageUrl = category switch {
+                        var c when c.Contains("suite")   => "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80",
+                        var c when c.Contains("deluxe")  => "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80",
+                        var c when c.Contains("premium") => "https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=600&q=80",
+                        _                                => "https://images.unsplash.com/photo-1505691938895-1758d7eaa511?auto=format&fit=crop&w=600&q=80"
+                    };
+                }
+                <img src="@imageUrl" 
+                     class="img-fluid rounded shadow-sm" 
+                     style="height: 200px; width: 100%; object-fit: cover;" 
+                     alt="Vista Habitación"
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=600&auto=format&fit=crop';" />
             </div>
-            <p>Cross-check the room record with all related navigation data from reservations and scheduling.</p>
-        </div>
-        <div class="room-detail-grid">
-            <article class="room-detail-card">
-                <span>Category</span>
-                <strong>@Model.Room.CategoryName</strong>
-            </article>
-            <article class="room-detail-card">
-                <span>Status</span>
-                <strong>@Model.Room.StatusName</strong>
-            </article>
-            <article class="room-detail-card">
-                <span>Nightly Rate</span>
-                <strong>@Model.Room.NightlyRate.ToString("C")</strong>
-            </article>
-            <article class="room-detail-card">
-                <span>Room Classification</span>
-                <strong>@Model.Room.StatusName / @Model.Room.CategoryName</strong>
-            </article>
+            <div class="col-lg-8 border-left pl-lg-4">
+                <div class="room-surface__header mb-3 border-bottom pb-2">
+                    <div>
+                        <span class="room-section-tag small font-weight-bold">Estado del Servicio</span>
+                        <h2 class="h5 mb-0">Resumen Operativo</h2>
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6 mb-2">
+                        <div class="p-2 border rounded bg-light d-flex justify-content-between align-items-center">
+                            <small class="text-muted font-weight-bold text-uppercase">Categoría:</small>
+                            <span class="badge badge-primary px-3">@Model.Room.CategoryName</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="p-2 border rounded bg-light d-flex justify-content-between align-items-center">
+                            <small class="text-muted font-weight-bold text-uppercase">Estado Actual:</small>
+                            <span class="badge badge-info px-3">@Model.Room.StatusName</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="p-2 border rounded bg-light d-flex justify-content-between align-items-center">
+                            <small class="text-muted font-weight-bold text-uppercase">Tarifa Diaria:</small>
+                            <strong class="text-dark">@Model.Room.NightlyRate.ToString("C")</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="p-2 border rounded bg-light d-flex justify-content-between align-items-center">
+                            <small class="text-muted font-weight-bold text-uppercase">Clasificación:</small>
+                            <small class="font-weight-bold">@Model.Room.StatusName / @Model.Room.CategoryName</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section class="room-surface" data-animate>
-        <div class="room-surface__header">
+    <section class="room-surface mb-4 p-3 shadow-sm" data-animate>
+        <div class="room-surface__header mb-3 border-bottom pb-2">
             <div>
-                <span class="room-section-tag">Related Data</span>
-                <h2>Navigation collections</h2>
+                <span class="room-section-tag">Datos Relacionados</span>
+                <h2 class="h5">Colecciones de Gestión</h2>
             </div>
-            <p>Jump into the same relationship sets surfaced by the API controller.</p>
+            <p class="small text-muted mb-0">Acceda a los conjuntos de datos vinculados a esta unidad operativa.</p>
         </div>
-        <div class="room-related-links">
-            <a asp-action="GetBookingsByRoomId" asp-route-roomId="@Model.Room.Id" class="room-related-link">
-                <strong>Bookings</strong>
-                <span>@Model.Bookings.Count reservation records</span>
+        <div class="room-related-links row mx-0">
+            <a asp-action="GetBookingsByRoomId" asp-route-roomId="@Model.Room.Id" class="col-md-4 room-related-link border rounded p-3 text-decoration-none">
+                <strong class="d-block text-primary">Reservas</strong>
+                <span class="small text-muted">@Model.Bookings.Count registros de reservación</span>
             </a>
-            <a asp-action="GetBookingHistoriesByRoomId" asp-route-roomId="@Model.Room.Id" class="room-related-link">
-                <strong>Booking Histories</strong>
-                <span>@Model.BookingHistories.Count timeline items</span>
+            <a asp-action="GetBookingHistoriesByRoomId" asp-route-roomId="@Model.Room.Id" class="col-md-4 room-related-link border rounded p-3 text-decoration-none border-left-0 border-right-0">
+                <strong class="d-block text-primary">Historial de Uso</strong>
+                <span class="small text-muted">@Model.BookingHistories.Count eventos cronológicos</span>
             </a>
-            <a asp-action="GetAvailabilitiesByRoomId" asp-route-roomId="@Model.Room.Id" class="room-related-link">
-                <strong>Availabilities</strong>
-                <span>@Model.Availabilities.Count scheduling windows</span>
+            <a asp-action="GetAvailabilitiesByRoomId" asp-route-roomId="@Model.Room.Id" class="col-md-4 room-related-link border rounded p-3 text-decoration-none">
+                <strong class="d-block text-primary">Disponibilidad</strong>
+                <span class="small text-muted">@Model.Availabilities.Count ventanas de programación</span>
             </a>
         </div>
     </section>
 
-    <section class="room-surface" data-animate>
-        <div class="room-surface__header">
+    <section class="room-surface mb-5 p-3 shadow-sm" data-animate>
+        <div class="room-surface__header mb-3">
             <div>
-                <span class="room-section-tag">Latest Activity</span>
-                <h2>Recent booking history</h2>
+                <span class="room-section-tag">Última Actividad</span>
+                <h2 class="h5">Eventos Recientes de Reserva</h2>
             </div>
-            <p>The three most recent operational events linked to this room.</p>
+            <p class="small text-muted">Los tres eventos operativos más recientes vinculados a esta unidad.</p>
         </div>
         @if (Model.BookingHistories.Count == 0)
         {
-            <div class="room-empty-state">
-                <h3>No booking history yet.</h3>
-                <p>This room has not recorded any booking events so far.</p>
+            <div class="room-empty-state py-4 text-center border rounded bg-light">
+                <i class="fas fa-history text-muted opacity-50 h2"></i>
+                <h3 class="h6 mt-2">Sin historial de reservas</h3>
+                <p class="small mb-0">Esta habitación aún no registra eventos operativos.</p>
             </div>
         }
         else
         {
-            <div class="room-timeline">
+            <div class="room-timeline px-2">
                 @foreach (var history in Model.BookingHistories.Take(3))
                 {
-                    <article class="room-timeline__item">
-                        <strong>@history.ActionType</strong>
-                        <span>@history.StatusName</span>
-                        <p>@history.CheckIn.ToString("MMM dd, yyyy") to @history.CheckOut.ToString("MMM dd, yyyy")</p>
+                    <article class="room-timeline__item p-2 mb-2 border-left border-primary" style="border-left-width: 3px !important; background: #fdfdfd;">
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-dark small">@history.ActionType</strong>
+                            <span class="badge badge-light border">@history.StatusName</span>
+                        </div>
+                        <p class="small mb-0 text-muted">
+                            <i class="far fa-calendar-alt mr-1"></i>
+                            @history.CheckIn.ToString("dd MMM, yyyy") al @history.CheckOut.ToString("dd MMM, yyyy")
+                        </p>
                     </article>
                 }
             </div>

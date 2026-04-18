@@ -13,159 +13,142 @@
         @Html.AntiForgeryToken()
     </form>
 
-    <section class="hero-shell mb-4 mb-lg-5">
-        <div class="hero-backdrop"></div>
-        <div class="row g-4 align-items-stretch position-relative">
-            <div class="col-xl-7">
-                <div class="hero-panel h-100">
-                    <span class="eyebrow-pill">Operación en tiempo real</span>
-                    <h1 class="hero-title">Centro de control de automóviles</h1>
-                    <p class="hero-copy">
-                        Gestiona ingresos vehiculares con una experiencia visual moderna, filtros inteligentes y operaciones CRUD en modal sin recargar la página.
-                    </p>
+    <section class="auto-hero" data-reveal>
+        <div class="auto-hero-copy">
+            <span class="auto-kicker">Colección en movimiento</span>
+            <h1 class="auto-display">Automóviles premium, gestión simple y control total.</h1>
+            <p class="auto-subcopy">
+                Explora el inventario con tarjetas visuales, aplica filtros por rango de años y ejecuta CRUD en modales sin recargar la página.
+            </p>
 
-                    <div class="hero-actions">
-                        <button type="button" class="btn btn-hero-primary" id="openCreateModalButton">
-                            Nuevo automóvil
-                        </button>
-                        <button type="button" class="btn btn-hero-secondary" id="refreshDataButton">
-                            Actualizar tablero
-                        </button>
-                    </div>
-
-                    <div class="hero-highlights">
-                        <article class="highlight-chip">
-                            <span class="highlight-label">UX</span>
-                            <strong>Modal fluido</strong>
-                        </article>
-                        <article class="highlight-chip">
-                            <span class="highlight-label">Filtro</span>
-                            <strong>Por año y criterio</strong>
-                        </article>
-                        <article class="highlight-chip">
-                            <span class="highlight-label">Estado</span>
-                            <strong>Sin recargas</strong>
-                        </article>
-                    </div>
-                </div>
+            <div class="auto-hero-actions">
+                <button type="button" class="btn btn-auto-solid" id="openCreateModalButton">Nuevo automóvil</button>
+                <button type="button" class="btn btn-auto-outline" id="refreshDataButton">Actualizar colección</button>
+                <button type="button" class="btn btn-auto-ghost" data-bs-toggle="collapse" data-bs-target="#filterRail" aria-expanded="true" aria-controls="filterRail">Alternar filtros</button>
             </div>
+        </div>
 
-            <div class="col-xl-5">
-                <div class="hero-metrics-card h-100">
-                    <div class="metric-grid">
-                        <article class="metric-card glass-card">
-                            <span class="metric-label">Total visible</span>
-                            <strong class="metric-value" id="totalAutomovilesValue">0</strong>
-                            <small id="metricStatusText">Cargando inventario...</small>
-                        </article>
-                        <article class="metric-card glass-card">
-                            <span class="metric-label">Fabricantes</span>
-                            <strong class="metric-value" id="totalFabricantesValue">0</strong>
-                            <small>Marcas distintas en la consulta</small>
-                        </article>
-                        <article class="metric-card glass-card">
-                            <span class="metric-label">Año mínimo</span>
-                            <strong class="metric-value" id="anioMinimoValue">-</strong>
-                            <small>Rango inferior actual</small>
-                        </article>
-                        <article class="metric-card glass-card">
-                            <span class="metric-label">Año máximo</span>
-                            <strong class="metric-value" id="anioMaximoValue">-</strong>
-                            <small>Rango superior actual</small>
-                        </article>
-                    </div>
-                </div>
+        <div class="auto-hero-media">
+            <img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1400&q=80" alt="Colección premium de automóvil deportivo en una escena editorial" />
+            <div class="auto-floating-panel glass-panel">
+                <span class="metric-label">Total visible</span>
+                <strong class="metric-value" id="totalAutomovilesValue">0</strong>
+                <small id="metricStatusText">Sincronizando inventario premium...</small>
             </div>
         </div>
     </section>
 
-    <section class="filters-panel glass-card mb-4">
-        <div class="panel-heading-row">
-            <div>
-                <span class="section-kicker">Consulta dinámica</span>
-                <h2 class="section-title mb-1">Filtra y ordena con precisión</h2>
-                <p class="section-copy mb-0">Usa rango de años, criterio textual y orden ascendente o descendente por año.</p>
+    <section class="auto-dashboard" data-reveal>
+        <aside class="filter-rail collapse show" id="filterRail">
+            <div class="filter-rail-inner glass-panel">
+                <div class="filter-rail-head">
+                    <div>
+                        <span class="section-kicker">Filtro retráctil</span>
+                        <h2 class="section-title mb-1">Ajusta la colección</h2>
+                        <p class="section-copy mb-0">Integra rango de años, búsqueda contextual y orden ascendente o descendente.</p>
+                    </div>
+                    <div class="status-badge" id="statusBadge">
+                        <span class="status-dot"></span>
+                        <span>Sincronizado</span>
+                    </div>
+                </div>
+
+                <form id="filtersForm" class="filter-grid">
+                    <div class="filter-field">
+                        <label class="form-label" for="anioInicio">Año inicial</label>
+                        <input class="form-control form-control-modern" id="anioInicio" name="anioInicio" type="number" min="1900" max="2100" value="@Model.Filtros.AnioInicio" placeholder="2018" />
+                    </div>
+                    <div class="filter-field">
+                        <label class="form-label" for="anioFin">Año final</label>
+                        <input class="form-control form-control-modern" id="anioFin" name="anioFin" type="number" min="1900" max="2100" value="@Model.Filtros.AnioFin" placeholder="2026" />
+                    </div>
+                    <div class="filter-field filter-field-wide">
+                        <label class="form-label" for="campoBusqueda">Buscar por</label>
+                        <select class="form-select form-control-modern" id="campoBusqueda" name="campoBusqueda">
+                            <option value="todos">Todos los campos</option>
+                            <option value="fabricante">Fabricante</option>
+                            <option value="color">Color</option>
+                            <option value="tipo">Tipo</option>
+                        </select>
+                    </div>
+                    <div class="filter-field filter-field-wide">
+                        <label class="form-label" for="terminoBusqueda">Término</label>
+                        <input class="form-control form-control-modern" id="terminoBusqueda" name="terminoBusqueda" type="text" maxlength="80" placeholder="Toyota, rojo, SUV..." />
+                    </div>
+                    <div class="filter-field">
+                        <label class="form-label" for="orden">Orden por año</label>
+                        <select class="form-select form-control-modern" id="orden" name="orden">
+                            <option value="desc">Descendente</option>
+                            <option value="asc">Ascendente</option>
+                        </select>
+                    </div>
+                    <div class="filter-actions">
+                        <button type="submit" class="btn btn-auto-solid btn-with-loader">
+                            <span class="btn-label">Aplicar filtros</span>
+                            <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="btn btn-auto-outline" id="resetFiltersButton">Limpiar</button>
+                    </div>
+                </form>
+
+                <div class="inline-feedback d-none mt-3" id="filtersFeedback"></div>
             </div>
-            <div class="status-badge" id="statusBadge">
-                <span class="status-dot"></span>
-                <span>Sincronizado</span>
-            </div>
+        </aside>
+
+        <div class="metrics-strip" data-reveal>
+            <article class="metric-tile glass-panel">
+                <span class="metric-label">Fabricantes</span>
+                <strong class="metric-value" id="totalFabricantesValue">0</strong>
+                <small>Marcas visibles en la curaduría actual</small>
+            </article>
+            <article class="metric-tile glass-panel">
+                <span class="metric-label">Año mínimo</span>
+                <strong class="metric-value" id="anioMinimoValue">-</strong>
+                <small>Punto de entrada del rango filtrado</small>
+            </article>
+            <article class="metric-tile glass-panel">
+                <span class="metric-label">Año máximo</span>
+                <strong class="metric-value" id="anioMaximoValue">-</strong>
+                <small>Vehículo más reciente en pantalla</small>
+            </article>
         </div>
-
-        <form id="filtersForm" class="row g-3 align-items-end mt-1">
-            <div class="col-12 col-md-6 col-xl-2">
-                <label class="form-label" for="anioInicio">Año inicial</label>
-                <input class="form-control form-control-modern" id="anioInicio" name="anioInicio" type="number" min="1900" max="2100" value="@Model.Filtros.AnioInicio" placeholder="2018" />
-            </div>
-            <div class="col-12 col-md-6 col-xl-2">
-                <label class="form-label" for="anioFin">Año final</label>
-                <input class="form-control form-control-modern" id="anioFin" name="anioFin" type="number" min="1900" max="2100" value="@Model.Filtros.AnioFin" placeholder="2026" />
-            </div>
-            <div class="col-12 col-md-6 col-xl-3">
-                <label class="form-label" for="campoBusqueda">Buscar por</label>
-                <select class="form-select form-control-modern" id="campoBusqueda" name="campoBusqueda">
-                    <option value="todos">Todos los campos</option>
-                    <option value="fabricante">Fabricante</option>
-                    <option value="color">Color</option>
-                    <option value="tipo">Tipo</option>
-                </select>
-            </div>
-            <div class="col-12 col-md-6 col-xl-3">
-                <label class="form-label" for="terminoBusqueda">Término</label>
-                <input class="form-control form-control-modern" id="terminoBusqueda" name="terminoBusqueda" type="text" maxlength="80" placeholder="Toyota, rojo, SUV..." />
-            </div>
-            <div class="col-12 col-md-6 col-xl-2">
-                <label class="form-label" for="orden">Orden por año</label>
-                <select class="form-select form-control-modern" id="orden" name="orden">
-                    <option value="desc">Descendente</option>
-                    <option value="asc">Ascendente</option>
-                </select>
-            </div>
-
-            <div class="col-12 d-flex flex-wrap gap-2 pt-2">
-                <button type="submit" class="btn btn-filter-primary">
-                    <span class="btn-label">Aplicar filtros</span>
-                    <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-filter-secondary" id="resetFiltersButton">Limpiar</button>
-            </div>
-        </form>
-
-        <div class="inline-feedback d-none mt-3" id="filtersFeedback"></div>
     </section>
 
-    <section class="inventory-section">
-        <div class="section-header-row mb-3">
+    <section class="inventory-section" data-reveal>
+        <div class="section-header-row mb-4">
             <div>
-                <span class="section-kicker">Inventario visual</span>
+                <span class="section-kicker">Colección visual</span>
                 <h2 class="section-title mb-1">Automóviles disponibles</h2>
-                <p class="section-copy mb-0">Cada tarjeta resume el vehículo y centraliza las acciones de edición y eliminación.</p>
+                <p class="section-copy mb-0">Tarjetas con fotografía dominante, superposición tipográfica limpia y acciones integradas en una experiencia sin fricción.</p>
             </div>
-            <div class="legend-pill">
+            <div class="legend-pill glass-panel">
                 <span class="legend-bar"></span>
                 <span>Ordenado por año</span>
             </div>
         </div>
 
         <div id="cardsLoadingState" class="loading-state d-none">
-            <div class="spinner-border text-warning" role="status" aria-hidden="true"></div>
-            <p class="mb-0">Sincronizando datos del API...</p>
+            <svg class="svg-loader" viewBox="0 0 60 60" aria-hidden="true">
+                <circle class="track" cx="30" cy="30" r="22"></circle>
+                <circle class="head" cx="30" cy="30" r="22"></circle>
+            </svg>
+            <p class="mb-0">Sincronizando datos del API con una transición fluida...</p>
         </div>
 
         <div id="emptyState" class="empty-state d-none">
-            <div class="empty-orb"></div>
+            <img class="empty-visual" src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=1200&q=80" alt="Vehículo 4x4 estacionado en un entorno moderno" />
             <h3>No hay automóviles para mostrar</h3>
             <p>Ajusta los filtros o registra un nuevo automóvil para poblar el tablero.</p>
-            <button type="button" class="btn btn-hero-primary" id="emptyStateCreateButton">Crear automóvil</button>
+            <button type="button" class="btn btn-auto-solid" id="emptyStateCreateButton">Crear automóvil</button>
         </div>
 
-        <div id="automovilesGrid" class="row g-4"></div>
+        <div id="automovilesGrid" class="automoviles-grid"></div>
     </section>
 </div>
 
 <div class="modal fade" id="automovilModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content modal-content-modern">
+        <div class="modal-content modal-content-modern glass-modal-shell">
             <div class="modal-header border-0 pb-0">
                 <div>
                     <span class="section-kicker" id="automovilModalKicker">Nuevo registro</span>
@@ -200,8 +183,8 @@
                 </form>
             </div>
             <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-filter-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-hero-primary" id="saveAutomovilButton">
+                <button type="button" class="btn btn-auto-outline" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-auto-solid" id="saveAutomovilButton">
                     <span class="btn-label" id="saveAutomovilButtonLabel">Guardar automóvil</span>
                     <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
                 </button>
@@ -212,7 +195,7 @@
 
 <div class="modal fade" id="deleteAutomovilModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content modal-content-modern danger-modal">
+        <div class="modal-content modal-content-modern danger-modal glass-modal-shell">
             <div class="modal-header border-0 pb-0">
                 <div>
                     <span class="section-kicker">Confirmación</span>
@@ -225,7 +208,7 @@
                 <div class="delete-summary" id="deleteSummary"></div>
             </div>
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-filter-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-auto-outline" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-delete-action" id="confirmDeleteButton">
                     <span class="btn-label">Eliminar ahora</span>
                     <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>

@@ -1,55 +1,72 @@
 @model HotelCarga.Models.Users.UserFormViewModel
 
-<section class="user-surface" data-animate>
-    <div class="user-surface__header">
-        <div>
-            <span class="user-section-tag">Account Form</span>
-            <h2>@Model.PageTitle</h2>
+<section class="user-surface p-3" data-animate>
+    <div class="user-surface__header mb-3">
+        <div class="border-bottom pb-2">
+            <h2 class="h5 mb-0">Formulario de actualización</h2>
         </div>
-        <p>@Model.IntroText</p>
     </div>
 
-    <form asp-action="@ViewContext.RouteData.Values["action"]" asp-route-id="@Model.Id" method="post" class="user-form-grid">
+    <form asp-action="@ViewContext.RouteData.Values["action"]" asp-route-id="@Model.Id" method="post" class="mt-2">
         <input type="hidden" asp-for="Id" />
         @Html.AntiForgeryToken()
         <input type="hidden" name="createCustomerAfter" value="@((ViewData["CreateCustomerAfter"] as bool?) == true)" />
         <input type="hidden" name="bookingReturnUrl" value="@(ViewData["BookingReturnUrl"]?.ToString())" />
-        <div asp-validation-summary="All" class="user-validation"></div>
+        
+        <div asp-validation-summary="All" class="user-validation small text-danger mb-2"></div>
 
-        <div class="user-field">
-            <label asp-for="Username"></label>
-            <input asp-for="Username" class="user-input" />
-            <span asp-validation-for="Username" class="text-danger"></span>
+        <div class="row no-gutters">
+            <div class="col-md-6 pr-md-2 mb-2">
+                <div class="user-field">
+                    <label class="small font-weight-bold mb-1" asp-for="Username">Nombre de Usuario</label>
+                    <input asp-for="Username" class="user-input py-1" placeholder="Ej: admin_recepcion" />
+                    <span asp-validation-for="Username" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6 pl-md-2 mb-2">
+                <div class="user-field">
+                    <label class="small font-weight-bold mb-1" asp-for="Email">Correo Electrónico</label>
+                    <input asp-for="Email" class="user-input py-1" placeholder="usuario@hotel.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-12 mb-2">
+                <div class="user-field">
+                    <label class="small font-weight-bold mb-1" asp-for="PasswordHash">Credencial de Seguridad</label>
+                    <input asp-for="PasswordHash" class="user-input py-1" spellcheck="false" />
+                    <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+                        <i class="fas fa-lock mr-1"></i> El sistema procesa la credencial en formato cifrado para su protección.
+                    </small>
+                    <span asp-validation-for="PasswordHash" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6 pr-md-2 mb-3">
+                <div class="user-field">
+                    <label class="small font-weight-bold mb-1" asp-for="RoleId">Nivel de Acceso (Rol)</label>
+                    <select asp-for="RoleId" asp-items="Model.RoleOptions" class="user-input py-1"></select>
+                    <span asp-validation-for="RoleId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6 pl-md-2 mb-3">
+                <div class="user-field">
+                    <label class="small font-weight-bold mb-1" asp-for="StatusId">Estado de la Cuenta</label>
+                    <select asp-for="StatusId" asp-items="Model.StatusOptions" class="user-input py-1"></select>
+                    <span asp-validation-for="StatusId" class="text-danger small"></span>
+                </div>
+            </div>
         </div>
 
-        <div class="user-field">
-            <label asp-for="Email"></label>
-            <input asp-for="Email" class="user-input" />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-
-        <div class="user-field user-field--wide">
-            <label asp-for="PasswordHash"></label>
-            <input asp-for="PasswordHash" class="user-input" spellcheck="false" />
-            <small class="user-helper">The API expects the stored hash value rather than a plain-text password.</small>
-            <span asp-validation-for="PasswordHash" class="text-danger"></span>
-        </div>
-
-        <div class="user-field">
-            <label asp-for="RoleId"></label>
-            <select asp-for="RoleId" asp-items="Model.RoleOptions" class="user-input"></select>
-            <span asp-validation-for="RoleId" class="text-danger"></span>
-        </div>
-
-        <div class="user-field">
-            <label asp-for="StatusId"></label>
-            <select asp-for="StatusId" asp-items="Model.StatusOptions" class="user-input"></select>
-            <span asp-validation-for="StatusId" class="text-danger"></span>
-        </div>
-
-        <div class="user-form-actions">
-            <button type="submit" class="user-button">@Model.SubmitLabel</button>
-            <a asp-action="Index" class="user-button user-button--ghost">Cancel</a>
+        <div class="user-form-actions d-flex border-top pt-3">
+            <button type="submit" class="user-button btn-sm mr-2" style="background-color: #28a745; border-color: #28a745; color: white;">
+                @Model.SubmitLabel
+            </button>
+            <a asp-action="Index" class="user-button user-button--ghost btn-sm" style="color: #6c757d; border-color: #6c757d;">
+                Cancelar
+            </a>
         </div>
     </form>
 </section>

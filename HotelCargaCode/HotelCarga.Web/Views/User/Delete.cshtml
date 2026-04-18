@@ -1,7 +1,7 @@
 @model HotelCarga.Models.Users.UserListItemViewModel
 
 @{
-    ViewData["Title"] = $"Delete {Model.Username}";
+    ViewData["Title"] = $"Baja de {Model.Username}";
 }
 
 @section Styles {
@@ -9,46 +9,62 @@
 }
 
 <div class="user-shell" data-page="delete">
-    <section class="user-hero user-hero--compact" data-animate>
+    <section class="user-hero user-hero--compact pt-4 pb-5" data-animate style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center;">
         <div class="user-hero__content">
-            <span class="user-eyebrow">Removal Review</span>
-            <h1>Delete @Model.Username?</h1>
-            <p>This action removes the account from the API-backed user directory. Review the key navigation fields before confirming.</p>
+            <h1 class="mb-2">¿Eliminar a @Model.Username?</h1>
+            <p class="mb-0 text-white-50">Esta acción dará de baja la cuenta de forma permanente. Por favor, valide los datos antes de proceder.</p>
         </div>
     </section>
 
-    <section class="user-surface" data-animate>
-        <div class="user-surface__header">
-            <div>
-                <span class="user-section-tag">Deletion Check</span>
-                <h2>Account summary</h2>
+    <section class="user-surface mt-n4 mb-5 shadow-lg p-3 p-md-4" data-animate style="position: relative; z-index: 10; border-radius: 12px; background: #fff;">
+        
+        <div class="user-surface__header mb-4 border-bottom pb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="user-section-tag small text-danger font-weight-bold">Confirmación Final</span>
+                    <h2 class="h5 mb-0">Resumen de la cuenta</h2>
+                </div>
+                <i class="fas fa-exclamation-triangle text-warning h4 mb-0"></i>
             </div>
-            <p>Once removed, the record will no longer appear in the MVC client.</p>
         </div>
 
-        <div class="user-detail-grid user-detail-grid--two">
-            <article class="user-detail-card">
-                <span>Username</span>
-                <strong>@Model.Username</strong>
-            </article>
-            <article class="user-detail-card">
-                <span>Email</span>
-                <strong>@Model.Email</strong>
-            </article>
-            <article class="user-detail-card">
-                <span>Role</span>
-                <strong>@Model.RoleName</strong>
-            </article>
-            <article class="user-detail-card">
-                <span>Status</span>
-                <strong>@Model.StatusName</strong>
-            </article>
+        <div class="row mx-0 mb-4">
+            <div class="col-md-6 px-1 mb-2">
+                <div class="p-2 border rounded d-flex justify-content-between align-items-center bg-light" style="min-height: 50px;">
+                    <span class="text-muted small font-weight-bold">Usuario:</span>
+                    <strong class="text-dark ml-2 text-truncate">@Model.Username</strong>
+                </div>
+            </div>
+            <div class="col-md-6 px-1 mb-2">
+                <div class="p-2 border rounded d-flex justify-content-between align-items-center bg-light" style="min-height: 50px;">
+                    <span class="text-muted small font-weight-bold">Correo:</span>
+                    <strong class="text-dark ml-2 text-truncate">@Model.Email</strong>
+                </div>
+            </div>
+            <div class="col-md-6 px-1 mb-2">
+                <div class="p-2 border rounded d-flex justify-content-between align-items-center bg-light" style="min-height: 50px;">
+                    <span class="text-muted small font-weight-bold">Nivel:</span>
+                    <span class="badge badge-secondary py-1 px-2">@Model.RoleName</span>
+                </div>
+            </div>
+            <div class="col-md-6 px-1 mb-2">
+                <div class="p-2 border rounded d-flex justify-content-between align-items-center bg-light" style="min-height: 50px;">
+                    <span class="text-muted small font-weight-bold">Estado:</span>
+                    <span class="badge badge-info py-1 px-2">@Model.StatusName</span>
+                </div>
+            </div>
         </div>
 
-        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="user-form-actions">
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
             @Html.AntiForgeryToken()
-            <button type="submit" class="user-button user-button--danger">Delete User</button>
-            <a asp-action="Details" asp-route-id="@Model.Id" class="user-button user-button--ghost">Cancel</a>
+            <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                <button type="submit" class="user-button" style="background-color: #d9534f; border-color: #d43f3a; color: white; padding: 0.6rem 2.5rem; font-weight: 600;">
+                    Confirmar Baja
+                </button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="user-button user-button--ghost" style="color: #6c757d; border-color: #6c757d; padding: 0.6rem 1.5rem;">
+                    Cancelar y Volver
+                </a>
+            </div>
         </form>
     </section>
 </div>

@@ -1,7 +1,7 @@
 @model HotelCarga.Models.Users.UserDetailsViewModel
 
 @{
-    ViewData["Title"] = $"User {Model.User.Username}";
+    ViewData["Title"] = $"Perfil de {Model.User.Username}";
 }
 
 @section Styles {
@@ -10,31 +10,35 @@
 
 <div class="user-shell" data-page="details">
     <section class="user-hero user-hero--compact" data-animate>
-        <div class="user-hero__content">
-            <span class="user-eyebrow">User Profile</span>
-            <h1>@Model.User.Username</h1>
-            <p>@Model.User.Email is assigned to the <strong>@Model.User.RoleName</strong> role and currently marked as <strong>@Model.User.StatusName</strong>.</p>
-            <div class="user-hero__actions">
-                <a asp-action="Update" asp-route-id="@Model.User.Id" class="user-button">Update User</a>
-                <a asp-action="Index" class="user-button user-button--ghost">Back to Users</a>
+        <div class="user-hero__content d-flex align-items-center">
+            <div class="mr-4">
+                <img src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&h=200&auto=format&fit=crop" 
+                     alt="Foto de perfil" 
+                     class="rounded-circle shadow-lg border border-white" 
+                     style="width: 120px; height: 120px; object-fit: cover;" />
+            </div>
+            <div>
+                <h1 class="mb-1">@Model.User.Username</h1>
+                <p class="mb-3">El usuario <strong>@Model.User.Email</strong> tiene asignado el nivel de acceso <strong>@Model.User.RoleName</strong> y su estado actual es <strong>@Model.User.StatusName</strong>.</p>
+                <div class="user-hero__actions">
+                    <a asp-action="Update" asp-route-id="@Model.User.Id" class="user-button">Actualizar Datos</a>
+                    <a asp-action="Index" class="user-button user-button--ghost">Volver al Listado</a>
+                </div>
             </div>
         </div>
+        
         <div class="user-hero__panel">
             <div class="user-stat-grid">
                 <article class="user-stat-card">
-                    <span>User Id</span>
-                    <strong>@Model.User.Id</strong>
+                    <span>ID de Sistema</span>
+                    <strong>#@Model.User.Id</strong>
                 </article>
                 <article class="user-stat-card">
-                    <span>Customer link</span>
-                    <strong>@(Model.User.CustomerId?.ToString() ?? "None")</strong>
+                    <span>Cliente Asociado</span>
+                    <strong>@(Model.User.CustomerId?.ToString() ?? "Particular")</strong>
                 </article>
                 <article class="user-stat-card">
-                    <span>Credential</span>
-                    <strong>@(Model.HasStoredCredential ? "Stored" : "Missing")</strong>
-                </article>
-                <article class="user-stat-card">
-                    <span>Status</span>
+                    <span>Disponibilidad</span>
                     <strong>@Model.User.StatusName</strong>
                 </article>
             </div>
@@ -47,91 +51,78 @@
     }
 
     <section class="user-surface" data-animate>
-        <div class="user-surface__header">
+    <div class="user-surface__header mb-3">
+        <div>
+            <h2 class="h5">Detalles de la Cuenta</h2>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between p-3 bg-light rounded shadow-sm border">
+        <div class="d-flex align-items-center px-3 border-right">
+            <i class="fas fa-user-shield text-primary mr-3"></i>
             <div>
-                <span class="user-section-tag">Overview</span>
-                <h2>Navigation property snapshot</h2>
+                <small class="text-muted d-block text-uppercase font-weight-bold" style="font-size: 10px;">Rol</small>
+                <strong class="text-dark">@Model.User.RoleName</strong>
             </div>
-            <p>Review the User controller response together with role, status, and customer linkage.</p>
         </div>
 
-        <div class="user-detail-grid">
-            <article class="user-detail-card">
-                <span>Role</span>
-                <strong>@Model.User.RoleName</strong>
-                <p>@Model.RoleDescription</p>
-            </article>
-            <article class="user-detail-card">
-                <span>Status</span>
-                <strong>@Model.User.StatusName</strong>
-                <p>@Model.StatusDescription</p>
-            </article>
-            <article class="user-detail-card">
-                <span>Customer</span>
-                <strong>@(Model.User.CustomerId?.ToString() ?? "No linked customer")</strong>
-                <p>The API exposes the linked customer relationship as an id in the user response.</p>
-            </article>
-            <article class="user-detail-card">
-                <span>Credential Preview</span>
-                <strong>@Model.CredentialPreview</strong>
-                <p>The API expects a hashed credential string for create and update requests.</p>
-            </article>
+        <div class="d-flex align-items-center px-3 border-right">
+            <i class="fas fa-check-circle text-success mr-3"></i>
+            <div>
+                <small class="text-muted d-block text-uppercase font-weight-bold" style="font-size: 10px;">Estado</small>
+                <strong class="text-dark">@Model.User.StatusName</strong>
+            </div>
         </div>
-    </section>
+
+        <div class="d-flex align-items-center px-3 border-right">
+            <i class="fas fa-id-badge text-info mr-3"></i>
+            <div>
+                <small class="text-muted d-block text-uppercase font-weight-bold" style="font-size: 10px;">ID Cliente</small>
+                <strong class="text-dark">@(Model.User.CustomerId?.ToString() ?? "Particular")</strong>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center px-3">
+            <i class="fas fa-lock text-secondary mr-3"></i>
+            <div>
+                <small class="text-muted d-block text-uppercase font-weight-bold" style="font-size: 10px;">Seguridad</small>
+                <code class="text-dark" style="font-size: 13px;">@Model.CredentialPreview</code>
+            </div>
+        </div>
+    </div>
+</section>
 
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Audit</span>
-                <h2>Lifecycle markers</h2>
+                <span class="user-section-tag">Auditoría</span>
+                <h2>Historial de Registro</h2>
             </div>
-            <p>Track when the account entered the system and whether it was updated later.</p>
+            <p>Seguimiento del ciclo de vida de la cuenta desde su creación.</p>
         </div>
 
         <div class="user-detail-grid user-detail-grid--two">
             <article class="user-detail-card">
-                <span>Created At</span>
-                <strong>@(Model.CreatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Not available")</strong>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-calendar-plus mr-3 text-primary"></i>
+                    <div>
+                        <span>Fecha de Alta</span>
+                        <strong>@(Model.CreatedAt?.ToString("dd MMM, yyyy - HH:mm") ?? "No registrada")</strong>
+                    </div>
+                </div>
             </article>
             <article class="user-detail-card">
-                <span>Updated At</span>
-                <strong>@(Model.UpdatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Not available")</strong>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-edit mr-3 text-primary"></i>
+                    <div>
+                        <span>Última Actualización</span>
+                        <strong>@(Model.UpdatedAt?.ToString("dd MMM, yyyy - HH:mm") ?? "Sin cambios recientes")</strong>
+                    </div>
+                </div>
             </article>
         </div>
     </section>
 
-    <section class="user-surface" data-animate>
-        <div class="user-surface__header">
-            <div>
-                <span class="user-section-tag">Endpoint Shortcuts</span>
-                <h2>Run user controller helpers</h2>
-            </div>
-            <p>Jump straight into the API-backed lookups for this account.</p>
-        </div>
-
-        <div class="user-related-links">
-            <a asp-action="GetUsernameById" asp-route-id="@Model.User.Id" class="user-related-link">
-                <strong>GetUsernameById</strong>
-                <span>Resolve the username from the current id</span>
-            </a>
-            <a asp-action="GetUserWithRoleByUsername" asp-route-username="@Model.User.Username" class="user-related-link">
-                <strong>GetUserWithRoleByUsername</strong>
-                <span>Inspect the role-aware payload using the current username</span>
-            </a>
-            <a asp-action="GetUserWithRoleByEmail" asp-route-email="@Model.User.Email" class="user-related-link">
-                <strong>GetUserWithRoleByEmail</strong>
-                <span>Inspect the role-aware payload using the current email</span>
-            </a>
-            <a asp-action="UsernameExists" asp-route-username="@Model.User.Username" class="user-related-link">
-                <strong>UsernameExists</strong>
-                <span>Validate whether the username is still present</span>
-            </a>
-            <a asp-action="EmailExists" asp-route-email="@Model.User.Email" class="user-related-link">
-                <strong>EmailExists</strong>
-                <span>Validate whether the email is still present</span>
-            </a>
-        </div>
-    </section>
 </div>
 
 @section Scripts {

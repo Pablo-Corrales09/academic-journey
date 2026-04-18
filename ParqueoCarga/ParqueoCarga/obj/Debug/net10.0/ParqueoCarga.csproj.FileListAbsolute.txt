@@ -237,11 +237,7 @@ C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\rjsmcshtml.d
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\scopedcss\bundle\ParqueoCarga.styles.css
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\scopedcss\projectbundle\ParqueoCarga.bundle.scp.css
-C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\91qjcd0c8r-{0}-uqq3bia715-uqq3bia715.gz
-C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\utet1w2cdj-{0}-b9sayid5wm-b9sayid5wm.gz
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\9vcwp1i74h-{0}-61n19gt1b8-61n19gt1b8.gz
-C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\lxlqv91k9p-{0}-c04oe78tsi-c04oe78tsi.gz
-C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\sgcxatngph-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\gafr11m8iq-{0}-bqjiyaj88i-bqjiyaj88i.gz
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\l3c8b1jvyj-{0}-c2jlpeoesf-c2jlpeoesf.gz
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\5oia9688jx-{0}-erw9l3u2r3-erw9l3u2r3.gz
@@ -318,3 +314,7 @@ C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\n
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\vpjsztj8ga-{0}-3szdddckwi-3szdddckwi.gz
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\iev3ep91jc-{0}-b5tipphjjw-b5tipphjjw.gz
 C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\q00k3xqeix-{0}-l4e567xkf7-l4e567xkf7.gz
+C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\utet1w2cdj-{0}-0c0fl2l708-0c0fl2l708.gz
+C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\sgcxatngph-{0}-dtlji1lve1-dtlji1lve1.gz
+C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\lxlqv91k9p-{0}-gp11hdjr4x-gp11hdjr4x.gz
+C:\Git\academic-journey\ParqueoCarga\ParqueoCarga\obj\Debug\net10.0\compressed\91qjcd0c8r-{0}-di38gpqb3j-di38gpqb3j.gz

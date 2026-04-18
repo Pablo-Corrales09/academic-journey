@@ -1,7 +1,7 @@
 @model HotelCarga.Models.Users.UserIndexViewModel
 
 @{
-    ViewData["Title"] = "Users";
+    ViewData["Title"] = "Gestión de Usuarios";
 }
 
 @section Styles {
@@ -9,32 +9,31 @@
 }
 
 <div class="user-shell" data-page="index">
-    <section class="user-hero" data-animate>
+    <section class="user-hero" data-animate style="background-image: linear-gradient(to right, rgba(0,0,0,0.8), rgba(0,0,0,0.2)), url('https://images.unsplash.com/photo-1556745753-b2904692b3cd?auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center;">
         <div class="user-hero__content">
-            <span class="user-eyebrow">Account Operations</span>
-            <h1>Shape the hotel identity layer with a clear, guest-aware workflow.</h1>
-            <p>Review every user account, filter the directory, and jump into API-backed lookup tools for usernames, roles, and account availability checks.</p>
+            <h1>Gestione la identidad de su equipo con un flujo de trabajo eficiente.</h1>
+            <p>Supervise cada cuenta de acceso, filtre el directorio de empleados y utilice herramientas de validación rápida para asegurar la integridad de los datos de su hotel.</p>
             <div class="user-hero__actions">
-                <a asp-action="Create" class="user-button">Create User</a>
-                <a asp-action="GetAll" class="user-button user-button--ghost">Reset Filters</a>
+                <a asp-action="Create" class="user-button">Nuevo Usuario</a>
+                <a asp-action="GetAll" class="user-button user-button--ghost">Restablecer Directorio</a>
             </div>
         </div>
         <div class="user-hero__panel">
             <div class="user-stat-grid">
                 <article class="user-stat-card">
-                    <span>Total accounts</span>
+                    <span>Cuentas totales</span>
                     <strong data-count="@Model.Stats.TotalUsers">@Model.Stats.TotalUsers</strong>
                 </article>
                 <article class="user-stat-card">
-                    <span>Matching users</span>
+                    <span>Resultados de búsqueda</span>
                     <strong data-count="@Model.Stats.MatchingUsers">@Model.Stats.MatchingUsers</strong>
                 </article>
                 <article class="user-stat-card">
-                    <span>Active accounts</span>
+                    <span>Usuarios activos</span>
                     <strong data-count="@Model.Stats.ActiveUsers">@Model.Stats.ActiveUsers</strong>
                 </article>
                 <article class="user-stat-card">
-                    <span>Linked customers</span>
+                    <span>Clientes vinculados</span>
                     <strong data-count="@Model.Stats.LinkedCustomers">@Model.Stats.LinkedCustomers</strong>
                 </article>
             </div>
@@ -54,114 +53,59 @@
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Search & Filter</span>
-                <h2>Scan the account directory</h2>
+                <h2>Busqueda avanzada</h2>
             </div>
-            <p>@Model.ActiveFilterSummary</p>
         </div>
 
         <form asp-action="Index" method="get" class="user-filter-grid">
             <div class="user-field">
-                <label asp-for="Filters.Username"></label>
-                <input asp-for="Filters.Username" class="user-input" />
+                <label>Correo Electrónico</label>
+                <input asp-for="Filters.Email" class="user-input" placeholder="usuario@hotelcarga.com" />
             </div>
             <div class="user-field">
-                <label asp-for="Filters.Email"></label>
-                <input asp-for="Filters.Email" class="user-input" />
-            </div>
-            <div class="user-field">
-                <label asp-for="Filters.RoleId"></label>
+                <label>Rol de Acceso</label>
                 <select asp-for="Filters.RoleId" asp-items="Model.RoleOptions" class="user-input">
-                    <option value="">All roles</option>
+                    <option value="">Todos los roles</option>
                 </select>
             </div>
             <div class="user-field">
-                <label asp-for="Filters.StatusId"></label>
+                <label>Estado de Cuenta</label>
                 <select asp-for="Filters.StatusId" asp-items="Model.StatusOptions" class="user-input">
-                    <option value="">All statuses</option>
+                    <option value="">Todos los estados</option>
                 </select>
             </div>
             <div class="user-field">
-                <label asp-for="Filters.HasCustomer"></label>
+                <label>Vínculo con Cliente</label>
                 <select asp-for="Filters.HasCustomer" class="user-input">
-                    <option value="">All accounts</option>
-                    <option value="true">With linked customer</option>
-                    <option value="false">Without linked customer</option>
+                    <option value="">Todas las cuentas</option>
+                    <option value="true">Solo perfiles con cliente asignado</option>
+                    <option value="false">Solo perfiles administrativos</option>
                 </select>
             </div>
             <div class="user-form-actions user-form-actions--inline">
-                <button type="submit" class="user-button">Apply Filters</button>
-                <a asp-action="GetAll" class="user-button user-button--ghost">Clear</a>
+                <button type="submit" class="user-button">Aplicar Filtros</button>
+                <a asp-action="GetAll" class="user-button user-button--ghost">Limpiar</a>
             </div>
         </form>
     </section>
 
-    <section class="user-surface" data-animate>
-        <div class="user-surface__header">
-            <div>
-                <span class="user-section-tag">API Tools</span>
-                <h2>Run controller lookups</h2>
-            </div>
-            <p>Each form below maps to a dedicated endpoint from the API User controller.</p>
-        </div>
 
-        <div class="user-lookup-grid">
-            <form asp-action="GetUsernameById" method="get" class="user-lookup-card">
-                <h3>Username by Id</h3>
-                <p>Resolve the direct username helper endpoint.</p>
-                <label for="lookup-user-id">User Id</label>
-                <input id="lookup-user-id" name="id" type="number" min="1" class="user-input" required />
-                <button type="submit" class="user-button">Run Lookup</button>
-            </form>
-
-            <form asp-action="GetUserWithRoleByUsername" method="get" class="user-lookup-card">
-                <h3>User With Role by Username</h3>
-                <p>Inspect the account payload resolved from a username.</p>
-                <label for="lookup-username">Username</label>
-                <input id="lookup-username" name="username" class="user-input" required />
-                <button type="submit" class="user-button">Inspect Account</button>
-            </form>
-
-            <form asp-action="GetUserWithRoleByEmail" method="get" class="user-lookup-card">
-                <h3>User With Role by Email</h3>
-                <p>Inspect the account payload resolved from an email address.</p>
-                <label for="lookup-email">Email</label>
-                <input id="lookup-email" name="email" type="email" class="user-input" required />
-                <button type="submit" class="user-button">Inspect Account</button>
-            </form>
-
-            <form asp-action="UsernameExists" method="get" class="user-lookup-card">
-                <h3>Username Exists</h3>
-                <p>Check availability before creating a new account.</p>
-                <label for="exists-username">Username</label>
-                <input id="exists-username" name="username" class="user-input" required />
-                <button type="submit" class="user-button">Check Username</button>
-            </form>
-
-            <form asp-action="EmailExists" method="get" class="user-lookup-card">
-                <h3>Email Exists</h3>
-                <p>Check whether an email is already in use.</p>
-                <label for="exists-email">Email</label>
-                <input id="exists-email" name="email" type="email" class="user-input" required />
-                <button type="submit" class="user-button">Check Email</button>
-            </form>
-        </div>
-    </section>
 
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">User Directory</span>
-                <h2>Operational account list</h2>
+                <span class="user-section-tag">Directorio Operativo</span>
+                <h2>Lista de cuentas registradas</h2>
             </div>
-            <p>@Model.Users.Count account records ready for review.</p>
+            <p>@Model.Users.Count registros encontrados en el sistema.</p>
         </div>
 
         @if (Model.Users.Count == 0)
         {
             <div class="user-empty-state">
-                <h3>No users matched this filter.</h3>
-                <p>Broaden the search criteria or create a new account to extend the directory.</p>
+                <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=300&q=80" class="mb-4 rounded" style="max-width: 200px; opacity: 0.6;" />
+                <h3>No se encontraron usuarios con estos criterios.</h3>
+                <p>Intente ajustar los filtros o cree una nueva cuenta para ampliar el directorio.</p>
             </div>
         }
         else
@@ -179,26 +123,26 @@
                         </div>
                         <dl class="user-card__meta">
                             <div>
-                                <dt>Email</dt>
+                                <dt>Correo</dt>
                                 <dd>@user.Email</dd>
                             </div>
                             <div>
-                                <dt>Customer</dt>
-                                <dd>@(user.CustomerId?.ToString() ?? "Not linked")</dd>
+                                <dt>Cliente Vinculado</dt>
+                                <dd>@(user.CustomerId?.ToString() ?? "Sin vinculación")</dd>
                             </div>
                             <div>
-                                <dt>Role</dt>
+                                <dt>Nivel de Acceso</dt>
                                 <dd>@user.RoleName</dd>
                             </div>
                             <div>
-                                <dt>Status</dt>
+                                <dt>Estado</dt>
                                 <dd>@user.StatusName</dd>
                             </div>
                         </dl>
                         <div class="user-card__actions">
-                            <a asp-action="GetById" asp-route-id="@user.Id" class="user-button">Open</a>
-                            <a asp-action="Update" asp-route-id="@user.Id" class="user-button user-button--ghost">Update</a>
-                            <a asp-action="Delete" asp-route-id="@user.Id" class="user-button user-button--ghost user-button--danger">Delete</a>
+                            <a asp-action="GetById" asp-route-id="@user.Id" class="user-button">Ver Perfil</a>
+                            <a asp-action="Update" asp-route-id="@user.Id" class="user-button user-button--ghost">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@user.Id" class="user-button user-button--ghost user-button--danger">Baja</a>
                         </div>
                     </article>
                 }
