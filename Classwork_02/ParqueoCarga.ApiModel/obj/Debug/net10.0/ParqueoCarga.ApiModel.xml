@@ -1,0 +1,291 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ParqueoCarga.ApiModel</name>
+    </assembly>
+    <members>
+        <member name="T:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController">
+            <summary>
+            Manages vehicles (<c>PrqAutomovil</c>).
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.#ctor(ParqueolCarga.RepositoryModel.Interfaces.IPrqAutomovilRepository)">
+            <summary>Initialises the controller with the required repository.</summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetAll(System.Threading.CancellationToken)">
+            <summary>Returns all vehicles.</summary>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of vehicles (may be empty).</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetById(System.UInt32,System.Threading.CancellationToken)">
+            <summary>Returns a single vehicle by its ID.</summary>
+            <param name="id">Primary key of the vehicle.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">The requested vehicle.</response>
+            <response code="404">Vehicle not found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.Create(ParqueoCarga.ApiModel.Dtos.PrqAutomovilRequest,System.Threading.CancellationToken)">
+            <summary>Creates a new vehicle.</summary>
+            <param name="request">Vehicle data.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="201">The newly created vehicle.</response>
+            <response code="400">Validation errors in the request body.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.Update(System.UInt32,ParqueoCarga.ApiModel.Dtos.PrqAutomovilRequest,System.Threading.CancellationToken)">
+            <summary>Updates an existing vehicle.</summary>
+            <param name="id">Primary key of the vehicle to update.</param>
+            <param name="request">Updated vehicle data.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="204">Update succeeded.</response>
+            <response code="400">Validation errors in the request body.</response>
+            <response code="404">Vehicle not found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.Delete(System.UInt32,System.Threading.CancellationToken)">
+            <summary>Deletes a vehicle by its ID.</summary>
+            <param name="id">Primary key of the vehicle to delete.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="204">Deletion succeeded.</response>
+            <response code="404">Vehicle not found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetByPartialColor(System.String,System.Threading.CancellationToken)">
+            <summary>Returns vehicles whose colour contains the specified text (case-insensitive).</summary>
+            <param name="color">Partial or exact colour string to search for.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of matching vehicles (may be empty).</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetByYearRange(System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>Returns vehicles whose manufacturing year falls within the given range (inclusive).</summary>
+            <param name="startYear">Start of the year range.</param>
+            <param name="endYear">End of the year range.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of matching vehicles (may be empty).</response>
+            <response code="400"><paramref name="startYear"/> is greater than <paramref name="endYear"/>.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetByPartialFabricante(System.String,System.Threading.CancellationToken)">
+            <summary>Returns vehicles whose manufacturer name contains the specified text (case-insensitive).</summary>
+            <param name="fabricante">Partial or exact manufacturer name to search for.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of matching vehicles (may be empty).</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetByPartialTipo(System.String,System.Threading.CancellationToken)">
+            <summary>Returns vehicles whose type contains the specified text (case-insensitive).</summary>
+            <param name="tipo">Partial or exact vehicle type to search for.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of matching vehicles (may be empty).</response>
+        </member>
+        <member name="T:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController">
+            <summary>
+            Manages vehicle entry records (<c>PrqIngresoAutomovil</c>).
+            Each record tracks when a vehicle entered and exited a parking lot,
+            and exposes calculated fields such as stay duration and total cost.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController.#ctor(ParqueolCarga.RepositoryModel.Interfaces.IPrqIngresoAutomovilRepository)">
+            <summary>Initialises the controller with the required repository.</summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController.GetAll(System.Threading.CancellationToken)">
+            <summary>Returns all vehicle entry records.</summary>
+            <remarks>
+            Each returned record includes calculated fields:
+            <c>duracionEstadiaMinutos</c>, <c>duracionEstadiaHoras</c>, and <c>montoTotalPagar</c>.
+            These are <c>null</c> when the vehicle has not yet exited.
+            </remarks>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of entry records (may be empty).</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController.GetById(System.UInt32,System.Threading.CancellationToken)">
+            <summary>Returns a single entry record by its consecutive number.</summary>
+            <param name="consecutivo">Primary key of the entry record.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">The requested entry record.</response>
+            <response code="404">Entry record not found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController.Create(ParqueoCarga.ApiModel.Dtos.PrqIngresoAutomovilRequest,System.Threading.CancellationToken)">
+            <summary>Creates a new vehicle entry record.</summary>
+            <param name="request">Entry record data.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="201">The newly created entry record.</response>
+            <response code="400">Validation errors in the request body.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController.Update(System.UInt32,ParqueoCarga.ApiModel.Dtos.PrqIngresoAutomovilRequest,System.Threading.CancellationToken)">
+            <summary>Updates an existing entry record.</summary>
+            <param name="consecutivo">Primary key of the entry record to update.</param>
+            <param name="request">Updated entry record data.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="204">Update succeeded.</response>
+            <response code="400">Validation errors in the request body.</response>
+            <response code="404">Entry record not found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController.Delete(System.UInt32,System.Threading.CancellationToken)">
+            <summary>Deletes an entry record by its consecutive number.</summary>
+            <param name="consecutivo">Primary key of the entry record to delete.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="204">Deletion succeeded.</response>
+            <response code="404">Entry record not found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController.ObtenerPrecioPorHora(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Returns the hourly rate (<c>PrecioHora</c>) of the parking lot associated with the given ID.
+            </summary>
+            <param name="idParqueo">ID of the parking lot.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">The hourly rate as a decimal number.</response>
+            <response code="404">No parking lot with the given ID was found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController.GetByTipoAndDateRange(System.String,System.DateTime,System.DateTime,System.Threading.CancellationToken)">
+            <summary>
+            Returns entry records filtered by vehicle type and entry date range.
+            </summary>
+            <param name="tipo">Vehicle type (e.g. "Sedán"). Partial match supported.</param>
+            <param name="startDate">Start of the entry date range (inclusive).</param>
+            <param name="endDate">End of the entry date range (inclusive).</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of matching entry records (may be empty).</response>
+            <response code="400"><paramref name="startDate"/> is after <paramref name="endDate"/>.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresosAutomovilController.GetByProvinciaAndDateRange(System.String,System.DateTime,System.DateTime,System.Threading.CancellationToken)">
+            <summary>
+            Returns entry records filtered by parking lot province and entry date range.
+            </summary>
+            <param name="provincia">Province of the parking lot (e.g. "San José"). Partial match supported.</param>
+            <param name="startDate">Start of the entry date range (inclusive).</param>
+            <param name="endDate">End of the entry date range (inclusive).</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of matching entry records (may be empty).</response>
+            <response code="400"><paramref name="startDate"/> is after <paramref name="endDate"/>.</response>
+        </member>
+        <member name="T:ParqueoCarga.ApiModel.Controllers.PrqParqueosController">
+            <summary>
+            Manages parking lots (<c>PrqParqueo</c>).
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.#ctor(ParqueolCarga.RepositoryModel.Interfaces.IPrqParqueoRepository)">
+            <summary>Initialises the controller with the required repository.</summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.GetAll(System.Threading.CancellationToken)">
+            <summary>Returns all parking lots.</summary>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of parking lots (may be empty).</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.GetById(System.UInt32,System.Threading.CancellationToken)">
+            <summary>Returns a single parking lot by its ID.</summary>
+            <param name="id">Primary key of the parking lot.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">The requested parking lot.</response>
+            <response code="404">Parking lot not found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.Create(ParqueoCarga.ApiModel.Dtos.PrqParqueoRequest,System.Threading.CancellationToken)">
+            <summary>Creates a new parking lot.</summary>
+            <param name="request">Parking lot data.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="201">The newly created parking lot.</response>
+            <response code="400">Validation errors in the request body.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.Update(System.UInt32,ParqueoCarga.ApiModel.Dtos.PrqParqueoRequest,System.Threading.CancellationToken)">
+            <summary>Updates an existing parking lot.</summary>
+            <param name="id">Primary key of the parking lot to update.</param>
+            <param name="request">Updated parking lot data.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="204">Update succeeded.</response>
+            <response code="400">Validation errors in the request body.</response>
+            <response code="404">Parking lot not found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.Delete(System.UInt32,System.Threading.CancellationToken)">
+            <summary>Deletes a parking lot by its ID.</summary>
+            <param name="id">Primary key of the parking lot to delete.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="204">Deletion succeeded.</response>
+            <response code="404">Parking lot not found.</response>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.GetByFiltros(System.String,System.String,System.Decimal,System.Decimal,System.Threading.CancellationToken)">
+            <summary>
+            Returns parking lots filtered by province, name, and price range.
+            All parameters are optional; omit any to skip that filter.
+            </summary>
+            <param name="provincia">Province to filter by (partial or exact match).</param>
+            <param name="nombre">Name to filter by (partial or exact match).</param>
+            <param name="minPrice">Minimum hourly price (inclusive). Defaults to 0.</param>
+            <param name="maxPrice">Maximum hourly price (inclusive). Defaults to <see cref="F:System.Decimal.MaxValue"/>.</param>
+            <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
+            <response code="200">List of matching parking lots (may be empty).</response>
+        </member>
+        <member name="T:ParqueoCarga.ApiModel.Dtos.PrqAutomovilRequest">
+            <summary>Payload for creating or updating a <c>PrqAutomovil</c>.</summary>
+            <param name="Color">Vehicle colour (e.g. "Rojo").</param>
+            <param name="Anio">Manufacturing year (e.g. 2022).</param>
+            <param name="Fabricante">Manufacturer / brand name (e.g. "Toyota").</param>
+            <param name="Tipo">Vehicle type (e.g. "Sedán", "SUV").</param>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Dtos.PrqAutomovilRequest.#ctor(System.String,System.Int16,System.String,System.String)">
+            <summary>Payload for creating or updating a <c>PrqAutomovil</c>.</summary>
+            <param name="Color">Vehicle colour (e.g. "Rojo").</param>
+            <param name="Anio">Manufacturing year (e.g. 2022).</param>
+            <param name="Fabricante">Manufacturer / brand name (e.g. "Toyota").</param>
+            <param name="Tipo">Vehicle type (e.g. "Sedán", "SUV").</param>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqAutomovilRequest.Color">
+            <summary>Vehicle colour (e.g. "Rojo").</summary>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqAutomovilRequest.Anio">
+            <summary>Manufacturing year (e.g. 2022).</summary>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqAutomovilRequest.Fabricante">
+            <summary>Manufacturer / brand name (e.g. "Toyota").</summary>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqAutomovilRequest.Tipo">
+            <summary>Vehicle type (e.g. "Sedán", "SUV").</summary>
+        </member>
+        <member name="T:ParqueoCarga.ApiModel.Dtos.PrqIngresoAutomovilRequest">
+            <summary>Payload for creating or updating a <c>PrqIngresoAutomovil</c>.</summary>
+            <param name="IdParqueo">Foreign key — ID of the parking lot.</param>
+            <param name="IdAutomovil">Foreign key — ID of the vehicle.</param>
+            <param name="FechaEntrada">Date and time the vehicle entered the parking lot.</param>
+            <param name="FechaSalida">Date and time the vehicle left (null if still parked).</param>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Dtos.PrqIngresoAutomovilRequest.#ctor(System.UInt32,System.UInt32,System.DateTime,System.Nullable{System.DateTime})">
+            <summary>Payload for creating or updating a <c>PrqIngresoAutomovil</c>.</summary>
+            <param name="IdParqueo">Foreign key — ID of the parking lot.</param>
+            <param name="IdAutomovil">Foreign key — ID of the vehicle.</param>
+            <param name="FechaEntrada">Date and time the vehicle entered the parking lot.</param>
+            <param name="FechaSalida">Date and time the vehicle left (null if still parked).</param>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqIngresoAutomovilRequest.IdParqueo">
+            <summary>Foreign key — ID of the parking lot.</summary>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqIngresoAutomovilRequest.IdAutomovil">
+            <summary>Foreign key — ID of the vehicle.</summary>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqIngresoAutomovilRequest.FechaEntrada">
+            <summary>Date and time the vehicle entered the parking lot.</summary>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqIngresoAutomovilRequest.FechaSalida">
+            <summary>Date and time the vehicle left (null if still parked).</summary>
+        </member>
+        <member name="T:ParqueoCarga.ApiModel.Dtos.PrqParqueoRequest">
+            <summary>Payload for creating or updating a <c>PrqParqueo</c>.</summary>
+            <param name="Provincia">Province where the parking lot is located.</param>
+            <param name="Nombre">Parking lot display name.</param>
+            <param name="PrecioHora">Hourly rate charged by this parking lot.</param>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Dtos.PrqParqueoRequest.#ctor(System.String,System.String,System.Decimal)">
+            <summary>Payload for creating or updating a <c>PrqParqueo</c>.</summary>
+            <param name="Provincia">Province where the parking lot is located.</param>
+            <param name="Nombre">Parking lot display name.</param>
+            <param name="PrecioHora">Hourly rate charged by this parking lot.</param>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqParqueoRequest.Provincia">
+            <summary>Province where the parking lot is located.</summary>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqParqueoRequest.Nombre">
+            <summary>Parking lot display name.</summary>
+        </member>
+        <member name="P:ParqueoCarga.ApiModel.Dtos.PrqParqueoRequest.PrecioHora">
+            <summary>Hourly rate charged by this parking lot.</summary>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Entry-point partial class required for WebApplicationFactory in integration tests.
+            </summary>
+        </member>
+    </members>
+</doc>

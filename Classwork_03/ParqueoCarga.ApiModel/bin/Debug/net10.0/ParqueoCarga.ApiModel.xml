@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ParqueoCarga.ApiModel</name>
+    </assembly>
+    <members>
+        <member name="T:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController">
+            <summary>
+            Exposes CRUD and search endpoints for automoviles.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetAll(System.Threading.CancellationToken)">
+            <summary>
+            Retrieves all automoviles.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetById(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves a single automovil by id.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.Create(ParqueoCarga.DbModel.Models.PrqAutomovil,System.Threading.CancellationToken)">
+            <summary>
+            Creates a new automovil.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.Update(System.UInt32,ParqueoCarga.DbModel.Models.PrqAutomovil,System.Threading.CancellationToken)">
+            <summary>
+            Updates an existing automovil.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.Delete(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Deletes an automovil by id.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetByPartialColor(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Searches automoviles by partial color.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetByYearRange(System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Searches automoviles by a year range.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetByPartialFabricante(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Searches automoviles by partial fabricante.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqAutomovilesController.GetByPartialTipo(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Searches automoviles by partial tipo.
+            </summary>
+        </member>
+        <member name="T:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesCalculatedController">
+            <summary>
+            Exposes CRUD endpoints for ingreso automoviles with calculated fields.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesCalculatedController.GetAll(System.Threading.CancellationToken)">
+            <summary>
+            Retrieves all ingreso automoviles including calculated fields.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesCalculatedController.GetById(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves an ingreso automovil by consecutivo including calculated fields.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesCalculatedController.Create(ParqueoCarga.DbModel.Models.PrqIngresoAutomovil,System.Threading.CancellationToken)">
+            <summary>
+            Creates an ingreso automovil record.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesCalculatedController.Update(System.UInt32,ParqueoCarga.DbModel.Models.PrqIngresoAutomovil,System.Threading.CancellationToken)">
+            <summary>
+            Updates an ingreso automovil by consecutivo.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesCalculatedController.Delete(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Deletes an ingreso automovil by consecutivo.
+            </summary>
+        </member>
+        <member name="T:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesController">
+            <summary>
+            Exposes CRUD and query endpoints for ingresos de automoviles.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesController.GetAll(System.Threading.CancellationToken)">
+            <summary>
+            Retrieves all ingresos de automoviles.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesController.GetById(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves an ingreso automovil by consecutivo.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesController.Create(ParqueoCarga.DbModel.Models.PrqIngresoAutomovil,System.Threading.CancellationToken)">
+            <summary>
+            Creates an ingreso automovil.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesController.Update(System.UInt32,ParqueoCarga.DbModel.Models.PrqIngresoAutomovil,System.Threading.CancellationToken)">
+            <summary>
+            Updates an ingreso automovil by consecutivo.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesController.Delete(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Deletes an ingreso automovil by consecutivo.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesController.ObtenerPrecioPorHoraPorParqueo(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Obtains the hourly price for a given parqueo id.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesController.GetByTipoAndDateRange(System.String,System.DateTime,System.DateTime,System.Threading.CancellationToken)">
+            <summary>
+            Searches ingresos by automovil tipo in a date range.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqIngresoAutomovilesController.GetByProvinciaAndDateRange(System.String,System.DateTime,System.DateTime,System.Threading.CancellationToken)">
+            <summary>
+            Searches ingresos by parqueo provincia in a date range.
+            </summary>
+        </member>
+        <member name="T:ParqueoCarga.ApiModel.Controllers.PrqParqueosController">
+            <summary>
+            Exposes CRUD and filter endpoints for parqueos.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.GetAll(System.Threading.CancellationToken)">
+            <summary>
+            Retrieves all parqueos.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.GetById(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves a parqueo by id.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.Create(ParqueoCarga.DbModel.Models.PrqParqueo,System.Threading.CancellationToken)">
+            <summary>
+            Creates a parqueo.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.Update(System.UInt32,ParqueoCarga.DbModel.Models.PrqParqueo,System.Threading.CancellationToken)">
+            <summary>
+            Updates a parqueo by id.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.Delete(System.UInt32,System.Threading.CancellationToken)">
+            <summary>
+            Deletes a parqueo by id.
+            </summary>
+        </member>
+        <member name="M:ParqueoCarga.ApiModel.Controllers.PrqParqueosController.GetByFiltros(System.String,System.String,System.Decimal,System.Decimal,System.Threading.CancellationToken)">
+            <summary>
+            Searches parqueos by optional provincia, nombre and a price range.
+            </summary>
+        </member>
+        <member name="T:Program">
+            <summary>
+            Auto-generated public partial Program class for top-level statement apps.
+            </summary>
+        </member>
+    </members>
+</doc>
