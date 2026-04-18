@@ -76,3 +76,7 @@ CREATE TABLE prq_ingreso_automoviles (
     (2, 3, '2026-04-16 18:30:00', NULL),
     (1, 5, '2026-04-17 07:10:00', NULL),
     (2, 4, '2026-04-17 09:45:00', NULL);
+
+    SELECT * FROM prq_automoviles;
+    SELECT * FROM prq_parqueo;
+    SELECT * FROM prq_ingreso_automoviles;
