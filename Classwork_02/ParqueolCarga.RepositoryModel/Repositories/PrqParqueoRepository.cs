@@ -14,11 +14,55 @@ public sealed class PrqParqueoRepository : IPrqParqueoRepository
         _dbContext = dbContext;
     }
 
+    public Task<List<PrqParqueo>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return _dbContext.PrqParqueos
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<PrqParqueo?> GetByIdAsync(uint id, CancellationToken cancellationToken = default)
     {
         return _dbContext.PrqParqueos
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
+    public async Task<PrqParqueo> CreateAsync(PrqParqueo entity, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.PrqParqueos.AddAsync(entity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
+
+    public async Task<bool> UpdateAsync(PrqParqueo entity, CancellationToken cancellationToken = default)
+    {
+        var existingEntity = await _dbContext.PrqParqueos
+            .FirstOrDefaultAsync(x => x.Id == entity.Id, cancellationToken);
+
+        if (existingEntity is null)
+        {
+            return false;
+        }
+
+        _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(uint id, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbContext.PrqParqueos
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        if (entity is null)
+        {
+            return false;
+        }
+
+        _dbContext.PrqParqueos.Remove(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     public Task<List<PrqParqueo>> GetByFiltrosAsync(

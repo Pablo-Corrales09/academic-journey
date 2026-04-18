@@ -14,11 +14,55 @@ public sealed class PrqAutomovilRepository : IPrqAutomovilRepository
         _dbContext = dbContext;
     }
 
+    public Task<List<PrqAutomovil>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return _dbContext.PrqAutomoviles
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<PrqAutomovil?> GetByIdAsync(uint id, CancellationToken cancellationToken = default)
     {
         return _dbContext.PrqAutomoviles
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
+    public async Task<PrqAutomovil> CreateAsync(PrqAutomovil entity, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.PrqAutomoviles.AddAsync(entity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
+
+    public async Task<bool> UpdateAsync(PrqAutomovil entity, CancellationToken cancellationToken = default)
+    {
+        var existingEntity = await _dbContext.PrqAutomoviles
+            .FirstOrDefaultAsync(x => x.Id == entity.Id, cancellationToken);
+
+        if (existingEntity is null)
+        {
+            return false;
+        }
+
+        _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(uint id, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbContext.PrqAutomoviles
+            .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+        if (entity is null)
+        {
+            return false;
+        }
+
+        _dbContext.PrqAutomoviles.Remove(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     public Task<List<PrqAutomovil>> GetByPartialColorAsync(string color, CancellationToken cancellationToken = default)

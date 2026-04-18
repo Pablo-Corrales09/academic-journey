@@ -5,7 +5,15 @@ namespace ParqueolCarga.RepositoryModel.Interfaces;
 
 public interface IPrqIngresoAutomovilRepository
 {
+    Task<List<PrqIngresoAutomovil>> GetAllAsync(CancellationToken cancellationToken = default);
+
     Task<PrqIngresoAutomovil?> GetByIdAsync(uint consecutivo, CancellationToken cancellationToken = default);
+
+    Task<PrqIngresoAutomovil> CreateAsync(PrqIngresoAutomovil entity, CancellationToken cancellationToken = default);
+
+    Task<bool> UpdateAsync(PrqIngresoAutomovil entity, CancellationToken cancellationToken = default);
+
+    Task<bool> DeleteAsync(uint consecutivo, CancellationToken cancellationToken = default);
 
     Task<decimal?> ObtenerPrecioPorHoraPorParqueo(uint idParqueo, CancellationToken cancellationToken = default);
 

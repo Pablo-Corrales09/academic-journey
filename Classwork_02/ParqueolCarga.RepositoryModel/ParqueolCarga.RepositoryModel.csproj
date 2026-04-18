@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.6" />
     <ProjectReference Include="..\ParqueoCarga.DbModel\ParqueoCarga.DbModel.csproj" />
   </ItemGroup>
 

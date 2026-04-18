@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ParqueoCarga.DbModel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+69e4e02011e445be09b8dc16bae6b0d241a1375e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3dbfda26be09a64a062bde2ca0880af42e1c80a8")]
 [assembly: System.Reflection.AssemblyProductAttribute("ParqueoCarga.DbModel")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ParqueoCarga.DbModel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

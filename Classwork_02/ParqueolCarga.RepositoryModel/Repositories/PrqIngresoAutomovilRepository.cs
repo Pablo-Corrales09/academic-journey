@@ -15,6 +15,15 @@ public sealed class PrqIngresoAutomovilRepository : IPrqIngresoAutomovilReposito
         _dbContext = dbContext;
     }
 
+    public Task<List<PrqIngresoAutomovil>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return _dbContext.PrqIngresoAutomoviles
+            .AsNoTracking()
+            .Include(x => x.IdAutomovilNavigation)
+            .Include(x => x.IdParqueoNavigation)
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<PrqIngresoAutomovil?> GetByIdAsync(uint consecutivo, CancellationToken cancellationToken = default)
     {
         return _dbContext.PrqIngresoAutomoviles
@@ -22,6 +31,43 @@ public sealed class PrqIngresoAutomovilRepository : IPrqIngresoAutomovilReposito
             .Include(x => x.IdAutomovilNavigation)
             .Include(x => x.IdParqueoNavigation)
             .FirstOrDefaultAsync(x => x.Consecutivo == consecutivo, cancellationToken);
+    }
+
+    public async Task<PrqIngresoAutomovil> CreateAsync(PrqIngresoAutomovil entity, CancellationToken cancellationToken = default)
+    {
+        await _dbContext.PrqIngresoAutomoviles.AddAsync(entity, cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
+
+    public async Task<bool> UpdateAsync(PrqIngresoAutomovil entity, CancellationToken cancellationToken = default)
+    {
+        var existingEntity = await _dbContext.PrqIngresoAutomoviles
+            .FirstOrDefaultAsync(x => x.Consecutivo == entity.Consecutivo, cancellationToken);
+
+        if (existingEntity is null)
+        {
+            return false;
+        }
+
+        _dbContext.Entry(existingEntity).CurrentValues.SetValues(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(uint consecutivo, CancellationToken cancellationToken = default)
+    {
+        var entity = await _dbContext.PrqIngresoAutomoviles
+            .FirstOrDefaultAsync(x => x.Consecutivo == consecutivo, cancellationToken);
+
+        if (entity is null)
+        {
+            return false;
+        }
+
+        _dbContext.PrqIngresoAutomoviles.Remove(entity);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     public Task<decimal?> ObtenerPrecioPorHoraPorParqueo(uint idParqueo, CancellationToken cancellationToken = default)
