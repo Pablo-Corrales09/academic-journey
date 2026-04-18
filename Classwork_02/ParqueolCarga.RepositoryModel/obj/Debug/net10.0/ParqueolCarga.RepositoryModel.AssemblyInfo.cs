@@ -10,13 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("2268357b-c240-4520-8922-4a15f494aae5")]
-[assembly: System.Reflection.AssemblyCompanyAttribute("ParqueoCarga.DbModel")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("ParqueolCarga.RepositoryModel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+69e4e02011e445be09b8dc16bae6b0d241a1375e")]
-[assembly: System.Reflection.AssemblyProductAttribute("ParqueoCarga.DbModel")]
-[assembly: System.Reflection.AssemblyTitleAttribute("ParqueoCarga.DbModel")]
+[assembly: System.Reflection.AssemblyProductAttribute("ParqueolCarga.RepositoryModel")]
+[assembly: System.Reflection.AssemblyTitleAttribute("ParqueolCarga.RepositoryModel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // Generado por la clase WriteCodeFragment de MSBuild.
