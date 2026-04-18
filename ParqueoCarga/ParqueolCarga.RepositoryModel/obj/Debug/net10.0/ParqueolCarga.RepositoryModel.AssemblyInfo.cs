@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ParqueolCarga.RepositoryModel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ae114d2defa5f1401bebbc9160b8cb09a5bcc8ff")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+adf0b0ea240c9eaccfada75c9372472873939515")]
 [assembly: System.Reflection.AssemblyProductAttribute("ParqueolCarga.RepositoryModel")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ParqueolCarga.RepositoryModel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

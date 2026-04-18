@@ -1,0 +1,234 @@
+@model IngresosAutomovilIndexViewModel
+
+@{
+    ViewData["Title"] = "Ingresos de Automóvil";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/ingresos-automovil.css" asp-append-version="true" />
+}
+
+<div class="ingresos-page" data-endpoint-listado="@Url.Content("~/ingresos-automovil/listado")" data-endpoint-base="@Url.Content("~/ingresos-automovil")">
+    <form id="antiForgeryFormIngresos" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <section class="ig-hero mb-4">
+        <div class="ig-overlay"></div>
+        <div class="ig-content">
+            <span class="ig-kicker">Panel operacional</span>
+            <h1>Control de ingresos vehiculares</h1>
+            <p>Consulta movimientos por fecha, tipo y provincia, con CRUD completo en modales y métricas instantáneas.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-warning fw-semibold" id="openCreateIngresoModal">Registrar ingreso</button>
+                <button type="button" class="btn btn-outline-light fw-semibold" id="refreshIngresosButton">Actualizar tablero</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Filtros inteligentes</h2>
+                    <p class="text-muted mb-0">Filtra por tipo o provincia usando rango de fechas de entrada.</p>
+                </div>
+                <span class="badge rounded-pill text-bg-light" id="ingresosStatusBadge">Sincronizado</span>
+            </div>
+
+            <form id="ingresosFiltersForm" class="row g-3 align-items-end">
+                <div class="col-12 col-md-2">
+                    <label class="form-label" for="criterioFiltro">Criterio</label>
+                    <select id="criterioFiltro" name="criterio" class="form-select">
+                        <option value="todos">Todos</option>
+                        <option value="tipo">Tipo de automóvil</option>
+                        <option value="provincia">Provincia</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label" for="terminoFiltro">Término</label>
+                    <input id="terminoFiltro" name="termino" class="form-control" placeholder="SUV o Heredia" maxlength="120" />
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label" for="fechaInicioFiltro">Fecha inicio</label>
+                    <input id="fechaInicioFiltro" name="fechaInicio" type="date" class="form-control" value="@Model.Filtros.FechaInicio?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label" for="fechaFinFiltro">Fecha fin</label>
+                    <input id="fechaFinFiltro" name="fechaFin" type="date" class="form-control" value="@Model.Filtros.FechaFin?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label" for="ordenFiltroIngresos">Orden</label>
+                    <select id="ordenFiltroIngresos" name="orden" class="form-select">
+                        <option value="desc">Descendente</option>
+                        <option value="asc">Ascendente</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-1 d-grid">
+                    <button type="submit" class="btn btn-primary" id="aplicarFiltrosIngresosButton">
+                        <span class="btn-label">Ir</span>
+                        <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <article class="ig-stat-card">
+                <span>Total registros</span>
+                <strong id="totalIngresosStat">0</strong>
+            </article>
+        </div>
+        <div class="col-12 col-md-4">
+            <article class="ig-stat-card">
+                <span>Vehículos activos</span>
+                <strong id="activosIngresosStat">0</strong>
+            </article>
+        </div>
+        <div class="col-12 col-md-4">
+            <article class="ig-stat-card">
+                <span>Monto acumulado</span>
+                <strong id="montoIngresosStat">₡0</strong>
+            </article>
+        </div>
+    </section>
+
+    <section class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h2 class="h5">Consultar precio por hora</h2>
+            <p class="text-muted">Consulta rápida del endpoint precio-por-hora por ID de parqueo.</p>
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="precioParqueoIdInput">ID de parqueo</label>
+                    <input id="precioParqueoIdInput" type="number" class="form-control" min="1" />
+                </div>
+                <div class="col-12 col-md-3 d-grid">
+                    <button type="button" class="btn btn-outline-primary" id="consultarPrecioHoraButton">
+                        <span class="btn-label">Consultar precio</span>
+                        <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="col-12 col-md-5">
+                    <div class="alert alert-secondary mb-0" id="precioHoraOutput">Aún no hay consulta realizada.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 mb-0">Listado de ingresos</h2>
+                <small class="text-muted" id="ingresosSummaryText">Cargando...</small>
+            </div>
+
+            <div id="ingresosLoadingState" class="text-center py-5 d-none">
+                <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                <p class="text-muted mt-2 mb-0">Sincronizando ingresos...</p>
+            </div>
+
+            <div id="ingresosEmptyState" class="text-center py-5 d-none">
+                <p class="mb-2">No se encontraron ingresos con los filtros actuales.</p>
+                <button type="button" class="btn btn-warning fw-semibold" id="emptyCreateIngresoButton">Registrar ingreso</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle" id="ingresosTable">
+                    <thead>
+                        <tr>
+                            <th>Consecutivo</th>
+                            <th>ID Parqueo</th>
+                            <th>ID Automóvil</th>
+                            <th>Entrada</th>
+                            <th>Salida</th>
+                            <th>Monto</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="modal fade" id="ingresoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title fs-5" id="ingresoModalTitle">Registrar ingreso</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger d-none" id="ingresoFormFeedback"></div>
+                <form id="ingresoForm" class="row g-3" novalidate>
+                    <input type="hidden" id="ingresoConsecutivo" />
+                    <div class="col-6">
+                        <label class="form-label" for="ingresoIdParqueoInput">ID Parqueo</label>
+                        <input id="ingresoIdParqueoInput" name="idParqueo" type="number" min="1" class="form-control" required />
+                        <div class="invalid-feedback" data-valmsg-for="IdParqueo"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" for="ingresoIdAutomovilInput">ID Automóvil</label>
+                        <input id="ingresoIdAutomovilInput" name="idAutomovil" type="number" min="1" class="form-control" required />
+                        <div class="invalid-feedback" data-valmsg-for="IdAutomovil"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="ingresoFechaEntradaInput">Fecha de entrada</label>
+                        <input id="ingresoFechaEntradaInput" name="fechaEntrada" type="datetime-local" class="form-control" required />
+                        <div class="invalid-feedback" data-valmsg-for="FechaEntrada"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="ingresoFechaSalidaInput">Fecha de salida (opcional)</label>
+                        <input id="ingresoFechaSalidaInput" name="fechaSalida" type="datetime-local" class="form-control" />
+                        <div class="invalid-feedback" data-valmsg-for="FechaSalida"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveIngresoButton">
+                    <span class="btn-label">Guardar</span>
+                    <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteIngresoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title fs-5">Eliminar ingreso</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">Esta acción eliminará el ingreso seleccionado.</p>
+                <p class="fw-semibold mb-0" id="deleteIngresoSummary"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteIngresoButton">
+                    <span class="btn-label">Eliminar</span>
+                    <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="ingresosToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="ingresosToastBody">Listo.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/ingresos-automovil.index.js" asp-append-version="true"></script>
+}

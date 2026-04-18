@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ParqueoCarga.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 
     <style>
         :root {
@@ -75,12 +76,18 @@
                             <a class="nav-link" asp-area="" asp-controller="Automoviles" asp-action="Index">Inicio</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Automoviles" asp-action="Index">Automoviles</a>
+                            <a class="nav-link" asp-area="" asp-controller="Automoviles" asp-action="Index">Automóviles</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Parqueos" asp-action="Index">Parqueos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="IngresosAutomovil" asp-action="Index">Ingresos</a>
                         </li>
                     </ul>
 
-                    <a class="btn btn-accent" asp-area="" asp-controller="Automoviles" asp-action="Index">
-                        Gestionar parqueo
+                    <a class="btn btn-accent" asp-area="" asp-controller="Parqueos" asp-action="Index">
+                        Gestionar módulos
                     </a>
                 </div>
             </div>

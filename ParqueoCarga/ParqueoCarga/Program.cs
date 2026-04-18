@@ -1,10 +1,43 @@
-using ParqueoCarga.DbModel.Extensions;
+using System.Net.Http.Headers;
+using Microsoft.Extensions.Options;
+using ParqueoCarga.Configuration;
+using ParqueoCarga.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddParqueoCargaDatabase(builder.Configuration);
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection(ApiSettings.SectionName));
+builder.Services.AddHttpClient<IPrqAutomovilesApiService, PrqAutomovilesApiService>((serviceProvider, client) =>
+{
+    var apiSettings = serviceProvider.GetRequiredService<IOptions<ApiSettings>>().Value;
+    var baseUrl = string.IsNullOrWhiteSpace(apiSettings.BaseUrl)
+        ? "http://localhost/"
+        : apiSettings.BaseUrl;
+
+    client.BaseAddress = new Uri(baseUrl.EndsWith('/') ? baseUrl : $"{baseUrl}/");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+builder.Services.AddHttpClient<IPrqParqueosApiService, PrqParqueosApiService>((serviceProvider, client) =>
+{
+    var apiSettings = serviceProvider.GetRequiredService<IOptions<ApiSettings>>().Value;
+    var baseUrl = string.IsNullOrWhiteSpace(apiSettings.BaseUrl)
+        ? "http://localhost/"
+        : apiSettings.BaseUrl;
+
+    client.BaseAddress = new Uri(baseUrl.EndsWith('/') ? baseUrl : $"{baseUrl}/");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
+builder.Services.AddHttpClient<IPrqIngresosAutomovilApiService, PrqIngresosAutomovilApiService>((serviceProvider, client) =>
+{
+    var apiSettings = serviceProvider.GetRequiredService<IOptions<ApiSettings>>().Value;
+    var baseUrl = string.IsNullOrWhiteSpace(apiSettings.BaseUrl)
+        ? "http://localhost/"
+        : apiSettings.BaseUrl;
+
+    client.BaseAddress = new Uri(baseUrl.EndsWith('/') ? baseUrl : $"{baseUrl}/");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
 
 var app = builder.Build();
 
@@ -22,6 +55,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+app.MapGet("/", () => Results.Redirect("/automoviles"));
 
 app.MapControllerRoute(
     name: "default",

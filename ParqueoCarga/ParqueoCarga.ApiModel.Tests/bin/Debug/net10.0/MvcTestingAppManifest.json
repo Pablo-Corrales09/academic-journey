@@ -1,5 +1,5 @@
 {
-  "ParqueoCarga.ApiModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Git\\academic-journey\\Classwork_02\\ParqueoCarga.ApiModel",
-  "ParqueoCarga.DbModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Git\\academic-journey\\Classwork_02\\ParqueoCarga.DbModel",
-  "ParqueolCarga.RepositoryModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Git\\academic-journey\\Classwork_02\\ParqueolCarga.RepositoryModel"
+  "ParqueoCarga.ApiModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Git\\academic-journey\\ParqueoCarga\\ParqueoCarga.ApiModel",
+  "ParqueoCarga.DbModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Git\\academic-journey\\ParqueoCarga\\ParqueoCarga.DbModel",
+  "ParqueolCarga.RepositoryModel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null": "C:\\Git\\academic-journey\\ParqueoCarga\\ParqueolCarga.RepositoryModel"
 }

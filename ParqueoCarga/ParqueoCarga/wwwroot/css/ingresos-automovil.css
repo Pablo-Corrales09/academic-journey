@@ -1,0 +1,79 @@
+.ingresos-page {
+  color: #1f2937;
+}
+
+.ig-hero {
+  position: relative;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  min-height: 220px;
+  background:
+    linear-gradient(145deg, rgba(30, 64, 175, 0.88), rgba(2, 132, 199, 0.9)),
+    url("https://picsum.photos/seed/parqueocarga-ingresos/1200/420") center / cover;
+  box-shadow: 0 18px 45px rgba(30, 64, 175, 0.22);
+}
+
+.ig-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(250, 204, 21, 0.28), transparent 38%);
+}
+
+.ig-content {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  padding: 1.75rem;
+  max-width: 760px;
+}
+
+.ig-kicker {
+  display: inline-flex;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+}
+
+.ig-content h1 {
+  margin-top: 0.9rem;
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+}
+
+.ig-stat-card {
+  border-radius: 1rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.ig-stat-card span {
+  display: block;
+  color: #6b7280;
+  font-size: 0.88rem;
+}
+
+.ig-stat-card strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 1.4rem;
+}
+
+#ingresosTable tbody tr {
+  animation: fade-up 0.3s ease both;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

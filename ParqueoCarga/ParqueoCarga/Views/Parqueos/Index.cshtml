@@ -1,0 +1,193 @@
+@model ParqueosIndexViewModel
+
+@{
+    ViewData["Title"] = "Parqueos";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/parqueos.css" asp-append-version="true" />
+}
+
+<div class="parqueos-page" data-endpoint-listado="@Url.Content("~/parqueos/listado")" data-endpoint-base="@Url.Content("~/parqueos")">
+    <form id="antiForgeryFormParqueos" class="d-none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <section class="pk-hero mb-4">
+        <div class="pk-hero-copy">
+            <span class="pk-kicker">Módulo operativo</span>
+            <h1>Gestión inteligente de parqueos</h1>
+            <p>Administra provincias, tarifas y disponibilidad con operaciones en tiempo real y una experiencia visual moderna.</p>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-warning fw-semibold" id="openCreateParqueoModal">Nuevo parqueo</button>
+                <button type="button" class="btn btn-outline-light fw-semibold" id="refreshParqueosButton">Actualizar listado</button>
+            </div>
+        </div>
+        <img src="https://picsum.photos/seed/parqueocarga-parqueos/920/360" alt="Imagen referencial de un parqueo moderno" class="pk-hero-image" />
+    </section>
+
+    <section class="pk-filters card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div>
+                    <h2 class="h5 mb-1">Filtros de consulta</h2>
+                    <p class="text-muted mb-0">Busca por provincia o nombre y ordena por precio por hora.</p>
+                </div>
+                <span class="badge rounded-pill text-bg-light" id="parqueosStatusBadge">Sincronizado</span>
+            </div>
+
+            <form id="parqueosFiltersForm" class="row g-3 align-items-end">
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="provinciaFiltro">Provincia</label>
+                    <input id="provinciaFiltro" name="provincia" class="form-control" placeholder="San José" />
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="nombreFiltro">Nombre</label>
+                    <input id="nombreFiltro" name="nombre" class="form-control" placeholder="Parqueo Centro" />
+                </div>
+                <div class="col-12 col-md-2">
+                    <label class="form-label" for="ordenFiltro">Orden</label>
+                    <select id="ordenFiltro" name="orden" class="form-select">
+                        <option value="asc">Ascendente</option>
+                        <option value="desc">Descendente</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary" id="aplicarFiltrosParqueosButton">
+                        <span class="btn-label">Aplicar</span>
+                        <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <section class="pk-stats row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <article class="pk-stat-card">
+                <span>Total visible</span>
+                <strong id="totalParqueosStat">0</strong>
+            </article>
+        </div>
+        <div class="col-12 col-md-4">
+            <article class="pk-stat-card">
+                <span>Precio mínimo</span>
+                <strong id="precioMinimoStat">-</strong>
+            </article>
+        </div>
+        <div class="col-12 col-md-4">
+            <article class="pk-stat-card">
+                <span>Precio máximo</span>
+                <strong id="precioMaximoStat">-</strong>
+            </article>
+        </div>
+    </section>
+
+    <section class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 mb-0">Listado de parqueos</h2>
+                <small class="text-muted" id="parqueosSummaryText">Cargando...</small>
+            </div>
+
+            <div id="parqueosLoadingState" class="text-center py-5 d-none">
+                <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+                <p class="text-muted mt-2 mb-0">Consultando parqueos...</p>
+            </div>
+
+            <div id="parqueosEmptyState" class="text-center py-5 d-none">
+                <p class="mb-2">No hay parqueos para mostrar con el criterio actual.</p>
+                <button type="button" class="btn btn-warning fw-semibold" id="emptyCreateParqueoButton">Crear primer parqueo</button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle" id="parqueosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Provincia</th>
+                            <th>Precio por hora</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="modal fade" id="parqueoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title fs-5" id="parqueoModalTitle">Crear parqueo</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger d-none" id="parqueoFormFeedback"></div>
+                <form id="parqueoForm" class="row g-3" novalidate>
+                    <input type="hidden" id="parqueoId" />
+                    <div class="col-12">
+                        <label class="form-label" for="parqueoNombreInput">Nombre</label>
+                        <input id="parqueoNombreInput" name="nombre" class="form-control" maxlength="160" required />
+                        <div class="invalid-feedback" data-valmsg-for="Nombre"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="parqueoProvinciaInput">Provincia</label>
+                        <input id="parqueoProvinciaInput" name="provincia" class="form-control" maxlength="120" required />
+                        <div class="invalid-feedback" data-valmsg-for="Provincia"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" for="parqueoPrecioInput">Precio por hora</label>
+                        <input id="parqueoPrecioInput" name="precioHora" class="form-control" type="number" min="0" step="0.01" required />
+                        <div class="invalid-feedback" data-valmsg-for="PrecioHora"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveParqueoButton">
+                    <span class="btn-label">Guardar</span>
+                    <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteParqueoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title fs-5">Eliminar parqueo</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2">Esta acción eliminará el parqueo seleccionado.</p>
+                <p class="fw-semibold mb-0" id="deleteParqueoSummary"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteParqueoButton">
+                    <span class="btn-label">Eliminar</span>
+                    <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="parqueosToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="parqueosToastBody">Listo.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/parqueos.index.js" asp-append-version="true"></script>
+}
