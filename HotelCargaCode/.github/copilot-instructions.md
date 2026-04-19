@@ -17,6 +17,26 @@
 
 - [x] Ensure Documentation is Complete
 
+
+Workspace Custom Instructions
+Core Technical Stack
+This project utilizes C# with .NET 10.0. The web client is built using the Model-View-Controller (MVC) architecture, implementing the Repository Pattern for all data access logic. The frontend framework is Bootstrap 5.
+
+Execution Guidelines
+Progress Tracking: Use available tools to manage the checklist. After completing each step, mark it complete and provide a brief summary. Always read the current status before beginning a new task.
+
+Communication Rules: Maintain conciseness. Avoid verbose explanations or printing exhaustive command outputs. If a step is skipped, state it briefly (e.g., No extensions needed). Do not explain the project structure unless specifically asked.
+
+Development Rules: Use the current directory (.) as the working directory. Avoid adding media or external links. Use placeholders only with a note for replacement. Use DotNet Secrets for sensitive credentials and follow a Data-First design approach. Do not suggest commands to open the project in Visual Studio again once it is already active in VS Code.
+
+Folder and Extensions: Always use the current directory (.) as the project root for terminal commands. Do not create new folders unless explicitly requested, except for a .vscode folder. If scaffolding mentions incorrect folder names, instruct the user to rename and reopen. Install only the extensions specified by the setup tools.
+
+Project Content: If details are missing, start with a Hello World template. Avoid unnecessary links, images, or media. Confirm assumed features with the user before implementation.
+
+Task Completion: The task is finished when the project scaffolds and compiles without errors, the .github/copilot-instructions.md and README.md files are up to date, and the user has clear instructions to debug or launch the project.
+
+
+
 ## Execution Guidelines
 PROGRESS TRACKING:
 - If any tools are available to manage the above todo list, use it to track progress through this checklist.

@@ -30,6 +30,66 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Booking/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQm9va2luZ1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Booking/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQm9va2luZ1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Booking/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQm9va2luZ1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Booking/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQm9va2luZ1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Booking/List.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQm9va2luZ1xMaXN0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Booking/Lookup.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQm9va2luZ1xMb29rdXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Booking/Update.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQm9va2luZ1xVcGRhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Booking/_BookingForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQm9va2luZ1xfQm9va2luZ0Zvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Customer/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQ3VzdG9tZXJcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Customer/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQ3VzdG9tZXJcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Customer/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQ3VzdG9tZXJcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Customer/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQ3VzdG9tZXJcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Customer/Lookup.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQ3VzdG9tZXJcTG9va3VwLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Customer/Update.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQ3VzdG9tZXJcVXBkYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Customer/_CustomerForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcQ3VzdG9tZXJcX0N1c3RvbWVyRm9ybS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Home/About.cshtml]
 build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcSG9tZVxBYm91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -38,8 +98,88 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Room/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcUm9vbVxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Room/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcUm9vbVxEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Room/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcUm9vbVxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Room/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcUm9vbVxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Room/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcUm9vbVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Room/RelatedAvailabilities.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcUm9vbVxSZWxhdGVkQXZhaWxhYmlsaXRpZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Room/RelatedBookings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcUm9vbVxSZWxhdGVkQm9va2luZ3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Room/RelatedHistories.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcUm9vbVxSZWxhdGVkSGlzdG9yaWVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Room/_RoomForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcUm9vbVxfUm9vbUZvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/User/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcVXNlclxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/User/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcVXNlclxEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/User/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcVXNlclxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/User/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcVXNlclxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/User/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcVXNlclxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/User/Lookup.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcVXNlclxMb29rdXAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/User/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcVXNlclxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/User/Update.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcVXNlclxVcGRhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/User/_UserForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcVXNlclxfVXNlckZvcm0uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/WaitingQueue/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = SG90ZWxDYXJnYS5XZWJcVmlld3NcV2FpdGluZ1F1ZXVlXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Git/academic-journey/HotelCargaCode/HotelCarga.Web/Views/_ViewImports.cshtml]

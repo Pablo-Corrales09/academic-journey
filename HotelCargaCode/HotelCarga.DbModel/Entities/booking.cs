@@ -14,7 +14,11 @@ public partial class booking
 
     public uint customer_id { get; set; }
 
-    public uint room_id { get; set; }
+    /// <summary>
+    /// Nullable to support PENDING bookings where room assignment is deferred.
+    /// Room ID is assigned when booking transitions from PENDING to CONFIRMED.
+    /// </summary>
+    public uint? room_id { get; set; }
 
     public byte status_id { get; set; }
 

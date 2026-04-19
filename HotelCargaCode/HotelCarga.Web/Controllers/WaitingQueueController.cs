@@ -80,6 +80,20 @@ public class WaitingQueueController : Controller
         return await ForwardGetAsync($"WaitingQueue/GetAll?useJson={ToApiBoolean(useJson)}");
     }
 
+    [HttpPost("Api/Create")]
+    public async Task<IActionResult> Create([FromBody] JsonElement payload, bool useJson = false)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync($"WaitingQueue/Create?useJson={ToApiBoolean(useJson)}", payload);
+            return await BuildProxyResultAsync(response);
+        }
+        catch (HttpRequestException ex)
+        {
+            return BuildApiUnavailableResult("WaitingQueue/Create", ex);
+        }
+    }
+
     [HttpPut("Api/Update")]
     public async Task<IActionResult> Update([FromBody] JsonElement payload, bool useJson = false)
     {
@@ -245,9 +259,8 @@ public class WaitingQueueController : Controller
         return StatusCode(503, new
         {
             success = false,
-            message = "Waiting Queue API is unavailable. Start HotelCarga.ApiModel and verify ApiSettings:BaseUrl.",
-            endpoint,
-            detail = ex.Message
+            message = "El servicio de lista de espera no está disponible en este momento. Por favor, inténtelo de nuevo más tarde.",
+            endpoint
         });
     }
 

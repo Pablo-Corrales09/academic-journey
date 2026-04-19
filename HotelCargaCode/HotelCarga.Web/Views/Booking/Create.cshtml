@@ -35,6 +35,7 @@
         (function () {
             const form = document.getElementById('booking-form');
             if (!form) return;
+            let isSubmitting = false;
 
             $('#bookingConfirmModal, #bookingQueueModal, #bookingSuccessModal').appendTo('body');
 
@@ -62,12 +63,17 @@
             });
 
             async function submitBooking(addToQueue) {
-                const formData = new FormData(form);
-                if (addToQueue) {
-                    formData.set('addToQueueIfUnavailable', 'true');
-                }
-                const token = form.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                if (isSubmitting) return;
+                isSubmitting = true;
 
+                const confirmBtn = document.getElementById('confirm-submit-btn');
+                const queueBtn = document.getElementById('queue-confirm-btn');
+                if (confirmBtn) confirmBtn.disabled = true;
+                if (queueBtn) queueBtn.disabled = true;
+
+                const formData = new FormData(form);
+                const token = form.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                
                 try {
                     const response = await fetch(form.action, {
                         method: 'POST',
@@ -80,28 +86,144 @@
 
                     const data = await response.json();
 
-                    if (data.success) {
+                    // Handle new structured response with result_type
+                    if (data.result_type === 'BOOKING_CREATED') {
+                        // Success: Booking was created
                         const msg = document.getElementById('success-modal-message');
                         if (msg) {
-                            msg.textContent = data.queued
-                                ? (data.message || 'Añadido a la cola de reservas exitosamente.')
-                                : 'Reserva creada exitosamente.';
+                            msg.textContent = data.message || 'Reserva creada exitosamente.';
                         }
                         $('#bookingSuccessModal').modal('show');
-                    } else if (data.unavailable) {
-                        $('#bookingQueueModal').modal('show');
-                    } else {
+                    } 
+                    else if (data.result_type === 'ALTERNATIVE_ROOM_SUGGESTED') {
+                        // Alternative room suggestion - show alternative options
+                        showAlternativeRoomPrompt(data.alternative_room_suggested || data.alternativeRoom, data.message);
+                    } 
+                    else if (data.result_type === 'QUEUED_AND_PENDING_BOOKING_CREATED') {
+                        // Success: Added to waiting queue
+                        const msg = document.getElementById('success-modal-message');
+                        if (msg) {
+                            msg.textContent = data.message || 'Añadido a la cola de reservas exitosamente.';
+                        }
+                        $('#bookingSuccessModal').modal('show');
+                    } 
+                    else if (data.result_type === 'VALIDATION_ERROR') {
+                        // Validation error - show error message
                         const errorDiv = form.querySelector('.user-validation');
                         if (errorDiv) {
-                            errorDiv.textContent = data.message || 'Ocurrió un error.';
+                            errorDiv.textContent = data.message || 'Error de validación.';
                             errorDiv.style.display = 'block';
                         } else {
-                            alert(data.message || 'Ocurrió un error.');
+                            alert(data.message || 'Error de validación.');
+                        }
+                    } 
+                    else {
+                        // Unknown response type
+                        const errorDiv = form.querySelector('.user-validation');
+                        if (errorDiv) {
+                            errorDiv.textContent = 'Respuesta inesperada del servidor.';
+                            errorDiv.style.display = 'block';
+                        } else {
+                            alert('Respuesta inesperada del servidor.');
                         }
                     }
-                } catch {
+                } catch (error) {
+                    console.error('Booking submission error:', error);
                     alert('Error de red. Por favor, inténtelo de nuevo.');
+                } finally {
+                    isSubmitting = false;
+                    if (confirmBtn) confirmBtn.disabled = false;
+                    if (queueBtn) queueBtn.disabled = false;
                 }
+            }
+
+            function showAlternativeRoomPrompt(alternativeRoom, message) {
+                // Show modal with alternative room details
+                const modal = document.getElementById('bookingAlternativeModal');
+                if (!modal) {
+                    // Create modal if it doesn't exist
+                    const modalHtml = `
+                        <div class="modal fade" id="bookingAlternativeModal" tabindex="-1" role="dialog">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Habitación Alternativa Disponible</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p id="alternativeMessage"></p>
+                                        <div id="alternativeDetails" class="mt-3"></div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                        <button type="button" class="btn btn-primary" id="acceptAlternativeBtn">Aceptar Alternativa</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.insertAdjacentHTML('beforeend', modalHtml);
+                }
+                
+                // Populate modal with alternative room info
+                document.getElementById('alternativeMessage').textContent = message;
+                const detailsDiv = document.getElementById('alternativeDetails');
+                detailsDiv.innerHTML = `
+                    <p><strong>Habitación Original Solicitada:</strong> ${alternativeRoom.original_requested_room_number}</p>
+                    <p><strong>Alternativa Disponible:</strong> Habitación ${alternativeRoom.alternative_room_number}</p>
+                    <p><strong>Categoría:</strong> ${alternativeRoom.room_category_name}</p>
+                    <p><strong>Tarifa por Noche:</strong> $${alternativeRoom.alternative_nightly_rate}</p>
+                    <p><strong>Piso:</strong> ${alternativeRoom.floor_number}</p>
+                `;
+                
+                // Show modal
+                $('#bookingAlternativeModal').modal('show');
+                
+                // Handle acceptance: call ConfirmAlternative endpoint directly
+                document.getElementById('acceptAlternativeBtn').onclick = async () => {
+                    $('#bookingAlternativeModal').modal('hide');
+
+                    const customerId = form.querySelector('[name="CustomerId"]')?.value;
+                    const checkIn = form.querySelector('[name="CheckIn"]')?.value;
+                    const checkOut = form.querySelector('[name="CheckOut"]')?.value;
+                    const token = form.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+                    try {
+                        const params = new URLSearchParams({
+                            customerId: customerId,
+                            alternativeRoomId: alternativeRoom.alternative_room_id,
+                            checkIn: checkIn,
+                            checkOut: checkOut
+                        });
+                        const confirmAlternativeUrl = '@Url.Action("ConfirmAlternativeRoom", "Booking")';
+                        const resp = await fetch(`${confirmAlternativeUrl}?${params}`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'RequestVerificationToken': token || ''
+                            }
+                        });
+                        const data = await resp.json();
+                        if (data.success) {
+                            const msg = document.getElementById('success-modal-message');
+                            if (msg) msg.textContent = data.message || 'Reserva creada exitosamente con habitación alternativa.';
+                            $('#bookingSuccessModal').modal('show');
+                        } else {
+                            const errorDiv = form.querySelector('.user-validation');
+                            if (errorDiv) {
+                                errorDiv.textContent = data.message || 'No se pudo crear la reserva con la habitación alternativa.';
+                                errorDiv.style.display = 'block';
+                            } else {
+                                alert(data.message || 'No se pudo crear la reserva con la habitación alternativa.');
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Error confirming alternative room:', err);
+                        alert('Error al confirmar la habitación alternativa. Por favor, inténtelo de nuevo.');
+                    }
+                };
             }
         })();
     </script>

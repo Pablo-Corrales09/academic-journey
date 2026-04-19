@@ -12,7 +12,7 @@ public record BookingSummaryDto(
     string status_name,
     uint customer_id,
     string customer_name,
-    uint room_id,
+    uint? room_id,
     uint room_number,
     DateTime check_in,
     DateTime check_out,
@@ -26,6 +26,29 @@ public record SaveBookingDto(uint customer_id, uint room_id, DateTime check_in, 
 public record BookingMutationEnvelope(bool success, string? message, BookingSummaryDto? data);
 
 public record BookingDeleteEnvelope(bool success, string? message);
+
+/// <summary>
+/// Availability orchestration request contract.
+/// </summary>
+public record BookingAvailabilityRequestDto(
+    uint customer_id,
+    uint selected_room_id,
+    DateTime check_in,
+    DateTime check_out);
+
+/// <summary>
+/// Unified response from booking availability orchestration.
+/// </summary>
+public class BookingAvailabilityResponseDto
+{
+    public string result_type { get; set; } = string.Empty;
+    public bool success { get; set; }
+    public string message { get; set; } = string.Empty;
+    public object? booking_created { get; set; }
+    public object? alternative_room_suggested { get; set; }
+    public object? queued_and_pending { get; set; }
+    public object? validation_error { get; set; }
+}
 
 public sealed class BookingApiException : Exception
 {
@@ -50,6 +73,12 @@ public interface IBookingApiService
     Task<List<string>> GetReserveNumbersByStatusIdAsync(byte statusId);
     Task<List<string>> GetReserveNumbersByCustomerIdAsync(uint customerId);
     Task<List<BookingStatusDto>> GetStatusesAsync();
+    
+    /// <summary>
+    /// Creates a booking with availability-aware fallback logic.
+    /// Returns structured response indicating booking creation, alternative suggestion, or queue entry.
+    /// </summary>
+    Task<BookingAvailabilityResponseDto> CreateWithAvailabilityFlowAsync(BookingAvailabilityRequestDto request);
 }
 
 public class BookingApiService : IBookingApiService
@@ -215,5 +244,38 @@ public class BookingApiService : IBookingApiService
         }
 
         return new BookingApiException(fallbackMessage);
+    }
+
+    public async Task<BookingAvailabilityResponseDto> CreateWithAvailabilityFlowAsync(BookingAvailabilityRequestDto request)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("BookingAvailability/CreateWithAvailabilityFlow", request);
+            
+            if (response.IsSuccessStatusCode
+                || response.StatusCode == System.Net.HttpStatusCode.Conflict
+                || response.StatusCode == System.Net.HttpStatusCode.BadRequest
+                || response.StatusCode == System.Net.HttpStatusCode.NotFound
+                || response.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+            {
+                return await response.Content.ReadFromJsonAsync<BookingAvailabilityResponseDto>(JsonOptions)
+                    ?? new BookingAvailabilityResponseDto 
+                    { 
+                        result_type = "VALIDATION_ERROR", 
+                        success = false, 
+                        message = "Empty response received." 
+                    };
+            }
+
+            var errorResponse = await response.Content.ReadFromJsonAsync<BookingAvailabilityResponseDto>(JsonOptions);
+            if (errorResponse != null)
+                return errorResponse;
+
+            throw await BuildApiExceptionAsync(response, "Booking availability check failed.");
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new BookingApiException($"API request failed: {ex.Message}");
+        }
     }
 }

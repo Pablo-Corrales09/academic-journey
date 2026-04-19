@@ -14,7 +14,7 @@ public partial class booking_history
 
     public uint customer_id { get; set; }
 
-    public uint room_id { get; set; }
+    public uint? room_id { get; set; }
 
     public DateTime check_in { get; set; }
 
@@ -34,7 +34,7 @@ public partial class booking_history
 
     public virtual customer customer { get; set; } = null!;
 
-    public virtual room room { get; set; } = null!;
+    public virtual room? room { get; set; }
 
     public virtual booking_status status { get; set; } = null!;
 }

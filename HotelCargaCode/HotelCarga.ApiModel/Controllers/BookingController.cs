@@ -308,7 +308,13 @@ public class BookingController : BaseApiController
                 return NotFound(new { error = true, message = "Reserva no encontrada." });
             }
 
-            var targetRoom = await DbContext.Set<room>().FindAsync(item.room_id);
+            // Check if room_id is null (pending booking scenario)
+            if (!item.room_id.HasValue)
+            {
+                return BadRequest(new { error = true, message = "Room assignment required for update." });
+            }
+
+            var targetRoom = await DbContext.Set<room>().FindAsync(item.room_id.Value);
             if (targetRoom == null)
             {
                 return NotFound(new { error = true, message = "La habitación seleccionada no existe." });
@@ -319,7 +325,7 @@ public class BookingController : BaseApiController
                 return Conflict(new { error = true, message = errorMessage });
             }
 
-            var hasConflict = await HasScheduleConflictAsync(item.room_id, item.check_in, item.check_out, existingBooking.id);
+            var hasConflict = await HasScheduleConflictAsync(item.room_id.Value, item.check_in, item.check_out, existingBooking.id);
             if (hasConflict)
             {
                 return Conflict(new { error = true, message = "La habitación seleccionada ya tiene una reserva que se solapa con las fechas solicitadas." });
@@ -348,9 +354,10 @@ public class BookingController : BaseApiController
             await DbContext.SaveChangesAsync();
 
             WaitingQueueNotification? queueNotification = null;
-            if (wasActiveBooking && roomOrScheduleChanged && _alertService != null)
+            // Only process queue if original booking had a room assigned (not pending)
+            if (wasActiveBooking && roomOrScheduleChanged && releasedRoomId.HasValue && _alertService != null)
             {
-                queueNotification = await _alertService.ProcessNextQueueForReleasedRoom(releasedRoomId, releasedCheckIn, releasedCheckOut);
+                queueNotification = await _alertService.ProcessNextQueueForReleasedRoom(releasedRoomId.Value, releasedCheckIn, releasedCheckOut);
             }
 
             return Ok(new
@@ -390,10 +397,11 @@ public class BookingController : BaseApiController
             await DbContext.SaveChangesAsync();
 
             WaitingQueueNotification? queueNotification = null;
-            if (wasActiveBooking && _alertService != null)
+            // Only process queue if booking had a room assigned (not pending)
+            if (wasActiveBooking && releasedRoomId.HasValue && _alertService != null)
             {
                 queueNotification = await _alertService.ProcessNextQueueForReleasedRoom(
-                    releasedRoomId,
+                    releasedRoomId.Value,
                     releasedCheckIn,
                     releasedCheckOut);
 

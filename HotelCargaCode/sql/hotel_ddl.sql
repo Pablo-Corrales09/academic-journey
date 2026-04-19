@@ -208,7 +208,7 @@ CREATE TABLE booking (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     reserve_number VARCHAR(50) NOT NULL UNIQUE,
     customer_id INT UNSIGNED NOT NULL,
-    room_id INT UNSIGNED NOT NULL,
+    room_id INT UNSIGNED,
     status_id TINYINT UNSIGNED NOT NULL DEFAULT 1,
     check_in DATETIME NOT NULL,
     check_out DATETIME NOT NULL,
@@ -225,7 +225,7 @@ CREATE TABLE booking (
     CONSTRAINT fk_booking_customer FOREIGN KEY (customer_id) 
         REFERENCES customer(id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_booking_room FOREIGN KEY (room_id) 
-        REFERENCES room(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+        REFERENCES room(id) ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT fk_booking_status FOREIGN KEY (status_id) 
         REFERENCES booking_status(id) ON DELETE RESTRICT ON UPDATE CASCADE,
     INDEX idx_reserve_number (reserve_number),
@@ -242,7 +242,7 @@ CREATE TABLE booking_history (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     booking_id INT UNSIGNED NOT NULL,
     customer_id INT UNSIGNED NOT NULL,
-    room_id INT UNSIGNED NOT NULL,
+    room_id INT UNSIGNED,
     check_in DATETIME NOT NULL,
     check_out DATETIME NOT NULL,
     status_id TINYINT UNSIGNED NOT NULL,
@@ -255,7 +255,7 @@ CREATE TABLE booking_history (
     CONSTRAINT fk_booking_history_customer FOREIGN KEY (customer_id) 
         REFERENCES customer(id) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_booking_history_room FOREIGN KEY (room_id) 
-        REFERENCES room(id) ON DELETE RESTRICT ON UPDATE CASCADE,
+        REFERENCES room(id) ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT fk_booking_history_status FOREIGN KEY (status_id) 
         REFERENCES booking_status(id) ON DELETE RESTRICT ON UPDATE CASCADE,
     INDEX idx_booking_id (booking_id),
@@ -319,14 +319,14 @@ BEGIN
     END IF;
 END$$
 
--- Trigger: Validate booking dates are not lower than actual DATETIME
+-- Trigger: Validate booking dates are not in the past (date-level comparison)
 CREATE TRIGGER trg_check_booking_dates_not_past
 BEFORE INSERT ON booking
 FOR EACH ROW
 BEGIN
-    IF NEW.check_in < NOW() OR NEW.check_out < NOW() THEN
+    IF DATE(NEW.check_in) < CURDATE() OR DATE(NEW.check_out) < CURDATE() THEN
         SIGNAL SQLSTATE '45000' 
-        SET MESSAGE_TEXT = 'Booking dates cannot be lower than current DATETIME';
+        SET MESSAGE_TEXT = 'Las fechas de la reserva no pueden ser anteriores a hoy';
     END IF;
 END$$
 

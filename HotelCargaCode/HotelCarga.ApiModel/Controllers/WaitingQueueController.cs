@@ -138,23 +138,41 @@ public class WaitingQueueController : BaseApiController
     {
         if (UseJsonBackend(useJson)) return JsonWriteUnsupported();
         if (DbContext is null) return DbBackendMissing();
+
+        // Ensure status defaults to PENDING (1) when not supplied
+        if (item.status_id == 0)
+            item.status_id = 1;
+
         item.created_at ??= DateTime.UtcNow;
         item.updated_at = DateTime.UtcNow;
 
-        await DbContext.Set<waiting_queue>().AddAsync(item);
-        await DbContext.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = item.id }, new
+        try
         {
-            item.id,
-            request_number = FormatRequestNumber(item.id),
-            item.customer_id,
-            item.room_category_id,
-            item.status_id,
-            item.requested_check_in,
-            item.check_out,
-            item.created_at,
-            item.updated_at
-        });
+            await DbContext.Set<waiting_queue>().AddAsync(item);
+            await DbContext.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetById), new { id = item.id }, new
+            {
+                item.id,
+                request_number = FormatRequestNumber(item.id),
+                item.customer_id,
+                item.room_category_id,
+                item.status_id,
+                item.requested_check_in,
+                item.check_out,
+                item.created_at,
+                item.updated_at
+            });
+        }
+        catch (Exception ex)
+        {
+            var logger = HttpContext.RequestServices.GetService<Microsoft.Extensions.Logging.ILogger<WaitingQueueController>>();
+            logger?.LogError(ex, "Error creating waiting queue entry for customer {customerId}", item.customer_id);
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "No fue posible registrar la solicitud en la lista de espera. Por favor, verifique los datos e inténtelo de nuevo."
+            });
+        }
     }
 
     [HttpPut("Update")]
@@ -164,20 +182,33 @@ public class WaitingQueueController : BaseApiController
         if (DbContext is null) return DbBackendMissing();
         item.updated_at = DateTime.UtcNow;
 
-        DbContext.Set<waiting_queue>().Update(item);
-        await DbContext.SaveChangesAsync();
-        return Ok(new
+        try
         {
-            item.id,
-            request_number = FormatRequestNumber(item.id),
-            item.customer_id,
-            item.room_category_id,
-            item.status_id,
-            item.requested_check_in,
-            item.check_out,
-            item.created_at,
-            item.updated_at
-        });
+            DbContext.Set<waiting_queue>().Update(item);
+            await DbContext.SaveChangesAsync();
+            return Ok(new
+            {
+                item.id,
+                request_number = FormatRequestNumber(item.id),
+                item.customer_id,
+                item.room_category_id,
+                item.status_id,
+                item.requested_check_in,
+                item.check_out,
+                item.created_at,
+                item.updated_at
+            });
+        }
+        catch (Exception ex)
+        {
+            var logger = HttpContext.RequestServices.GetService<Microsoft.Extensions.Logging.ILogger<WaitingQueueController>>();
+            logger?.LogError(ex, "Error updating waiting queue entry {id}", item.id);
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "No fue posible actualizar la entrada de la lista de espera. Por favor, inténtelo de nuevo."
+            });
+        }
     }
 
     private static string FormatRequestNumber(uint id)
@@ -195,9 +226,22 @@ public class WaitingQueueController : BaseApiController
         var entity = await DbContext.Set<waiting_queue>().FindAsync(id);
         if (entity is null) return NotFound();
 
-        DbContext.Set<waiting_queue>().Remove(entity);
-        await DbContext.SaveChangesAsync();
-        return NoContent();
+        try
+        {
+            DbContext.Set<waiting_queue>().Remove(entity);
+            await DbContext.SaveChangesAsync();
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            var logger = HttpContext.RequestServices.GetService<Microsoft.Extensions.Logging.ILogger<WaitingQueueController>>();
+            logger?.LogError(ex, "Error deleting waiting queue entry {id}", id);
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "No fue posible eliminar la entrada de la lista de espera. Por favor, inténtelo de nuevo."
+            });
+        }
     }
 
     [HttpGet("GetCategoriesByCustomerId")]

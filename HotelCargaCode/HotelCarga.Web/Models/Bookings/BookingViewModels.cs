@@ -129,6 +129,8 @@ public class BookingFormViewModel
     public bool ShowNoAvailabilityPrompt { get; set; }
     public string? NoAvailabilityPromptText { get; set; }
     [ValidateNever]
+    public string? AlternativeRoomData { get; set; }
+    [ValidateNever]
     public InlineCustomerCreateViewModel QuickCustomer { get; set; } = new();
 }
 

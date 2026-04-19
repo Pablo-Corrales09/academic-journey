@@ -76,7 +76,8 @@ namespace HotelCarga.DbModel
 
                 entity.HasOne(d => d.room).WithMany(p => p.bookings)
                     .HasForeignKey(d => d.room_id)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .IsRequired(false)
                     .HasConstraintName("fk_booking_room");
 
                 entity.HasOne(d => d.status).WithMany(p => p.bookings)
@@ -242,7 +243,8 @@ namespace HotelCarga.DbModel
 
                 entity.HasOne(d => d.room).WithMany(p => p.booking_histories)
                     .HasForeignKey(d => d.room_id)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .IsRequired(false)
                     .HasConstraintName("fk_booking_history_room");
 
                 entity.HasOne(d => d.status).WithMany(p => p.booking_histories)

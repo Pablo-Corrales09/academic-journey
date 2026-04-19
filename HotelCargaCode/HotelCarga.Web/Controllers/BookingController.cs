@@ -330,7 +330,7 @@ public class BookingController : Controller
                 if (linkedCustomer is null)
                 {
                     const string noProfileError = "No hay un perfil de cliente vinculado a su cuenta.";
-                    if (isAjax) return Json(new { success = false, message = noProfileError });
+                    if (isAjax) return Json(new { result_type = "VALIDATION_ERROR", success = false, message = noProfileError });
                     ModelState.AddModelError(string.Empty, noProfileError);
                     model.PageTitle = "Gestión de reservas";
                     model.IntroText = "AIngrese los detalles de la estadía y deje que el sistema se encargue del resto.";
@@ -350,7 +350,7 @@ public class BookingController : Controller
             if (!ModelState.IsValid)
             {
                 var errorSummary = string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-                if (isAjax) return Json(new { success = false, message = errorSummary });
+                if (isAjax) return Json(new { result_type = "VALIDATION_ERROR", success = false, message = errorSummary });
                 TempData["ValidationErrors"] = errorSummary;
                 model.PageTitle = "Create Booking";
                 model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
@@ -361,34 +361,46 @@ public class BookingController : Controller
                 return View(await BuildFormModelAsync(model));
             }
 
-            var id = await _service.CreateAsync(
-                new SaveBookingDto(model.CustomerId, model.RoomId, model.CheckIn, model.CheckOut),
-                addToQueueIfUnavailable);
+            // Use new availability orchestration endpoint
+            var availabilityResponse = await _service.CreateWithAvailabilityFlowAsync(
+                new BookingAvailabilityRequestDto(
+                    model.CustomerId,
+                    model.RoomId,
+                    model.CheckIn,
+                    model.CheckOut));
 
-            if (isAjax) return Json(new { success = true, redirectUrl = Url.Action(nameof(List)) });
-            TempData["SuccessMessage"] = "Booking created successfully.";
-            return RedirectToAction(nameof(Details), new { id });
+            // Null check for response
+            if (availabilityResponse == null)
+            {
+                var nullError = "No response from booking service. Please try again.";
+                if (isAjax) return Json(new { result_type = "VALIDATION_ERROR", success = false, message = nullError });
+                ModelState.AddModelError(string.Empty, nullError);
+                return View(await BuildFormModelAsync(model));
+            }
+
+            // Null or empty check for result_type
+            if (string.IsNullOrEmpty(availabilityResponse.result_type))
+            {
+                var emptyTypeError = "Invalid response from booking service. Please try again.";
+                if (isAjax) return Json(new { result_type = "VALIDATION_ERROR", success = false, message = emptyTypeError });
+                ModelState.AddModelError(string.Empty, emptyTypeError);
+                return View(await BuildFormModelAsync(model));
+            }
+
+            // Branch based on result type
+            return availabilityResponse.result_type switch
+            {
+                "BOOKING_CREATED" => HandleBookingCreatedResponse(availabilityResponse, isAjax, model),
+                "ALTERNATIVE_ROOM_SUGGESTED" => HandleAlternativeRoomResponse(availabilityResponse, isAjax, model),
+                "QUEUED_AND_PENDING_BOOKING_CREATED" => HandleQueuedAndPendingResponse(availabilityResponse, isAjax, model),
+                "VALIDATION_ERROR" => HandleValidationErrorResponse(availabilityResponse, isAjax, model),
+                _ => StatusCode(500, new { success = false, message = $"Unknown response type from API: {availabilityResponse.result_type}" })
+            };
         }
         catch (BookingApiException ex)
         {
-            if (IsQueueAddedMessage(ex.Message))
-            {
-                if (isAjax) return Json(new { success = true, queued = true, message = ex.Message, redirectUrl = Url.Action(nameof(List)) });
-                TempData["SuccessMessage"] = ex.Message;
-                return RedirectToAction(nameof(Create), new { customerId = model.CustomerId });
-            }
-
-            if (isAjax && IsScheduleConflictMessage(ex.Message))
-                return Json(new { success = false, unavailable = true, message = ex.Message });
-
-            if (isAjax) return Json(new { success = false, message = ex.Message });
-
+            if (isAjax) return Json(new { result_type = "VALIDATION_ERROR", success = false, message = ex.Message });
             ModelState.AddModelError(string.Empty, ex.Message);
-            if (IsScheduleConflictMessage(ex.Message))
-            {
-                model.ShowNoAvailabilityPrompt = true;
-                model.NoAvailabilityPromptText = NoAvailabilityPrompt;
-            }
             model.PageTitle = "Create Booking";
             model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
             model.SubmitLabel = "Create Booking";
@@ -399,7 +411,7 @@ public class BookingController : Controller
         }
         catch (HttpRequestException ex)
         {
-            if (isAjax) return Json(new { success = false, message = $"API Error: {ex.Message}" });
+            if (isAjax) return Json(new { result_type = "VALIDATION_ERROR", success = false, message = $"API Error: {ex.Message}" });
             ModelState.AddModelError(string.Empty, $"API Error: {ex.Message}");
             model.PageTitle = "Create Booking";
             model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
@@ -411,7 +423,7 @@ public class BookingController : Controller
         }
         catch (Exception ex)
         {
-            if (isAjax) return Json(new { success = false, message = $"Booking creation failed: {ex.Message}" });
+            if (isAjax) return Json(new { result_type = "VALIDATION_ERROR", success = false, message = $"Booking creation failed: {ex.Message}" });
             ModelState.AddModelError(string.Empty, $"Booking creation failed: {ex.Message}");
             model.PageTitle = "Create Booking";
             model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
@@ -420,6 +432,117 @@ public class BookingController : Controller
             model.LockCustomerSelection = false;
             model.AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking");
             return View(await BuildFormModelAsync(model));
+        }
+    }
+
+    private IActionResult HandleBookingCreatedResponse(BookingAvailabilityResponseDto response, bool isAjax, BookingFormViewModel model)
+    {
+        if (isAjax)
+        {
+            return Json(new { result_type = "BOOKING_CREATED", success = true, message = response.message, redirectUrl = Url.Action(nameof(List)) });
+        }
+
+        TempData["SuccessMessage"] = response.message;
+        return RedirectToAction(nameof(List));
+    }
+
+    private IActionResult HandleAlternativeRoomResponse(BookingAvailabilityResponseDto response, bool isAjax, BookingFormViewModel model)
+    {
+        if (isAjax)
+        {
+            return Json(new 
+            { 
+                result_type = "ALTERNATIVE_ROOM_SUGGESTED",
+                success = false, 
+                alternativeAvailable = true, 
+                message = response.message,
+                alternative_room_suggested = response.alternative_room_suggested 
+            });
+        }
+
+        // For non-AJAX, show form with prompt
+        model.ShowNoAvailabilityPrompt = true;
+        model.NoAvailabilityPromptText = $"{response.message} ¿Deseas aceptar la alternativa?";
+        model.AlternativeRoomData = JsonSerializer.Serialize(response.alternative_room_suggested);
+        TempData["AlternativeRoomMessage"] = response.message;
+        
+        return View(model);
+    }
+
+    private IActionResult HandleQueuedAndPendingResponse(BookingAvailabilityResponseDto response, bool isAjax, BookingFormViewModel model)
+    {
+        if (isAjax)
+        {
+            return Json(new 
+            { result_type = "QUEUED_AND_PENDING_BOOKING_CREATED",
+                success = true, 
+                queued = true, 
+                message = response.message, 
+                queued_and_pending = response.queued_and_pending,
+                redirectUrl = Url.Action(nameof(List)) 
+            });
+        }
+
+        TempData["SuccessMessage"] = response.message;
+        TempData["QueuedMessage"] = "Tu solicitud ha sido registrada en la lista de espera. Te contactaremos cuando una habitación esté disponible.";
+        return RedirectToAction(nameof(List));
+    }
+
+    private IActionResult HandleValidationErrorResponse(BookingAvailabilityResponseDto response, bool isAjax, BookingFormViewModel model)
+    {
+        if (isAjax)
+        {
+            return Json(new { result_type = "VALIDATION_ERROR", success = false, message = response.message });
+        }
+
+        ModelState.AddModelError(string.Empty, response.message);
+        model.PageTitle = "Create Booking";
+        model.IntroText = "Open a reservation with guest, room, and stay dates while the API calculates reserve number, status, and pricing.";
+        model.SubmitLabel = "Create Booking";
+        model.HeroEyebrow = "Reservation Intake";
+        model.LockCustomerSelection = false;
+        model.AddCustomerReturnUrl = Url.Action(nameof(Create), "Booking");
+        
+        return View(model);
+    }
+
+    /// <summary>
+    /// Confirms acceptance of an alternative room suggestion.
+    /// </summary>
+    [HttpPost("Booking/ConfirmAlternative")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmAlternativeRoom(uint customerId, uint alternativeRoomId, DateTime checkIn, DateTime checkOut)
+    {
+        bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
+
+        try
+        {
+            var confirmRequest = new BookingAvailabilityRequestDto(customerId, alternativeRoomId, checkIn, checkOut);
+            var response = await _service.CreateWithAvailabilityFlowAsync(confirmRequest);
+
+            if (response.result_type == "BOOKING_CREATED")
+            {
+                if (isAjax)
+                    return Json(new { success = true, message = response.message, redirectUrl = Url.Action(nameof(List)) });
+
+                TempData["SuccessMessage"] = response.message;
+                return RedirectToAction(nameof(List));
+            }
+
+            // Alternative no longer available
+            if (isAjax)
+                return Json(new { success = false, message = response.message });
+
+            TempData["ErrorMessage"] = response.message;
+            return RedirectToAction(nameof(Create), new { customerId });
+        }
+        catch (Exception ex)
+        {
+            if (isAjax)
+                return Json(new { success = false, message = ex.Message });
+
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction(nameof(Create), new { customerId });
         }
     }
 
@@ -485,7 +608,7 @@ public class BookingController : Controller
             {
                 Id = booking.id,
                 CustomerId = booking.customer_id,
-                RoomId = booking.room_id,
+                RoomId = booking.room_id ?? 0,
                 CheckIn = booking.check_in,
                 CheckOut = booking.check_out,
                 CurrentReserveNumber = booking.reserve_number ?? string.Empty,
@@ -919,7 +1042,7 @@ public class BookingController : Controller
             StatusName = booking.status_name,
             CustomerId = booking.customer_id,
             CustomerName = booking.customer_name,
-            RoomId = booking.room_id,
+            RoomId = booking.room_id ?? 0,
             RoomNumber = booking.room_number,
             CheckIn = booking.check_in,
             CheckOut = booking.check_out,
@@ -940,7 +1063,8 @@ public class BookingController : Controller
                 booking.status_id == 1
                 && booking.customer_id == entry.customer_id
                 && booking.check_in.Date == entry.requested_check_in.Date
-                && roomCategoriesById.TryGetValue(booking.room_id, out var bookingCategoryId)
+                && booking.room_id.HasValue
+                && roomCategoriesById.TryGetValue(booking.room_id.Value, out var bookingCategoryId)
                 && bookingCategoryId == entry.room_category_id))
             .Select(entry => new BookingListItemViewModel
         {
