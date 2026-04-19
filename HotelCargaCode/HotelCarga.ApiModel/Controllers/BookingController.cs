@@ -339,6 +339,18 @@ public class BookingController : BaseApiController
                 || existingBooking.check_in != item.check_in
                 || existingBooking.check_out != item.check_out;
 
+            var releasedWindows = roomOrScheduleChanged
+                ? GetReleasedAvailabilityWindows(
+                    existingBooking.room_id,
+                    existingBooking.check_in,
+                    existingBooking.check_out,
+                    item.room_id,
+                    item.check_in,
+                    item.check_out)
+                : [];
+
+            await using var transaction = await DbContext.Database.BeginTransactionAsync();
+
             existingBooking.room_id = item.room_id;
             existingBooking.nightly_rate = targetRoom.nightly_rate;
 
@@ -354,11 +366,19 @@ public class BookingController : BaseApiController
             await DbContext.SaveChangesAsync();
 
             WaitingQueueNotification? queueNotification = null;
-            // Only process queue if original booking had a room assigned (not pending)
-            if (wasActiveBooking && roomOrScheduleChanged && releasedRoomId.HasValue && _alertService != null)
+            if (wasActiveBooking && _alertService != null)
             {
-                queueNotification = await _alertService.ProcessNextQueueForReleasedRoom(releasedRoomId.Value, releasedCheckIn, releasedCheckOut);
+                foreach (var window in releasedWindows)
+                {
+                    queueNotification = await _alertService.ProcessNextQueueForReleasedRoom(window.RoomId, window.AvailableFrom, window.AvailableTo);
+                    if (queueNotification != null)
+                    {
+                        break;
+                    }
+                }
             }
+
+            await transaction.CommitAsync();
 
             return Ok(new
             {
@@ -371,8 +391,8 @@ public class BookingController : BaseApiController
         }
         catch (Exception ex)
         {
-            string realError = ex.InnerException?.Message ?? ex.Message;
-            return BadRequest(new { error = true, message = "Processing error: " + realError });
+            _logger?.LogError(ex, "Error updating booking {bookingId}", item.id);
+            return BadRequest(new { error = true, message = "No fue posible actualizar la reserva en este momento. Por favor, inténtelo de nuevo." });
         }
     }
 
@@ -391,6 +411,8 @@ public class BookingController : BaseApiController
             var releasedRoomId = existingBooking.room_id;
             var releasedCheckIn = existingBooking.check_in;
             var releasedCheckOut = existingBooking.check_out;
+
+            await using var transaction = await DbContext.Database.BeginTransactionAsync();
 
             // Aplica Soft Delete (Cancelamos la reserva)
             existingBooking.status_id = 3;
@@ -411,6 +433,8 @@ public class BookingController : BaseApiController
                 }
             }
 
+            await transaction.CommitAsync();
+
             return Ok(new
             {
                 success = true,
@@ -421,9 +445,45 @@ public class BookingController : BaseApiController
         }
         catch (Exception ex)
         {
-            string realError = ex.InnerException?.Message ?? ex.Message;
-            return BadRequest(new { error = true, message = "Processing error: " + realError });
+            _logger?.LogError(ex, "Error deleting booking {bookingId}", item.id);
+            return BadRequest(new { error = true, message = "No fue posible cancelar la reserva en este momento. Por favor, inténtelo de nuevo." });
         }
+    }
+
+    private static List<(uint RoomId, DateTime AvailableFrom, DateTime AvailableTo)> GetReleasedAvailabilityWindows(
+        uint? previousRoomId,
+        DateTime previousCheckIn,
+        DateTime previousCheckOut,
+        uint? nextRoomId,
+        DateTime nextCheckIn,
+        DateTime nextCheckOut)
+    {
+        var released = new List<(uint RoomId, DateTime AvailableFrom, DateTime AvailableTo)>();
+
+        if (!previousRoomId.HasValue)
+        {
+            return released;
+        }
+
+        if (!nextRoomId.HasValue || previousRoomId.Value != nextRoomId.Value)
+        {
+            released.Add((previousRoomId.Value, previousCheckIn, previousCheckOut));
+            return released;
+        }
+
+        if (nextCheckIn > previousCheckIn)
+        {
+            released.Add((previousRoomId.Value, previousCheckIn, nextCheckIn));
+        }
+
+        if (nextCheckOut < previousCheckOut)
+        {
+            released.Add((previousRoomId.Value, nextCheckOut, previousCheckOut));
+        }
+
+        return released
+            .Where(window => window.AvailableTo > window.AvailableFrom)
+            .ToList();
     }
 
     [HttpGet("GetReserveNumberById")]

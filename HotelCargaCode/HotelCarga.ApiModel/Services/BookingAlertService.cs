@@ -18,9 +18,9 @@ public class BookingAlertService
     private readonly HotelCargaContext _dbContext;
     private readonly ILogger<BookingAlertService> _logger;
 
-    // Queue status IDs (should match database values)
+    // Status IDs must match seeded database values.
     private const byte QUEUE_STATUS_PENDING = 1;
-    private const byte QUEUE_STATUS_NOTIFIED = 2;
+    private const byte QUEUE_STATUS_CONFIRMED = 2;
     private const byte BOOKING_STATUS_CONFIRMED = 2;
     private const byte BOOKING_STATUS_PENDING = 1;
 
@@ -75,7 +75,7 @@ public class BookingAlertService
                 var queueEntry = waitingQueueEntries[i];
 
                 // Update the queue entry status to NOTIFIED
-                queueEntry.status_id = QUEUE_STATUS_NOTIFIED;
+                queueEntry.status_id = QUEUE_STATUS_CONFIRMED;
                 queueEntry.updated_at = DateTime.UtcNow;
 
                 notifications.Add(BuildNotification(queueEntry, roomCategoryId, i + 1));
@@ -95,94 +95,119 @@ public class BookingAlertService
     }
 
     /// <summary>
-    /// Assigns the freed room to the oldest pending waiting-queue request for the same room category.
-    /// Creates the reservation and updates queue status in a single transaction.
+    /// Assigns the freed room to the oldest FIFO waiting-queue request whose requested range
+    /// fits inside the released availability window. If a matching pending booking exists,
+    /// it is confirmed in-place; otherwise a confirmed booking is created as a recovery path.
+    /// The processed waiting-queue row is deleted.
     /// </summary>
-    public async Task<WaitingQueueNotification?> ProcessNextQueueForReleasedRoom(uint roomId, DateTime checkInDate, DateTime checkOutDate)
+    public async Task<WaitingQueueNotification?> ProcessNextQueueForReleasedRoom(uint roomId, DateTime availableFrom, DateTime availableTo)
     {
-        try
+        var room = await _dbContext.Set<room>()
+            .Include(r => r.category)
+            .FirstOrDefaultAsync(r => r.id == roomId);
+
+        if (room == null)
         {
-            var room = await _dbContext.Set<room>().FindAsync(roomId);
-            if (room == null)
+            _logger.LogWarning("Room {roomId} not found when processing availability cascade", roomId);
+            return null;
+        }
+
+        if (availableTo <= availableFrom)
+        {
+            _logger.LogInformation("Released availability window for room {roomId} is empty", roomId);
+            return null;
+        }
+
+        var candidateEntries = await _dbContext.Set<waiting_queue>()
+            .Where(wq => wq.room_category_id == room.category_id
+                && wq.status_id == QUEUE_STATUS_PENDING
+                && wq.requested_check_in >= availableFrom
+                && (wq.check_out ?? wq.requested_check_in.AddDays(1)) <= availableTo)
+            .OrderBy(wq => wq.created_at)
+            .ThenBy(wq => wq.id)
+            .Include(wq => wq.customer)
+            .Include(wq => wq.room_category)
+            .ToListAsync();
+
+        if (candidateEntries.Count == 0)
+        {
+            _logger.LogInformation(
+                "No pending queue entry fits released room {roomId} between {availableFrom} and {availableTo}",
+                roomId,
+                availableFrom,
+                availableTo);
+            return null;
+        }
+
+        foreach (var queueEntry in candidateEntries)
+        {
+            var requestedCheckOut = queueEntry.check_out ?? queueEntry.requested_check_in.AddDays(1);
+            var overlapsExistingReservation = await _dbContext.Set<booking>()
+                .AnyAsync(b => b.room_id == roomId
+                    && b.status_id != 3
+                    && b.check_in < requestedCheckOut
+                    && b.check_out > queueEntry.requested_check_in);
+
+            if (overlapsExistingReservation)
             {
-                _logger.LogWarning($"Room {roomId} not found when processing next waiting queue entry");
-                return null;
+                continue;
             }
 
-            byte roomCategoryId = room.category_id;
-
-            var candidateEntries = await _dbContext.Set<waiting_queue>()
-                .Where(wq => wq.room_category_id == roomCategoryId
-                    && wq.status_id == QUEUE_STATUS_PENDING
-                    && wq.requested_check_in >= checkInDate
-                    && (wq.check_out == null || wq.check_out <= checkOutDate))
-                .OrderBy(wq => wq.created_at)
-                .Include(wq => wq.customer)
-                .Include(wq => wq.room_category)
-                .ToListAsync();
-
-            if (candidateEntries.Count == 0)
-            {
-                _logger.LogInformation($"No pending queue entry available for released room {roomId}");
-                return null;
-            }
-
-            var nextQueueEntry = candidateEntries.First();
-
-            // Guard: only assign if the freed room category matches the queued room category.
-            if (nextQueueEntry.room_category_id != roomCategoryId)
-            {
-                _logger.LogInformation($"Queue entry {nextQueueEntry.id} category does not match freed room {roomId} category");
-                return null;
-            }
-
-            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
-            var targetCheckOut = nextQueueEntry.check_out ?? nextQueueEntry.requested_check_in.AddDays(1);
-
-            // Prevent duplicate reservations for the same queue request if this method is invoked more than once.
-            var existingBooking = await _dbContext.Set<booking>()
-                .Where(b => b.customer_id == nextQueueEntry.customer_id
-                    && b.room_id == roomId
-                    && b.check_in.Date == nextQueueEntry.requested_check_in.Date
-                    && b.check_out.Date == targetCheckOut.Date
-                    && (b.status_id == BOOKING_STATUS_PENDING || b.status_id == BOOKING_STATUS_CONFIRMED))
-                .OrderByDescending(b => b.id)
+            var pendingBooking = await _dbContext.Set<booking>()
+                .Where(b => b.customer_id == queueEntry.customer_id
+                    && b.status_id == BOOKING_STATUS_PENDING
+                    && b.room_id == null
+                    && b.check_in.Date == queueEntry.requested_check_in.Date
+                    && b.check_out.Date == requestedCheckOut.Date)
+                .OrderBy(b => b.created_at)
+                .ThenBy(b => b.id)
                 .FirstOrDefaultAsync();
 
-            if (existingBooking == null)
+            if (pendingBooking == null)
             {
-                var newBooking = new booking
+                pendingBooking = new booking
                 {
                     reserve_number = await GeneratePendingReserveNumberAsync(),
-                    customer_id = nextQueueEntry.customer_id,
+                    customer_id = queueEntry.customer_id,
                     room_id = roomId,
-                    status_id = BOOKING_STATUS_PENDING,
-                    check_in = nextQueueEntry.requested_check_in,
-                    check_out = targetCheckOut,
+                    status_id = BOOKING_STATUS_CONFIRMED,
+                    check_in = queueEntry.requested_check_in,
+                    check_out = requestedCheckOut,
                     nightly_rate = room.nightly_rate,
-                    total_price = CalculateTotalPrice(room.nightly_rate, nextQueueEntry.requested_check_in, targetCheckOut),
+                    total_price = CalculateTotalPrice(room.nightly_rate, queueEntry.requested_check_in, requestedCheckOut),
                     created_at = DateTime.UtcNow,
                     updated_at = DateTime.UtcNow
                 };
 
-                await _dbContext.Set<booking>().AddAsync(newBooking);
+                await _dbContext.Set<booking>().AddAsync(pendingBooking);
+            }
+            else
+            {
+                pendingBooking.room_id = roomId;
+                pendingBooking.status_id = BOOKING_STATUS_CONFIRMED;
+                pendingBooking.nightly_rate = room.nightly_rate;
+                pendingBooking.total_price = CalculateTotalPrice(room.nightly_rate, pendingBooking.check_in, pendingBooking.check_out);
+                pendingBooking.updated_at = DateTime.UtcNow;
             }
 
-            nextQueueEntry.status_id = QUEUE_STATUS_NOTIFIED;
-            nextQueueEntry.updated_at = DateTime.UtcNow;
-
+            room.status_id = BOOKING_STATUS_CONFIRMED;
+            _dbContext.Set<waiting_queue>().Remove(queueEntry);
             await _dbContext.SaveChangesAsync();
-            await transaction.CommitAsync();
 
-            _logger.LogInformation($"Queue entry {nextQueueEntry.id} assigned to room {roomId}; booking created and queue marked NOTIFIED");
-            return BuildNotification(nextQueueEntry, roomCategoryId, 1);
+            _logger.LogInformation(
+                "Availability cascade promoted queue entry {queueId} for customer {customerId} into booking {bookingId} on room {roomId}",
+                queueEntry.id,
+                queueEntry.customer_id,
+                pendingBooking.id,
+                roomId);
+
+            return BuildNotification(queueEntry, room.category_id, 1);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error processing next queue entry for released room");
-            return null;
-        }
+
+        _logger.LogInformation(
+            "Released room {roomId} had FIFO candidates, but none could be assigned after conflict checks",
+            roomId);
+        return null;
     }
 
     /// <summary>
@@ -193,7 +218,7 @@ public class BookingAlertService
         try
         {
             var pendingAlerts = await _dbContext.Set<waiting_queue>()
-                .Where(wq => wq.status_id == QUEUE_STATUS_NOTIFIED)
+                .Where(wq => wq.status_id == QUEUE_STATUS_CONFIRMED)
                 .OrderBy(wq => wq.created_at) // FIFO order
                 .Include(wq => wq.customer)
                 .Include(wq => wq.room_category)
