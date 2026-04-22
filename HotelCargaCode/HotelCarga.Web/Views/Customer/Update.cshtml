@@ -1,7 +1,8 @@
 @model HotelCarga.Models.Customers.CustomerFormViewModel
 
 @{
-    ViewData["Title"] = Model.PageTitle;
+    // Título de la pestaña del navegador
+    ViewData["Title"] = "Gestión de Clientes"; 
 }
 
 @section Styles {
@@ -11,12 +12,14 @@
 <div class="user-shell customer-shell" data-page="customer-form">
     <section class="user-hero user-hero--compact" data-animate>
         <div class="user-hero__content">
-            <span class="user-eyebrow">@Model.HeroEyebrow</span>
-            <h1>@Model.PageTitle</h1>
-            <p>@Model.IntroText</p>
+            
+            <h1>Edición de cliente</h1>
+            
+            <p>Por favor, complete los datos a continuación para mantener actualizada la ficha del cliente.</p>
         </div>
     </section>
 
+    @* El formulario interno con los campos de datos *@
     <partial name="_CustomerForm" model="Model" />
 </div>
 

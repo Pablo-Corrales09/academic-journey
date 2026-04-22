@@ -1,8 +1,12 @@
 using HotelCarga.Models.Customers;
+using HotelCarga.Models.WaitingQueue;
 using HotelCarga.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace HotelCarga.Web.Controllers;
 
@@ -11,10 +15,19 @@ public class CustomerController : Controller
     private const string ApiUnavailableMessage = "Customer service is unavailable. Start HotelCarga.ApiModel and try again.";
 
     private readonly ICustomerApiService _service;
+    private readonly IBookingApiService _bookingService;
+    private readonly HttpClient _httpClient;
 
-    public CustomerController(ICustomerApiService service)
+    public CustomerController(
+        ICustomerApiService service,
+        IBookingApiService bookingService,
+        IHttpClientFactory clientFactory,
+        IOptions<ApiSettings> settings)
     {
         _service = service;
+        _bookingService = bookingService;
+        _httpClient = clientFactory.CreateClient();
+        _httpClient.BaseAddress = new Uri(settings.Value.BaseUrl);
     }
 
     public async Task<IActionResult> Index(CustomerFiltersViewModel filters)
@@ -87,17 +100,84 @@ public class CustomerController : Controller
         try
         {
             var summaryTask = _service.GetByIdAsync(id);
-            var bookingsTask = _service.GetBookingIdsByCustomerIdAsync(id);
-            var historiesTask = _service.GetBookingHistoryIdsByCustomerIdAsync(id);
-            var queuesTask = _service.GetWaitingQueueIdsByCustomerIdAsync(id);
+            var bookingIdsTask = _service.GetBookingIdsByCustomerIdAsync(id);
+            var historyIdsTask = _service.GetBookingHistoryIdsByCustomerIdAsync(id);
+            var queueIdsTask = _service.GetWaitingQueueIdsByCustomerIdAsync(id);
+            var allBookingsTask = _bookingService.GetAllAsync();
+            var bookingStatusesTask = _bookingService.GetStatusesAsync();
+            var allQueueEntriesTask = _httpClient.GetFromJsonAsync<List<WaitingQueueApiDto>>("WaitingQueue/GetAll");
+            var allHistoriesTask = _httpClient.GetFromJsonAsync<List<BookingHistoryApiDto>>("BookingHistory/GetAll");
 
-            await Task.WhenAll(summaryTask, bookingsTask, historiesTask, queuesTask);
+            await Task.WhenAll(
+                summaryTask,
+                bookingIdsTask,
+                historyIdsTask,
+                queueIdsTask,
+                allBookingsTask,
+                bookingStatusesTask,
+                allQueueEntriesTask,
+                allHistoriesTask);
 
             var summary = summaryTask.Result;
             if (summary is null)
             {
                 return NotFound();
             }
+
+            var bookingIds = bookingIdsTask.Result;
+            var historyIds = historyIdsTask.Result;
+            var queueIds = queueIdsTask.Result;
+            var allBookings = allBookingsTask.Result;
+            var bookingStatuses = bookingStatusesTask.Result;
+            var allQueueEntries = allQueueEntriesTask.Result ?? [];
+            var allHistories = allHistoriesTask.Result ?? [];
+
+            var bookingIdSet = bookingIds.ToHashSet();
+            var historyIdSet = historyIds.ToHashSet();
+            var queueIdSet = queueIds.ToHashSet();
+
+            var statusNameById = bookingStatuses.ToDictionary(status => status.id, status => status.status_name);
+            var relatedBookings = allBookings
+                .Where(booking => bookingIdSet.Contains(booking.id))
+                .OrderByDescending(booking => booking.check_in)
+                .Select(booking => new CustomerRelatedBookingViewModel
+                {
+                    ReserveNumber = string.IsNullOrWhiteSpace(booking.reserve_number) ? "Reservation without code" : booking.reserve_number,
+                    StatusName = string.IsNullOrWhiteSpace(booking.status_name) ? "Unknown status" : booking.status_name,
+                    RoomLabel = booking.room_number == 0 ? "Room pending" : $"Room {booking.room_number}",
+                    CheckIn = booking.check_in,
+                    CheckOut = booking.check_out
+                })
+                .ToList();
+
+            var relatedBookingHistories = allHistories
+                .Where(history => historyIdSet.Contains(history.id))
+                .OrderByDescending(history => history.created_at ?? DateTime.MinValue)
+                .Select(history => new CustomerRelatedBookingHistoryViewModel
+                {
+                    ActionType = string.IsNullOrWhiteSpace(history.action_type) ? "Booking update" : history.action_type,
+                    StatusName = statusNameById.TryGetValue(history.status_id, out var statusName)
+                        ? statusName
+                        : "Status unavailable",
+                    CheckIn = history.check_in,
+                    CheckOut = history.check_out,
+                    TotalPrice = history.total_price,
+                    LoggedAt = history.created_at
+                })
+                .ToList();
+
+            var relatedWaitingQueues = allQueueEntries
+                .Where(entry => queueIdSet.Contains(entry.id))
+                .OrderByDescending(entry => entry.created_at ?? DateTime.MinValue)
+                .Select(entry => new CustomerRelatedWaitingQueueViewModel
+                {
+                    RequestNumber = string.IsNullOrWhiteSpace(entry.request_number) ? "Queue request" : entry.request_number,
+                    RoomCategoryName = string.IsNullOrWhiteSpace(entry.room_category_name) ? "Unknown category" : entry.room_category_name,
+                    StatusName = string.IsNullOrWhiteSpace(entry.status_name) ? "Unknown status" : entry.status_name,
+                    RequestedCheckIn = entry.requested_check_in,
+                    CheckOut = entry.check_out
+                })
+                .ToList();
 
             var customerByUser = string.IsNullOrWhiteSpace(summary.username)
                 ? null
@@ -109,9 +189,12 @@ public class CustomerController : Controller
             return View(new CustomerDetailsViewModel
             {
                 Customer = MapSummary(summary, matchedEntity?.user_id),
-                BookingIds = bookingsTask.Result,
-                BookingHistoryIds = historiesTask.Result,
-                WaitingQueueIds = queuesTask.Result,
+                BookingIds = bookingIds,
+                BookingHistoryIds = historyIds,
+                WaitingQueueIds = queueIds,
+                RelatedBookings = relatedBookings,
+                RelatedBookingHistories = relatedBookingHistories,
+                RelatedWaitingQueues = relatedWaitingQueues,
                 CreatedAt = matchedEntity?.created_at,
                 UpdatedAt = matchedEntity?.updated_at
             });
@@ -604,5 +687,37 @@ public class CustomerController : Controller
             RoleName = "Available via GetById",
             StatusName = "Available via GetById"
         };
+    }
+
+    private sealed class BookingHistoryApiDto
+    {
+        public uint id { get; set; }
+
+        [JsonPropertyName("booking_id")]
+        public uint booking_id { get; set; }
+
+        [JsonPropertyName("customer_id")]
+        public uint customer_id { get; set; }
+
+        [JsonPropertyName("room_id")]
+        public uint? room_id { get; set; }
+
+        [JsonPropertyName("check_in")]
+        public DateTime check_in { get; set; }
+
+        [JsonPropertyName("check_out")]
+        public DateTime check_out { get; set; }
+
+        [JsonPropertyName("status_id")]
+        public byte status_id { get; set; }
+
+        [JsonPropertyName("action_type")]
+        public string action_type { get; set; } = string.Empty;
+
+        [JsonPropertyName("total_price")]
+        public decimal? total_price { get; set; }
+
+        [JsonPropertyName("created_at")]
+        public DateTime? created_at { get; set; }
     }
 }

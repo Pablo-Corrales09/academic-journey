@@ -112,8 +112,39 @@ public class CustomerDetailsViewModel
     public List<uint> BookingIds { get; init; } = [];
     public List<uint> BookingHistoryIds { get; init; } = [];
     public List<uint> WaitingQueueIds { get; init; } = [];
+    public List<CustomerRelatedBookingViewModel> RelatedBookings { get; init; } = [];
+    public List<CustomerRelatedBookingHistoryViewModel> RelatedBookingHistories { get; init; } = [];
+    public List<CustomerRelatedWaitingQueueViewModel> RelatedWaitingQueues { get; init; } = [];
     public DateTime? CreatedAt { get; init; }
     public DateTime? UpdatedAt { get; init; }
+}
+
+public class CustomerRelatedBookingViewModel
+{
+    public string ReserveNumber { get; init; } = "Reservation";
+    public string StatusName { get; init; } = "Unknown";
+    public string RoomLabel { get; init; } = "Room pending";
+    public DateTime CheckIn { get; init; }
+    public DateTime CheckOut { get; init; }
+}
+
+public class CustomerRelatedBookingHistoryViewModel
+{
+    public string ActionType { get; init; } = "Update";
+    public string StatusName { get; init; } = "Unknown";
+    public DateTime CheckIn { get; init; }
+    public DateTime CheckOut { get; init; }
+    public decimal? TotalPrice { get; init; }
+    public DateTime? LoggedAt { get; init; }
+}
+
+public class CustomerRelatedWaitingQueueViewModel
+{
+    public string RequestNumber { get; init; } = "Queue Request";
+    public string RoomCategoryName { get; init; } = "Unknown";
+    public string StatusName { get; init; } = "Pending";
+    public DateTime RequestedCheckIn { get; init; }
+    public DateTime? CheckOut { get; init; }
 }
 
 public class CustomerLookupResultViewModel

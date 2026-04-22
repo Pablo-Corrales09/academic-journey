@@ -13,28 +13,19 @@
         <div class="user-hero__content">
             <h1>Gestione la identidad de su equipo con un flujo de trabajo eficiente.</h1>
             <p>Supervise cada cuenta de acceso, filtre el directorio de empleados y utilice herramientas de validación rápida para asegurar la integridad de los datos de su hotel.</p>
-            <div class="user-hero__actions">
-                <a asp-action="Create" class="user-button">Nuevo Usuario</a>
-                <a asp-action="GetAll" class="user-button user-button--ghost">Restablecer Directorio</a>
+            <div class="user-hero__actions" style="display: flex; justify-content: flex-end;">
+                <a asp-action="Create" class="user-button btn btn-primary">Nuevo Usuario</a>
             </div>
         </div>
         <div class="user-hero__panel">
             <div class="user-stat-grid">
                 <article class="user-stat-card">
-                    <span>Cuentas totales</span>
+                    <span>Usuarios registrados</span>
                     <strong data-count="@Model.Stats.TotalUsers">@Model.Stats.TotalUsers</strong>
-                </article>
-                <article class="user-stat-card">
-                    <span>Resultados de búsqueda</span>
-                    <strong data-count="@Model.Stats.MatchingUsers">@Model.Stats.MatchingUsers</strong>
                 </article>
                 <article class="user-stat-card">
                     <span>Usuarios activos</span>
                     <strong data-count="@Model.Stats.ActiveUsers">@Model.Stats.ActiveUsers</strong>
-                </article>
-                <article class="user-stat-card">
-                    <span>Clientes vinculados</span>
-                    <strong data-count="@Model.Stats.LinkedCustomers">@Model.Stats.LinkedCustomers</strong>
                 </article>
             </div>
         </div>
@@ -72,14 +63,6 @@
                 <label>Estado de Cuenta</label>
                 <select asp-for="Filters.StatusId" asp-items="Model.StatusOptions" class="user-input">
                     <option value="">Todos los estados</option>
-                </select>
-            </div>
-            <div class="user-field">
-                <label>Vínculo con Cliente</label>
-                <select asp-for="Filters.HasCustomer" class="user-input">
-                    <option value="">Todas las cuentas</option>
-                    <option value="true">Solo perfiles con cliente asignado</option>
-                    <option value="false">Solo perfiles administrativos</option>
                 </select>
             </div>
             <div class="user-form-actions user-form-actions--inline">
@@ -127,10 +110,6 @@
                                 <dd>@user.Email</dd>
                             </div>
                             <div>
-                                <dt>Cliente Vinculado</dt>
-                                <dd>@(user.CustomerId?.ToString() ?? "Sin vinculación")</dd>
-                            </div>
-                            <div>
                                 <dt>Nivel de Acceso</dt>
                                 <dd>@user.RoleName</dd>
                             </div>
@@ -141,7 +120,7 @@
                         </dl>
                         <div class="user-card__actions">
                             <a asp-action="GetById" asp-route-id="@user.Id" class="user-button">Ver Perfil</a>
-                            <a asp-action="Update" asp-route-id="@user.Id" class="user-button user-button--ghost">Editar</a>
+                            <a asp-action="Update" asp-route-id="@user.Id" class="user-button btn btn-warning">Editar</a>
                             <a asp-action="Delete" asp-route-id="@user.Id" class="user-button user-button--ghost user-button--danger">Baja</a>
                         </div>
                     </article>

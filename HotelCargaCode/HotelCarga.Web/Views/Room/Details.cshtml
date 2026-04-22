@@ -96,6 +96,28 @@
         </div>
     </section>
 
+@if(
+    User.IsInRole( "ADMIN")){
+    {
+        <section class="room-surface mb-4 p-3 shadow-sm" data-animate>
+            <div class="room-surface__header mb-3 border-bottom pb-2">
+                <div>
+                    <span class="room-section-tag">Administración</span>
+                    <h2 class="h5">Controles de Gestión</h2>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-action="Edit" asp-route-id="@Model.Room.Id" class="room-button shadow-sm" style="background-color: #28a745; border-color: #28a745; color: white;">
+                    <i class="fas fa-edit mr-2"></i>Editar Unidad
+                </a>
+                <form asp-action="Delete" asp-route-id="@Model.Room.Id" method="post" onsubmit="return confirm('¿Confirma que desea eliminar esta habitación? Esta acción no se puede deshacer.');">
+                    <button type="submit" class="room-button room-button--danger shadow-sm">
+                        <i class="fas fa-trash-alt mr-2"></i>Eliminar Unidad
+                    </button>
+                </form>
+            </div>
+        </section>
+    
     <section class="room-surface mb-4 p-3 shadow-sm" data-animate>
         <div class="room-surface__header mb-3 border-bottom pb-2">
             <div>
@@ -155,6 +177,8 @@
             </div>
         }
     </section>
+    }
+}
 </div>
 
 @section Scripts {

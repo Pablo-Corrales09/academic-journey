@@ -6,17 +6,17 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/Styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/customer/details.css" asp-append-version="true" />
 }
 
 <div class="user-shell customer-shell" data-page="customer-details">
     <section class="user-hero user-hero--compact" data-animate>
         <div class="user-hero__content">
-            <span class="user-eyebrow">Customer Profile</span>
             <h1>@Model.Customer.FirstName @Model.Customer.LastName</h1>
-            <p>Document <strong>@Model.Customer.DocumentNumber</strong> with user account <strong>@Model.Customer.Username</strong> and current status <strong>@Model.Customer.StatusName</strong>.</p>
+            <p>N° documento <strong>@Model.Customer.DocumentNumber</strong> </p>
             <div class="user-hero__actions">
-                <a asp-action="Update" asp-route-id="@Model.Customer.Id" class="user-button">Update Customer</a>
-                <a asp-action="Index" class="user-button user-button--ghost">Back to Customers</a>
+                <a asp-action="Update" asp-route-id="@Model.Customer.Id" class="user-button">Actualizar cliente</a>
+                <a asp-action="Index" class="user-button user-button--ghost">Volver a Clientes</a>
             </div>
         </div>
     </section>
@@ -29,29 +29,24 @@
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Overview</span>
-                <h2>Identity and contact details</h2>
+                <span class="user-section-tag">Resumen</span>
+                <h2>Detalles de identidad y contacto</h2>
             </div>
-            <p>Customer data blended with User navigation properties returned by the API.</p>
         </div>
 
         <div class="user-detail-grid">
             <article class="user-detail-card">
-                <span>Email</span>
+                <span>Correo electrónico</span>
                 <strong>@Model.Customer.Email</strong>
             </article>
             <article class="user-detail-card">
-                <span>Phone</span>
+                <span>Teléfono</span>
                 <strong>@Model.Customer.Phone</strong>
             </article>
             <article class="user-detail-card">
-                <span>Location</span>
+                <span>Ubicación</span>
                 <strong>@Model.Customer.City, @Model.Customer.Country</strong>
                 <p>@Model.Customer.Address</p>
-            </article>
-            <article class="user-detail-card">
-                <span>Linked User Id</span>
-                <strong>@(Model.Customer.UserId?.ToString() ?? "Not resolved")</strong>
             </article>
         </div>
     </section>
@@ -59,32 +54,102 @@
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Relationships</span>
-                <h2>Navigation id sets</h2>
+                <h2>Resumen</h2>
             </div>
-            <p>Ids are sourced from the dedicated relationship endpoints in CustomerController.</p>
+            <p>Historial de reservas.</p>
         </div>
 
-        <div class="user-detail-grid user-detail-grid--two">
-            <article class="user-detail-card">
-                <span>Booking Ids</span>
-                <strong>@Model.BookingIds.Count</strong>
-                <p>@(Model.BookingIds.Count == 0 ? "No booking links." : string.Join(", ", Model.BookingIds))</p>
+        <div class="user-detail-grid user-detail-grid--two customer-related-grid">
+            <article class="user-detail-card customer-related-card">
+                <div class="customer-related-card__media">
+                    <img src="~/images/customer/booking-overview.svg" alt="Resumen visual de reservas relacionadas" />
+                </div>
+                <div class="customer-related-card__content">
+                <span class="customer-related-card__label">Reservas relacionadas</span>
+                <strong class="customer-related-card__count">@Model.RelatedBookings.Count</strong>
+                @if (Model.RelatedBookings.Count == 0)
+                {
+                    <p class="customer-related-empty">No hay reservas relacionadas.</p>
+                }
+                else
+                {
+                    <ul class="customer-related-list">
+                        @foreach (var booking in Model.RelatedBookings)
+                        {
+                            <li class="customer-related-item">
+                                <strong>@booking.ReserveNumber</strong> - @booking.StatusName
+                                <div class="customer-related-meta">@booking.RoomLabel</div>
+                                <div class="customer-related-meta">@booking.CheckIn.ToString("dd MMM yyyy") - @booking.CheckOut.ToString("dd MMM yyyy")</div>
+                            </li>
+                        }
+                    </ul>
+                }
+                </div>
             </article>
-            <article class="user-detail-card">
-                <span>Booking History Ids</span>
-                <strong>@Model.BookingHistoryIds.Count</strong>
-                <p>@(Model.BookingHistoryIds.Count == 0 ? "No booking history links." : string.Join(", ", Model.BookingHistoryIds))</p>
+            <article class="user-detail-card customer-related-card">
+                <div class="customer-related-card__media">
+                    <img src="~/images/customer/history-timeline.svg" alt="Línea de tiempo del historial de reservas" />
+                </div>
+                <div class="customer-related-card__content">
+                <span class="customer-related-card__label">Historial de reservas</span>
+                <strong class="customer-related-card__count">@Model.RelatedBookingHistories.Count</strong>
+                @if (Model.RelatedBookingHistories.Count == 0)
+                {
+                    <p class="customer-related-empty">No hay eventos de historial relacionados.</p>
+                }
+                else
+                {
+                    <ul class="customer-related-list">
+                        @foreach (var history in Model.RelatedBookingHistories)
+                        {
+                            <li class="customer-related-item">
+                                <strong>@history.ActionType</strong> - @history.StatusName
+                                <div class="customer-related-meta">@history.CheckIn.ToString("dd MMM yyyy") - @history.CheckOut.ToString("dd MMM yyyy")</div>
+                                @if (history.LoggedAt.HasValue)
+                                {
+                                    <div class="customer-related-meta">Registrado: @history.LoggedAt.Value.ToString("dd MMM yyyy HH:mm")</div>
+                                }
+                                @if (history.TotalPrice.HasValue)
+                                {
+                                    <div class="customer-related-meta">Total: @history.TotalPrice.Value.ToString("C")</div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+                </div>
             </article>
-            <article class="user-detail-card">
-                <span>Waiting Queue Ids</span>
-                <strong>@Model.WaitingQueueIds.Count</strong>
-                <p>@(Model.WaitingQueueIds.Count == 0 ? "No waiting queue links." : string.Join(", ", Model.WaitingQueueIds))</p>
-            </article>
-            <article class="user-detail-card">
-                <span>Timestamps</span>
-                <strong>@(Model.CreatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Not available")</strong>
-                <p>Updated: @(Model.UpdatedAt?.ToString("MMM dd, yyyy HH:mm") ?? "Not available")</p>
+            <article class="user-detail-card customer-related-card">
+                <div class="customer-related-card__media">
+                    <img src="~/images/customer/queue-status.svg" alt="Estado y categoría de solicitudes en lista de espera" />
+                </div>
+                <div class="customer-related-card__content">
+                <span class="customer-related-card__label">Solicitudes en cola</span>
+                <strong class="customer-related-card__count">@Model.RelatedWaitingQueues.Count</strong>
+                @if (Model.RelatedWaitingQueues.Count == 0)
+                {
+                    <p class="customer-related-empty">No hay solicitudes en lista de espera.</p>
+                }
+                else
+                {
+                    <ul class="customer-related-list">
+                        @foreach (var queue in Model.RelatedWaitingQueues)
+                        {
+                            <li class="customer-related-item">
+                                <strong>@queue.RequestNumber</strong> - @queue.RoomCategoryName
+                                <div class="customer-related-meta">Estado: @queue.StatusName</div>
+                                <div class="customer-related-meta">
+                                @queue.RequestedCheckIn.ToString("dd MMM yyyy")
+                                @if (queue.CheckOut.HasValue)
+                                {
+                                    <span> - @queue.CheckOut.Value.ToString("dd MMM yyyy")</span>
+                                }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                </div>
             </article>
         </div>
     </section>

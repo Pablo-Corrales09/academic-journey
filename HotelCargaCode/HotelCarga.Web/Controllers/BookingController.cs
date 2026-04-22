@@ -42,6 +42,19 @@ public class BookingController : Controller
         try
         {
             var rooms = await _roomService.GetAllAsync();
+            var roomCards = rooms
+                .OrderBy(room => room.room_number)
+                .Select(room => new BookingRoomListItemViewModel
+                {
+                    Id = room.id,
+                    RoomNumber = room.room_number,
+                    FloorNumber = room.floor_number,
+                    NightlyRate = room.nightly_rate,
+                    StatusName = string.IsNullOrWhiteSpace(room.status_name) ? "Unknown" : room.status_name,
+                    CategoryName = string.IsNullOrWhiteSpace(room.category_name) ? "Room" : room.category_name
+                })
+                .ToList();
+
             var roomTypes = rooms
                 .Where(room => room.status_id == 1)
                 .GroupBy(room => room.category_name ?? "Standard")
@@ -58,6 +71,7 @@ public class BookingController : Controller
 
             return View(new BookingIndexViewModel
             {
+                Rooms = roomCards,
                 RoomTypes = roomTypes,
                 SearchTerm = search,
                 IsApiAvailable = true
@@ -260,7 +274,43 @@ public class BookingController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
-    public async Task<IActionResult> Create(uint? customerId = null, string? customerCreated = null)
+    [HttpGet]
+    public async Task<IActionResult> BookingCreate(
+        uint? roomId = null,
+        uint? roomNumber = null,
+        string? roomType = null,
+        uint? customerId = null,
+        string? customerCreated = null)
+    {
+        var result = await Create(customerId, customerCreated, roomId, roomNumber, roomType);
+        if (result is ViewResult viewResult && string.IsNullOrWhiteSpace(viewResult.ViewName))
+        {
+            viewResult.ViewName = "Create";
+        }
+
+        return result;
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BookingCreate(BookingFormViewModel model, bool addToQueueIfUnavailable = false)
+    {
+        var result = await Create(model, addToQueueIfUnavailable);
+        if (result is ViewResult viewResult && string.IsNullOrWhiteSpace(viewResult.ViewName))
+        {
+            viewResult.ViewName = "Create";
+        }
+
+        return result;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Create(
+        uint? customerId = null,
+        string? customerCreated = null,
+        uint? roomId = null,
+        uint? roomNumber = null,
+        string? roomType = null)
     {
         try
         {
@@ -280,9 +330,12 @@ public class BookingController : Controller
                 effectiveCustomerId = linked?.id ?? 0;
             }
 
+            var effectiveRoomId = await ResolveRoomSelectionAsync(roomId, roomNumber, roomType);
+
             return View(await BuildFormModelAsync(new BookingFormViewModel
             {
                 CustomerId = effectiveCustomerId,
+                RoomId = effectiveRoomId,
                 CheckIn = DateTime.Today,
                 CheckOut = DateTime.Today.AddDays(1),
                 LockCustomerSelection = false,
@@ -903,6 +956,30 @@ public class BookingController : Controller
         model.CustomerOptions = BuildCustomerOptions(customersTask.Result, model.CustomerId);
         model.RoomOptions = BuildRoomOptions(roomsTask.Result, model.RoomId, model.RoomId == 0 ? null : model.RoomId);
         return model;
+    }
+
+    private async Task<uint> ResolveRoomSelectionAsync(uint? roomId, uint? roomNumber, string? roomType)
+    {
+        if (roomId.HasValue && roomId.Value > 0)
+        {
+            return roomId.Value;
+        }
+
+        if (!roomNumber.HasValue)
+        {
+            return 0;
+        }
+
+        var rooms = await _roomService.GetAllAsync();
+        var matchingRooms = rooms.Where(room => room.room_number == roomNumber.Value);
+
+        if (!string.IsNullOrWhiteSpace(roomType))
+        {
+            matchingRooms = matchingRooms.Where(room =>
+                string.Equals(room.category_name, roomType, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return matchingRooms.Select(room => room.id).FirstOrDefault();
     }
 
     private IActionResult RedirectToIndexWithApiError()

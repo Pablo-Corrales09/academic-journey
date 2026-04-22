@@ -1,0 +1,131 @@
+.services-slider-container {
+    position: relative;
+    width: min(760px, 100%);
+    margin: 0 auto;
+    padding: 1rem 1rem 3.5rem;
+    border: 1px solid rgba(24, 69, 137, 0.12);
+    border-radius: 16px;
+    background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+    box-shadow: 0 14px 34px rgba(20, 54, 102, 0.14);
+}
+
+.services-slider-wrapper {
+    position: relative;
+    min-height: 230px;
+}
+
+.services-slider-container .landing-service-card {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.7rem;
+    margin: 0;
+    padding: 1.6rem 1.25rem;
+    border-radius: 14px;
+    border: 1px solid rgba(29, 76, 147, 0.12);
+    background: #ffffff;
+    opacity: 0;
+    transform: translateX(18px);
+    pointer-events: none;
+}
+
+.services-slider-container .landing-service-card.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+    animation: serviceCardActive 0.55s ease;
+}
+
+.services-slider-container .landing-service-icon {
+    width: 68px;
+    height: 68px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #5c8de8 0%, #1e4f9f 78%);
+    color: #ffffff;
+    box-shadow: 0 10px 20px rgba(30, 79, 159, 0.28);
+}
+
+.services-slider-container .landing-service-icon i {
+    font-size: 1.9rem;
+    line-height: 1;
+}
+
+.services-slider-container .landing-service-card h3 {
+    margin: 0;
+    font-size: 1.08rem;
+    color: #17396a;
+    font-weight: 700;
+}
+
+.services-slider-container .landing-service-card p {
+    margin: 0;
+    max-width: 38ch;
+    color: #4b5f81;
+    font-size: 0.95rem;
+}
+
+.slider-controls {
+    position: absolute;
+    left: 50%;
+    bottom: 0.9rem;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.55rem;
+    z-index: 4;
+}
+
+.slider-btn {
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    background: #1f56ad;
+    color: #ffffff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform 0.18s ease, background-color 0.18s ease;
+    position: relative;
+    z-index: 5;
+}
+
+.slider-btn:hover {
+    transform: translateY(-1px);
+    background: #184995;
+}
+
+.slider-btn:focus-visible {
+    outline: 2px solid #8db4f4;
+    outline-offset: 2px;
+}
+
+.slider-btn i {
+    font-size: 1.05rem;
+}
+
+@keyframes serviceCardActive {
+    0% {
+        opacity: 0;
+        transform: translateX(24px) scale(0.985);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@media (max-width: 576px) {
+    .services-slider-wrapper {
+        min-height: 250px;
+    }
+
+    .services-slider-container {
+        padding: 0.85rem 0.85rem 3.25rem;
+    }
+}

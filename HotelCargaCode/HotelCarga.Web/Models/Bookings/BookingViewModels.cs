@@ -58,6 +58,7 @@ public class BookingIndexStatsViewModel
 
 public class BookingIndexViewModel
 {
+    public List<BookingRoomListItemViewModel> Rooms { get; init; } = [];
     public List<BookingRoomTypeCardViewModel> RoomTypes { get; init; } = [];
     public string? SearchTerm { get; init; }
     public bool IsApiAvailable { get; init; } = true;
@@ -88,6 +89,16 @@ public class BookingRoomTypeCardViewModel
     public decimal NightlyRateFrom { get; init; }
     public decimal NightlyRateTo { get; init; }
     public int AvailableRooms { get; init; }
+}
+
+public class BookingRoomListItemViewModel
+{
+    public uint Id { get; init; }
+    public uint RoomNumber { get; init; }
+    public byte? FloorNumber { get; init; }
+    public decimal NightlyRate { get; init; }
+    public string StatusName { get; init; } = "Unknown";
+    public string CategoryName { get; init; } = "Room";
 }
 
 public class BookingFormViewModel

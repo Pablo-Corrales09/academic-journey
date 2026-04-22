@@ -16,10 +16,7 @@
             
             <div class="room-hero__actions d-flex justify-content-between align-items-center mt-4" style="width: 100%; max-width: 550px;">
                 <a asp-action="Create" class="room-button shadow-sm" style="background-color: #28a745; border-color: #28a745; color: white;">
-                    <i class="fas fa-plus mr-2"></i>Nueva Habitación
-                </a>
-                <a asp-action="GetAll" class="room-button room-button--ghost" style="color: #ffc107; border-color: #ffc107;">
-                    <i class="fas fa-sync-alt mr-2"></i>Restablecer Filtros
+                    <i class="fas fa-plus mr-2"></i>Agregar habitación
                 </a>
             </div>
         </div>
@@ -27,20 +24,12 @@
         <div class="room-hero__panel">
             <div class="room-stat-grid text-center">
                 <article class="room-stat-card">
-                    <span>Inventario Total</span>
+                    <span>Cantidad de habitaciones</span>
                     <strong data-count="@Model.Stats.TotalRooms">@Model.Stats.TotalRooms</strong>
                 </article>
                 <article class="room-stat-card">
-                    <span>Resultados</span>
-                    <strong data-count="@Model.Stats.MatchingRooms">@Model.Stats.MatchingRooms</strong>
-                </article>
-                <article class="room-stat-card">
-                    <span>Disponibles Hoy</span>
+                    <span>Disponibles</span>
                     <strong data-count="@Model.Stats.AvailableRooms">@Model.Stats.AvailableRooms</strong>
-                </article>
-                <article class="room-stat-card">
-                    <span>Tarifa Promedio</span>
-                    <strong>@Model.Stats.AverageNightlyRate.ToString("C")</strong>
                 </article>
             </div>
         </div>

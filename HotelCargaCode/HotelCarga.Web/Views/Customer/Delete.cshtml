@@ -1,7 +1,7 @@
 @model HotelCarga.Models.Customers.CustomerListItemViewModel
 
 @{
-    ViewData["Title"] = $"Delete {Model.FirstName} {Model.LastName}";
+    ViewData["Title"] = $"Eliminar a {Model.FirstName} {Model.LastName}";
 }
 
 @section Styles {
@@ -11,44 +11,43 @@
 <div class="user-shell customer-shell" data-page="customer-delete">
     <section class="user-hero user-hero--compact" data-animate>
         <div class="user-hero__content">
-            <span class="user-eyebrow">Removal Review</span>
-            <h1>Delete @Model.FirstName @Model.LastName?</h1>
-            <p>This operation removes the customer profile from the API-backed registry.</p>
+            <h1>¿Eliminar a @Model.FirstName @Model.LastName?</h1>
+            <p>Esta operación borrará permanentemente el perfil del cliente del registro general.</p>
         </div>
     </section>
 
     <section class="user-surface" data-animate>
         <div class="user-surface__header">
             <div>
-                <span class="user-section-tag">Deletion Check</span>
-                <h2>Customer summary</h2>
+                <span class="user-section-tag">Verificación</span>
+                <h2>Resumen del cliente</h2>
             </div>
-            <p>Review key fields before confirming deletion.</p>
+            <p>Revise los datos antes de confirmar que desea borrar este registro.</p>
         </div>
 
         <div class="user-detail-grid user-detail-grid--two">
             <article class="user-detail-card">
-                <span>Document</span>
+                <span>Documento</span>
                 <strong>@Model.DocumentNumber</strong>
             </article>
             <article class="user-detail-card">
-                <span>Phone</span>
+                <span>Teléfono</span>
                 <strong>@Model.Phone</strong>
             </article>
             <article class="user-detail-card">
-                <span>User</span>
+                <span>Usuario</span>
                 <strong>@Model.Username</strong>
             </article>
             <article class="user-detail-card">
-                <span>Status</span>
+                <span>Estado</span>
                 <strong>@Model.StatusName</strong>
             </article>
         </div>
 
         <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="user-form-actions">
             @Html.AntiForgeryToken()
-            <button type="submit" class="user-button user-button--danger">Delete Customer</button>
-            <a asp-action="Details" asp-route-id="@Model.Id" class="user-button user-button--ghost">Cancel</a>
+            <button type="submit" class="user-button user-button--danger my-2">Eliminar Cliente</button>
+            <a asp-action="Details" asp-route-id="@Model.Id" class="user-button user-button--ghost">Cancelar</a>
         </form>
     </section>
 </div>
