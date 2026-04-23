@@ -11,8 +11,8 @@
 <div class="user-shell booking-shell" data-page="waiting-queue-index">
     <section class="user-hero" data-animate>
         <div class="user-hero__content">
-            <h1>Waiting Queue Management</h1>
-            <p>Pending confirmation requests, FIFO visibility, and date-range filtering in one view.</p>
+            <h1>Reservas en cola</h1>
+            <p>Solicitudes pendientes de confirmación.</p>
         </div>
     </section>
 
@@ -35,23 +35,23 @@
         <div class="card-body p-4">
             <form asp-action="Index" method="get" class="row gx-2 gy-2 align-items-end">
                 <div class="col-md-3 col-sm-6">
-                    <label asp-for="Filters.FromDate" class="form-label form-label-sm mb-1"></label>
+                    <label asp-for="Filters.FromDate" class="form-label form-label-sm mb-1">Desde</label>
                     <input asp-for="Filters.FromDate" type="date" class="form-control form-control-sm" />
                 </div>
                 <div class="col-md-3 col-sm-6">
-                    <label asp-for="Filters.ToDate" class="form-label form-label-sm mb-1"></label>
+                    <label asp-for="Filters.ToDate" class="form-label form-label-sm mb-1">Hasta</label>
                     <input asp-for="Filters.ToDate" type="date" class="form-control form-control-sm" />
                 </div>
                 <div class="col-md-3 col-sm-6">
                     <label asp-for="Filters.StatusName" class="form-label form-label-sm mb-1"></label>
                     <select asp-for="Filters.StatusName" class="form-select form-select-sm">
-                        <option value="PENDING">PENDING</option>
-                        <option value="CONFIRMED">CONFIRMED</option>
+                        <option value="PENDING">Pendiente</option>
+                        <option value="CONFIRMED">Confirmada</option>
                     </select>
                 </div>
                 <div class="col-md-3 col-sm-6 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary w-100">Apply</button>
-                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary w-100">Reset</a>
+                    <button type="submit" class="btn btn-sm btn-primary w-100">Aplicar</button>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary w-100">Restablecer</a>
                 </div>
             </form>
         </div>
@@ -70,13 +70,13 @@
                 <table class="table table-sm table-hover align-middle mb-0">
                     <thead class="thead-light">
                         <tr>
-                            <th>Request #</th>
-                            <th>Customer</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Requested Check In</th>
-                            <th>Check Out</th>
-                            <th>Created</th>
+                            <th>N° solicitud</th>
+                            <th>Cliente</th>
+                            <th>Categoría</th>
+                            <th>Estado</th>
+                            <th>Check-in solicitado</th>
+                            <th>Check-out</th>
+                            <th>Fecha solicitud</th>
                         </tr>
                     </thead>
                     <tbody>
